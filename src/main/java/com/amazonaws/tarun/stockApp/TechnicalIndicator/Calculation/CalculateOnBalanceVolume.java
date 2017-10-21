@@ -3,6 +3,8 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -23,13 +25,13 @@ public class CalculateOnBalanceVolume {
 		logger.debug("CalculateOnBalanceVolume Started");
 		System.out.println("Start at -> " + dte.toString());
 		CalculateOnBalanceVolume obj = new CalculateOnBalanceVolume();
-		obj.OnBalanceVolumeCalculation();
+		obj.OnBalanceVolumeCalculation(new Date("16-Oct-2017"));
 		//dte = new Date();
 		System.out.println("End at -> " + dte.toString());
 		logger.debug("CalculateOnBalanceVolume End");
 	}
 	
-	private void OnBalanceVolumeCalculation() {
+	private void OnBalanceVolumeCalculation(Date calculationDate) {
 		ArrayList<String> stockList = null;
 		stockList = StockUtils.getStockListFromDB();
 		ArrayList<OnBalanceVolumeIndicator> onBalanceSelectedStockList = new ArrayList<OnBalanceVolumeIndicator>();
@@ -40,7 +42,7 @@ public class CalculateOnBalanceVolume {
 			stockName = stockCode.split("!")[1];
 			bseCode = stockCode.split("!")[0];
 			if(StockUtils.getFinancialIndication(bseCode)) {
-				tmpOnBalanceVolumeIndicator = calculateOnBalanceVolumeDaily(stockCode);
+				tmpOnBalanceVolumeIndicator = calculateOnBalanceVolumeDaily(stockCode, calculationDate);
 				if (tmpOnBalanceVolumeIndicator!=null) {
 					onBalanceSelectedStockList.add(tmpOnBalanceVolumeIndicator);
 				}
@@ -48,14 +50,14 @@ public class CalculateOnBalanceVolume {
 		}
 	}
 	
-	public OnBalanceVolumeIndicator calculateOnBalanceVolumeDaily(String stockCode) {
+	public OnBalanceVolumeIndicator calculateOnBalanceVolumeDaily(String stockCode, Date calculationDate) {
 		OnBalanceVolumeData stockDetails = null;
 		long onBalanceVolume = 0;
 		float lastDayClosingPrice = 0;
 		//long volumechangeinlasday;
 		boolean continuousVolumeIncrease = true;
 		
-		stockDetails = getStockDetailsFromDBDaily(stockCode);
+		stockDetails = getStockDetailsFromDBDaily(stockCode, calculationDate);
 		ArrayList<Long> tmpOnBalanceVol = new ArrayList<Long>();
 		if (stockDetails == null || stockDetails.tradeddate == null) {
 			System.out.println("stock details null for - > "+stockCode);
@@ -94,13 +96,14 @@ public class CalculateOnBalanceVolume {
 		return tmpOnBalanceVolumeIndicator;
 	}
 	
-	private OnBalanceVolumeData getStockDetailsFromDBDaily(String stockCode) {
+	private OnBalanceVolumeData getStockDetailsFromDBDaily(String stockCode, Date calculationDate) {
 		ResultSet resultSet = null;
 		Statement statement = null;
-		String tradedDate;
+		String tradedDate, tmpSQL;
 		Float closePrice;
 		long volume;
 		OnBalanceVolumeData onBalanceVolumeDataObj = null;
+		DateFormat dateFormat1 = new SimpleDateFormat("dd-MMM-yyyy");
 		
 		try {
 			if (connection != null) {
@@ -115,8 +118,14 @@ public class CalculateOnBalanceVolume {
 			onBalanceVolumeDataObj.onBalanceVolume = new ArrayList<Long>();
 			statement = connection.createStatement();
 			onBalanceVolumeDataObj.stockName = stockCode;
-			resultSet = statement.executeQuery("Select * from (SELECT first 10 tradeddate, closeprice, volume FROM DAILYSTOCKDATA where stockname='"
-					+ stockCode + "' order by tradeddate desc ) order by TRADEDDATE;");
+			if(calculationDate!=null) {
+				tmpSQL = "Select * from (SELECT tradeddate, closeprice, volume FROM DAILYSTOCKDATA where stockname='"
+						+ stockCode + "' and tradeddate <='" + dateFormat1.format(calculationDate) + "' order by tradeddate desc limit 10) order by TRADEDDATE;";
+			} else {
+				tmpSQL = "Select * from (SELECT tradeddate, closeprice, volume FROM DAILYSTOCKDATA where stockname='"
+						+ stockCode + "' order by tradeddate desc limit 10) order by TRADEDDATE;";
+			}			
+			resultSet = statement.executeQuery(tmpSQL);
 			while (resultSet.next()) {
 				tradedDate = resultSet.getString(1);
 				/*if (tradedDate.equalsIgnoreCase("2015-06-08")) {

@@ -195,9 +195,9 @@ public class CalculateBollingerBands {
 			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();	
 			if(bbDate!=null) {
-				tmpSQL = "SELECT CLOSEPRICE, HIGHPRICE, LOWPRICE, VOLUME, TRADEDDATE, OPENPRICE from DAILYSTOCKDATA where stockname='" + stockCode + "' and tradeddate <= '" + dateFormat.format(bbDate) +"' order by tradeddate desc;";
+				tmpSQL = "SELECT CLOSEPRICE, HIGHPRICE, LOWPRICE, VOLUME, TRADEDDATE, OPENPRICE from DAILYSTOCKDATA where stockname='" + stockCode + "' and tradeddate <= '" + dateFormat.format(bbDate) +"' order by tradeddate desc limit 50;";
 			} else {
-				tmpSQL = "SELECT CLOSEPRICE, HIGHPRICE, LOWPRICE, VOLUME, TRADEDDATE, OPENPRICE from DAILYSTOCKDATA where stockname='" + stockCode + "' order by tradeddate desc;";
+				tmpSQL = "SELECT CLOSEPRICE, HIGHPRICE, LOWPRICE, VOLUME, TRADEDDATE, OPENPRICE from DAILYSTOCKDATA where stockname='" + stockCode + "' order by tradeddate desc limit 50;";
 			}
 			resultSet = statement.executeQuery(tmpSQL);
 			while (resultSet.next()) {
@@ -368,7 +368,7 @@ public class CalculateBollingerBands {
 		System.out.println("Test");
 	}
 	
-	public String getBBIndicationForStock(String stockCode) {
+	public String getBBIndicationForStock(String stockCode, Date targetDate) {
 		ResultSet resultSet = null;
 		Statement statement = null;
 		ArrayList<Float> dailyBandwidth = new ArrayList<Float>();
@@ -376,6 +376,7 @@ public class CalculateBollingerBands {
 		float BBcontractingPercentage;
 		String tmpSQL;
 		boolean onedaydeviation = false;
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		
 		try {
 			if (connection != null) {
@@ -384,7 +385,12 @@ public class CalculateBollingerBands {
 			}
 			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();	
-			tmpSQL = "SELECT first 5 BANDWIDTH from DAILYBOLLINGERBANDS where stockname='" + stockCode + "' and period = 20 order by tradeddate desc;";
+			if( targetDate != null) {
+				tmpSQL = "SELECT BANDWIDTH from DAILYBOLLINGERBANDS where stockname='" + stockCode + "' and period = 20 and tradeddate <='" + dateFormat.format(targetDate) +  "' order by tradeddate desc limit 5;";
+			} else {
+				tmpSQL = "SELECT BANDWIDTH from DAILYBOLLINGERBANDS where stockname='" + stockCode + "' and period = 20 order by tradeddate desc limit 5;";
+			}
+			
 			resultSet = statement.executeQuery(tmpSQL);
 			while (resultSet.next()) {
 				dailyBandwidth.add(Float.parseFloat(resultSet.getString(1)));

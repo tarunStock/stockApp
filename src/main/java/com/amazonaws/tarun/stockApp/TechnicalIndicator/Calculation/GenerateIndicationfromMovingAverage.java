@@ -234,7 +234,7 @@ public class GenerateIndicationfromMovingAverage {
 		ResultSet resultSet = null;
 		Statement statement = null;
 		String SMAvalue, tmpSQL;
-		DateFormat dateFormat1 = new SimpleDateFormat("dd-MMM-yyyy");
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		
 		try {
 			SMAData = new ArrayList<Float>();
@@ -244,7 +244,7 @@ public class GenerateIndicationfromMovingAverage {
 			}
 			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
-			tmpSQL = "SELECT SMA FROM DAILYSNEMOVINGAVERAGES where stockname='" + stockCode + "' and period = " + period.intValue() + " and tradeddate <='" + dateFormat1.format(targetDate) + "' order by tradeddate desc limit 30;";
+			tmpSQL = "SELECT SMA FROM DAILYSNEMOVINGAVERAGES where stockname='" + stockCode + "' and period = " + period.intValue() + " and tradeddate <='" + dateFormat.format(targetDate) + "' order by tradeddate desc limit 30;";
 			resultSet = statement.executeQuery(tmpSQL);
 			while (resultSet.next()) {
 				SMAvalue = resultSet.getString(1);
@@ -295,7 +295,7 @@ public class GenerateIndicationfromMovingAverage {
 		Statement statement = null;
 		String price;
 		String tmpSQL;
-		DateFormat dateFormat1 = new SimpleDateFormat("dd-MMM-yyyy");
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		
 		try {
 			priceData = new ArrayList<Float>();
@@ -307,9 +307,9 @@ public class GenerateIndicationfromMovingAverage {
 			statement = connection.createStatement();
 
 			if(calculationDate!=null) {
-				tmpSQL = "SELECT first 20 closeprice, tradeddate FROM DAILYSTOCKDATA where stockname='" + stockCode + "' and tradeddate<= '" + dateFormat1.format(calculationDate) + "' order by tradeddate desc;";
+				tmpSQL = "SELECT closeprice, tradeddate FROM DAILYSTOCKDATA where stockname='" + stockCode + "' and tradeddate<= '" + dateFormat.format(calculationDate) + "' order by tradeddate desc limit 20;";
 			} else {
-				tmpSQL = "SELECT first 20 closeprice, tradeddate FROM DAILYSTOCKDATA where stockname='" + stockCode + "' order by tradeddate desc;";
+				tmpSQL = "SELECT closeprice, tradeddate FROM DAILYSTOCKDATA where stockname='" + stockCode + "' order by tradeddate desc limit 20;";
 			}
 			resultSet = statement.executeQuery(tmpSQL);
 			objSMAIndicatorDetails.signalDate = null;

@@ -36,13 +36,8 @@ public class GenerateIndicationfromMovingAverage {
 	public void CalculateIndicationfromSMA(Date calculationDate) {
 		logger.debug("CalculateIndicationfromSMA start");
 		ArrayList<String> stocklist = null;
-		Date todayDate;
-		if(calculationDate != null) {
-			todayDate = calculationDate;
-		} else {
-			todayDate = new Date();
-		}
-		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
+		
+		if(!StockUtils.marketOpenOnGivenDate(calculationDate))
 			return;
 		//UpdateIndicatedStocks tmpUpdateIndicatedStocks = new UpdateIndicatedStocks();
 		stocklist = StockUtils.getStockListFromDB();
@@ -92,9 +87,10 @@ public class GenerateIndicationfromMovingAverage {
 	
 	public void CalculateAndSendIndicationfromSMA(Date calculationDate) {
 		ArrayList<String> stocklist = null;
-		Date todayDate = new Date();
-		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
+		
+		if( !StockUtils.marketOpenOnGivenDate(calculationDate))
 			return;
+		
 		//UpdateIndicatedStocks tmpUpdateIndicatedStocks = new UpdateIndicatedStocks();
 		stocklist = StockUtils.getStockListFromDB();
 		SMAIndicatorDetailsList = new ArrayList<SMAIndicatorDetails>();
@@ -151,11 +147,19 @@ public class GenerateIndicationfromMovingAverage {
 		
 		prefPeriod = GetPreferredSMA(stockCode);
 		if (prefPeriod != null && prefPeriod.size() > 0) {
-			lowerSMAPeriodValues = GetSMAData(stockCode, prefPeriod.get(0));
-			middleSMAPeriodValues = GetSMAData(stockCode, prefPeriod.get(1));
-			higherSMAPeriodValues = GetSMAData(stockCode, prefPeriod.get(2));
+			lowerSMAPeriodValues = GetSMAData(stockCode, prefPeriod.get(0), calculationDate);
+			middleSMAPeriodValues = GetSMAData(stockCode, prefPeriod.get(1), calculationDate);
+			higherSMAPeriodValues = GetSMAData(stockCode, prefPeriod.get(2), calculationDate);
 			stockPriceValues = GetStockPrices(stockCode, calculationDate);
 
+			//checking Higher SMA is in increasing trend in last 30 days
+			if(higherSMAPeriodValues.size() > 0) {
+				float recentHigherSMAValue = higherSMAPeriodValues.get(0);
+				float lastHigherSMAValue = higherSMAPeriodValues.get(higherSMAPeriodValues.size()-1);
+				if(recentHigherSMAValue < lastHigherSMAValue)
+					return;
+			}
+			
 			if (middleSMAPeriodValues.size() > 0 && stockPriceValues.size() > 0) {
 				calculateIndicationFromMiddleSMAAndPriceV1(middleSMAPeriodValues, stockPriceValues);
 			}
@@ -225,12 +229,13 @@ public class GenerateIndicationfromMovingAverage {
 		return prefPeriod;
 	}
 
-	private ArrayList<Float> GetSMAData(String stockCode, Integer period) {
+	private ArrayList<Float> GetSMAData(String stockCode, Integer period, Date targetDate) {
 		ArrayList<Float> SMAData = null;
 		ResultSet resultSet = null;
 		Statement statement = null;
-		String SMAvalue;
-
+		String SMAvalue, tmpSQL;
+		DateFormat dateFormat1 = new SimpleDateFormat("dd-MMM-yyyy");
+		
 		try {
 			SMAData = new ArrayList<Float>();
 			if (connection != null) {
@@ -239,8 +244,8 @@ public class GenerateIndicationfromMovingAverage {
 			}
 			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
-
-			resultSet = statement.executeQuery("SELECT first 20 SMA FROM DAILYSNEMOVINGAVERAGES where stockname='" + stockCode + "' and period = " + period.intValue() + " order by tradeddate desc;");
+			tmpSQL = "SELECT SMA FROM DAILYSNEMOVINGAVERAGES where stockname='" + stockCode + "' and period = " + period.intValue() + " and tradeddate <='" + dateFormat1.format(targetDate) + "' order by tradeddate desc limit 30;";
+			resultSet = statement.executeQuery(tmpSQL);
 			while (resultSet.next()) {
 				SMAvalue = resultSet.getString(1);
 				SMAData.add(Float.parseFloat(SMAvalue));

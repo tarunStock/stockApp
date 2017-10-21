@@ -4,6 +4,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.apache.log4j.Logger;
 
@@ -144,5 +145,12 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 				logger.error("Error in closing connection getStockListFromDB  -> ", ex);
 			}
 		}
+	}
+	
+	public static boolean marketOpenOnGivenDate(Date targetDate) {
+		if(targetDate.getDay() == 0 || targetDate.getDay() == 6)
+			return false;
+		else
+			return true;
 	}
 }

@@ -19,6 +19,7 @@ public class CalculateOnBalanceVolume {
 	static Logger logger = Logger.getLogger(CalculateOnBalanceVolume.class);	
 	String stockName;
 	String bseCode;
+	String nseCode;
 	
 	public static void main(String[] args) {
 		Date dte = new Date();
@@ -41,8 +42,9 @@ public class CalculateOnBalanceVolume {
 			//calculateOnBalanceVolume(stockCode);
 			stockName = stockCode.split("!")[1];
 			bseCode = stockCode.split("!")[0];
+			nseCode = stockCode.split("!")[2];
 			if(StockUtils.getFinancialIndication(bseCode)) {
-				tmpOnBalanceVolumeIndicator = calculateOnBalanceVolumeDaily(stockCode, calculationDate);
+				tmpOnBalanceVolumeIndicator = calculateOnBalanceVolumeDaily(nseCode, calculationDate);
 				if (tmpOnBalanceVolumeIndicator!=null) {
 					onBalanceSelectedStockList.add(tmpOnBalanceVolumeIndicator);
 				}
@@ -103,7 +105,7 @@ public class CalculateOnBalanceVolume {
 		Float closePrice;
 		long volume;
 		OnBalanceVolumeData onBalanceVolumeDataObj = null;
-		DateFormat dateFormat1 = new SimpleDateFormat("dd-MMM-yyyy");
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		
 		try {
 			if (connection != null) {
@@ -120,10 +122,10 @@ public class CalculateOnBalanceVolume {
 			onBalanceVolumeDataObj.stockName = stockCode;
 			if(calculationDate!=null) {
 				tmpSQL = "Select * from (SELECT tradeddate, closeprice, volume FROM DAILYSTOCKDATA where stockname='"
-						+ stockCode + "' and tradeddate <='" + dateFormat1.format(calculationDate) + "' order by tradeddate desc limit 10) order by TRADEDDATE;";
+						+ stockCode + "' and tradeddate <='" + dateFormat.format(calculationDate) + "' order by tradeddate desc limit 10) As stockdata order by TRADEDDATE;";
 			} else {
 				tmpSQL = "Select * from (SELECT tradeddate, closeprice, volume FROM DAILYSTOCKDATA where stockname='"
-						+ stockCode + "' order by tradeddate desc limit 10) order by TRADEDDATE;";
+						+ stockCode + "' order by tradeddate desc limit 10) As stockdata order by TRADEDDATE;";
 			}			
 			resultSet = statement.executeQuery(tmpSQL);
 			while (resultSet.next()) {

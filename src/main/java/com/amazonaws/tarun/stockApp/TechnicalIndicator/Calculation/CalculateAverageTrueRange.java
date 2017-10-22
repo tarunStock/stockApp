@@ -296,7 +296,7 @@ public class CalculateAverageTrueRange {
 		//Date tradedDate = DateUtils.addDays(targetDate, -1);//new DateTime(targetDate).minusDays(1).toDate();
 		float previousDayATR = 0;
 		String tmpSQL;
-		DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		
 		try {		
 			statement = connection.createStatement();

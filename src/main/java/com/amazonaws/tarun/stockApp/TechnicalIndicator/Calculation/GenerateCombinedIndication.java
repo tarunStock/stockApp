@@ -25,11 +25,12 @@ public class GenerateCombinedIndication {
 		Date dte = new Date();
 		System.out.println("Start at -> " + dte.toString());
 		GenerateCombinedIndication obj = new GenerateCombinedIndication();
-		obj.generateCombinedIndicationForStocks(new Date("16-Oct-2017"));
+		obj.generateCombinedIndicationForStocks(new Date("04-Oct-2017"));
 	}
 
 	public void generateCombinedIndicationForStocks(Date calculationDate) {
 		logger.debug("generateCombinedIndicationForStocks Started");
+		int selectedCounter=0;
 		ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList;
 		ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsBelowHundredList;
 		if( !StockUtils.marketOpenOnGivenDate(calculationDate))
@@ -46,34 +47,45 @@ public class GenerateCombinedIndication {
 		SMAIndicatorDetailsList = obj.getIndicationStocks();
 		SMAIndicatorDetailsBelowHundredList = obj.getBelowHunderdIndicationStocks();
 		System.out.println("********* - process seleted stocks to send mail");
-		for(int counter = 0; counter<=20; counter++){
-			if(SMAIndicatorDetailsList.size() > counter) {
-				//add selected stock				
-				objFinalSelectedStock = getAlldetails(SMAIndicatorDetailsList.get(counter), calculationDate);
+		for(int counter = 0; counter<SMAIndicatorDetailsList.size(); counter++){			
+			//add selected stock				
+			objFinalSelectedStock = getAlldetails(SMAIndicatorDetailsList.get(counter), calculationDate);
+			if(objFinalSelectedStock!=null) {
 				objFinalSelectedStockList.add(objFinalSelectedStock);
-				//add Selected stock end
-			} else {
-				break;
-			}
-		}
+				selectedCounter = selectedCounter +1;
+				if(selectedCounter==20) {
+					break;
+				}
+			} 
+		} 
+			
+		
 		//Send top stock in mail
-		sendTopStockInMail(objFinalSelectedStockList, false, "Combined -> Stocklist on ");
-		CreateWatchListForTopStock(objFinalSelectedStockList, false);
+		//sendTopStockInMail(objFinalSelectedStockList, false, "Combined -> Stocklist on ");
+		//CreateWatchListForTopStock(objFinalSelectedStockList, false);
 		System.out.println("********* - process below hundred seleted stocks to send mail");
-		for(int counter = 0; counter<=20; counter++){			
-			if(SMAIndicatorDetailsBelowHundredList.size() > counter) {
-				objFinalSelectedBelowHunderdStock = new FinalSelectedStock();
-				objFinalSelectedBelowHunderdStock.stockCode = SMAIndicatorDetailsBelowHundredList.get(counter).stockCode;
-				if(objFinalSelectedStockList.contains(objFinalSelectedBelowHunderdStock)) {
-					objFinalSelectedBelowHunderdStock = objFinalSelectedStockList.get(objFinalSelectedStockList.indexOf(objFinalSelectedBelowHunderdStock));
-					objFinalSelectedBelowHundredStockList.add(objFinalSelectedBelowHunderdStock);
-				} else {
-					objFinalSelectedBelowHunderdStock = getAlldetails(SMAIndicatorDetailsBelowHundredList.get(counter), calculationDate);						
-					objFinalSelectedBelowHundredStockList.add(objFinalSelectedBelowHunderdStock);
+		selectedCounter = 0;
+		for(int counter = 0; counter<SMAIndicatorDetailsBelowHundredList.size(); counter++){
+			objFinalSelectedBelowHunderdStock = new FinalSelectedStock();
+			objFinalSelectedBelowHunderdStock.stockCode = SMAIndicatorDetailsBelowHundredList.get(counter).stockCode;
+			if(objFinalSelectedStockList.contains(objFinalSelectedBelowHunderdStock)) {
+				objFinalSelectedBelowHunderdStock = objFinalSelectedStockList.get(objFinalSelectedStockList.indexOf(objFinalSelectedBelowHunderdStock));
+				objFinalSelectedBelowHundredStockList.add(objFinalSelectedBelowHunderdStock);
+				selectedCounter = selectedCounter +1;
+				if(selectedCounter==20) {
+					break;
 				}
 			} else {
-				break;
-			}
+				objFinalSelectedBelowHunderdStock = getAlldetails(SMAIndicatorDetailsBelowHundredList.get(counter), calculationDate);						
+				if(objFinalSelectedBelowHunderdStock!=null) {
+					objFinalSelectedBelowHundredStockList.add(objFinalSelectedBelowHunderdStock);
+					selectedCounter = selectedCounter +1;
+					if(selectedCounter==20) {
+						break;
+					}
+				} 
+				objFinalSelectedBelowHundredStockList.add(objFinalSelectedBelowHunderdStock);
+			}			
 		}
 		//Send top below 100 stock in mail
 		sendTopStockInMail(objFinalSelectedBelowHundredStockList, true, "Combined -> Below 100 Stocklist on ");
@@ -111,32 +123,7 @@ public class GenerateCombinedIndication {
 			}
 		}
 		//Send top below 100 stock in mail
-		sendTopStockInMail(objFinalSelectedStockListWithLowRSI, true, "Combined -> Low RSI Stocklist on ");
-		return objFinalSelectedStockListWithLowRSI;
-	}
-	
-	private ArrayList<FinalSelectedStock> getLowRSIBeowHundredStocks(ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList, Date calculationDate) {
-		ArrayList<FinalSelectedStock> objFinalSelectedStockListWithLowRSI = new ArrayList<FinalSelectedStock>();
-		FinalSelectedStock objFinalSelectedStock;
-		CalculateRSIIndicator objCalculateRSIIndicator = new CalculateRSIIndicator();
-		float rsiIndication;
-		int totalStocksAdded = 0;
-		
-		for(int counter = 0; counter<SMAIndicatorDetailsList.size(); counter++){
-			objSMAIndicatorDetails = SMAIndicatorDetailsList.get(counter);
-			rsiIndication= objCalculateRSIIndicator.getRSIValue(objSMAIndicatorDetails.stockCode, objSMAIndicatorDetails.signalDate);
-			if(rsiIndication < 30) {
-				objFinalSelectedStock = getAlldetailsExceptRSI(SMAIndicatorDetailsList.get(counter), calculationDate);
-				objFinalSelectedStock.rsiValue = rsiIndication;
-				objFinalSelectedStockListWithLowRSI.add(objFinalSelectedStock);
-				totalStocksAdded = totalStocksAdded + 1;
-				if(totalStocksAdded==20) {
-					break;
-				}
-			}
-		}
-		//Send top below 100 stock in mail
-		sendTopStockInMail(objFinalSelectedStockListWithLowRSI, true, "Combined -> Low RSI Stocklist on ");
+		//sendTopStockInMail(objFinalSelectedStockListWithLowRSI, true, "Combined -> Low RSI Stocklist on ");
 		return objFinalSelectedStockListWithLowRSI;
 	}
 	
@@ -146,12 +133,17 @@ public class GenerateCombinedIndication {
 		OnBalanceVolumeIndicator objOnBalanceVolumeIndicator;
 		CalculateBollingerBands objCalculateBollingerBands;
 		CalculateRSIIndicator objCalculateRSIIndicator;
-		
+		CalculateStochasticOscillator objCalculateStochasticOscillator;
+			
 		String bbIndicator;
 		float rsiIndication;
 		float chandelierExitLong;
 		float chandelierExitShort;
 		
+		objCalculateStochasticOscillator = new CalculateStochasticOscillator();
+		if(!objCalculateStochasticOscillator.getStochasticIndicator(objSMAIndicatorDetails.stockCode, calculationDate)) {
+			return null;
+		}
 		objFinalSelectedStock = new FinalSelectedStock();
 		//add selcted stock
 		objCalculateOnBalanceVolume = new CalculateOnBalanceVolume();

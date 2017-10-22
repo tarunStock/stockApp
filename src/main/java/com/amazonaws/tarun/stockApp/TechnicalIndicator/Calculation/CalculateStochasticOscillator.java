@@ -24,7 +24,8 @@ public class CalculateStochasticOscillator {
 		logger.debug("CalculateStochasticOscillator Started");
 		System.out.println("Start at -> " + dte.toString());
 		CalculateStochasticOscillator obj = new CalculateStochasticOscillator();
-		obj.CalculateStochasticOscillatorForAllStocks();
+		//obj.CalculateStochasticOscillatorForAllStocks();
+		obj.getStochasticIndicator("HATSUN",new Date("04-Oct-2017"));
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());
 		logger.debug("CalculateStochasticOscillator End");
@@ -300,6 +301,78 @@ public class CalculateStochasticOscillator {
 			} catch (Exception ex) {
 				System.out.println("storeStochasticOscillatorinDB Error in closing statement "+ex);
 				logger.error("Error in closing statement storeStochasticOscillatorinDB  -> ", ex);
+			}
+		}
+	}
+	
+	public boolean getStochasticIndicator (String stockCode, Date targetDate) {
+		ResultSet resultSet = null;
+		Statement statement = null;
+		
+		float recentStochasticOscVal=0, recentClosePrice=0, previousStochasticOscVal=0, previousClosePrice=0;
+		String tmpSQL;
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		
+		try {
+			if (connection != null) {
+				connection.close();
+				connection = null;
+			}
+			connection = StockUtils.connectToDB();						
+			statement = connection.createStatement();
+			if(targetDate!=null) {
+				tmpSQL = "SELECT dsp.closeprice, osc.STOCHASTIC_OSCILLATOR FROM DAILY_STOCHASTIC_OSCILLATOR as osc, DAILYSTOCKDATA as dsp where osc.stockname='"
+						+ stockCode + "' and dsp.stockname='" + stockCode + "' and osc.tradeddate<='" + dateFormat.format(targetDate) +"' and dsp.tradeddate<='" 
+						+ dateFormat.format(targetDate) +"' and osc.TRADEDDATE = dsp.TRADEDDATE order by dsp.tradeddate desc limit 2;";
+			} else {
+				tmpSQL = "SELECT dsp.closeprice, osc.STOCHASTIC_OSCILLATOR FROM DAILYDAILY_STOCHASTIC_OSCILLATORSTOCKDATA as osc, DAILYSTOCKDATA as dsp where osc.stockname='"
+						+ stockCode + "' and dsp.stockname='" + stockCode + "' osc.TRADEDDATE = dsp.TRADEDDATE order by dsp.tradeddate desc limit 2;";
+			}
+			resultSet = statement.executeQuery(tmpSQL);
+			if( resultSet.next()) {
+				recentStochasticOscVal = Float.parseFloat(resultSet.getString(2));
+				recentClosePrice = Float.parseFloat(resultSet.getString(1));
+			}
+			if( resultSet.next()) {
+				previousStochasticOscVal = Float.parseFloat(resultSet.getString(2));
+				previousClosePrice = Float.parseFloat(resultSet.getString(1));
+			}
+			if( (recentClosePrice - previousClosePrice>0) && (recentStochasticOscVal-previousStochasticOscVal<0) ) {
+				return false;
+			} else {
+				return true;
+			}
+		} catch (Exception ex) {
+			System.out.println("getStockDetailsFromDBForBulk -> Error in DB action"+ex);
+			logger.error("Error in getStockDetailsFromDBForBulk  -> ", ex);
+			return false;
+		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForBulk Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getStockDetailsFromDB  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
+				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
+			}
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("getStockDetailsFromDBForBulk Error in closing connection "+ex);
+				logger.error("Error in closing connection getStockDetailsFromDB  -> ", ex);
 			}
 		}
 	}

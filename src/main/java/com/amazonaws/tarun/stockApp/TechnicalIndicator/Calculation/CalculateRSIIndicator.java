@@ -26,18 +26,16 @@ public class CalculateRSIIndicator {
 		logger.debug("CalculateRSIIndicator Started");
 		System.out.println("Start at -> " + dte.toString());
 		CalculateRSIIndicator obj = new CalculateRSIIndicator();
-		obj.CalculateRSIForAllStocks();
+		obj.CalculateRSIForAllStocks(null);
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());
 		logger.debug("CalculateRSIIndicator End");
 	}
 	
-	public void CalculateRSIForAllStocks() {
+	public void CalculateRSIForAllStocks(Date calculationDate) {
 		ArrayList<String> stockList = null;
-		Date todayDate = new Date();
-		
-		/*if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
-			return;*/
+		if( !StockUtils.marketOpenOnGivenDate(calculationDate))
+			return;
 		stockList = StockUtils.getStockListFromDB();
 		String stockName;
 		String bseCode;
@@ -53,7 +51,7 @@ public class CalculateRSIIndicator {
 			//calculateRSIForStockInBulk(nseCode);
 			//calculate average on daily basis
 			//calculateRSIForStock(nseCode, new Date("19-Oct-2017"));
-			calculateRSIForStock(nseCode, null);
+			calculateRSIForStock(nseCode, calculationDate);
 			
 		}
 	}

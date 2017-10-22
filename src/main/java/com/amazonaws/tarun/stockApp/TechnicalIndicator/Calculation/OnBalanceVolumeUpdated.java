@@ -3,6 +3,8 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -26,16 +28,15 @@ public class OnBalanceVolumeUpdated {
 		logger.debug("CalculateOnBalanceVolume Started");
 		System.out.println("Start at -> " + dte.toString());
 		OnBalanceVolumeUpdated obj = new OnBalanceVolumeUpdated();
-		obj.OnBalanceVolumeCalculation();
+		obj.OnBalanceVolumeCalculation(null);
 		//dte = new Date();
 		System.out.println("End at -> " + dte.toString());
 		logger.debug("CalculateOnBalanceVolume End");
 	}
 	
-	public void OnBalanceVolumeCalculation() {
+	public void OnBalanceVolumeCalculation(Date calculationDate) {
 		ArrayList<String> stockList = null;
-		Date todayDate = new Date();
-		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
+		if( !StockUtils.marketOpenOnGivenDate(calculationDate))
 			return;
 		stockList = StockUtils.getStockListFromDB();
 		ArrayList<OnBalanceVolumeIndicator> onBalanceSelectedStockList = new ArrayList<OnBalanceVolumeIndicator>();
@@ -49,7 +50,7 @@ public class OnBalanceVolumeUpdated {
 			nseCode = stockCode.split("!")[2];
 			System.out.println("Processing Stock -> "+ stockName + " count -> "+counter);
 			if(StockUtils.getFinancialIndication(bseCode)) {
-				tmpOnBalanceVolumeIndicator = calculateOnBalanceVolumeDaily(stockCode);
+				tmpOnBalanceVolumeIndicator = calculateOnBalanceVolumeDaily(stockCode, calculationDate);
 				if (tmpOnBalanceVolumeIndicator!=null) {
 					System.out.println("******************Stock Added -> "+ stockName);
 					if(tmpOnBalanceVolumeIndicator.stockPrice<100) {
@@ -69,11 +70,11 @@ public class OnBalanceVolumeUpdated {
 		if(onBalanceSelectedBelowHundredStockList.size()>0) sendTopStockInMail(onBalanceSelectedBelowHundredStockList, true);
 	}
 	
-	private OnBalanceVolumeIndicator calculateOnBalanceVolumeDaily(String stockCode) {
+	private OnBalanceVolumeIndicator calculateOnBalanceVolumeDaily(String stockCode, Date calculationDate) {
 		OnBalanceVolumeData stockDetails = null;
 		boolean continuousVolumeIncrease = true;
 		
-		stockDetails = getStockDetailsFromDBDaily(stockCode.split("!")[2]);
+		stockDetails = getStockDetailsFromDBDaily(stockCode.split("!")[2], calculationDate);
 		if (stockDetails == null || stockDetails.tradeddate == null) {
 			System.out.println("stock details null for - > "+stockCode.split("!")[1]);
 		}		
@@ -99,7 +100,7 @@ public class OnBalanceVolumeUpdated {
 		return tmpOnBalanceVolumeIndicator;
 	}
 
-	private OnBalanceVolumeData getStockDetailsFromDBDaily(String stockCode) {
+	private OnBalanceVolumeData getStockDetailsFromDBDaily(String stockCode, Date calculationDate) {
 		
 		String tradedDate;
 		Float closePrice;
@@ -108,6 +109,8 @@ public class OnBalanceVolumeUpdated {
 		OnBalanceVolumeData onBalanceVolumeDataObj = null;
 		ResultSet resultSet = null;
 		Statement statement = null;	
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		
 		try {
 			if (connection != null) {
 				connection.close();
@@ -119,8 +122,14 @@ public class OnBalanceVolumeUpdated {
 			onBalanceVolumeDataObj.volume = new ArrayList<Long>();
 			onBalanceVolumeDataObj.onBalanceVolume = new ArrayList<Long>();			
 			onBalanceVolumeDataObj.stockName = stockCode;
-			tmpSQL = "Select * from (SELECT first 5 tradeddate, closeprice, volume FROM DAILYSTOCKDATA where stockname='"
-					+ stockCode + "' order by tradeddate desc ) order by TRADEDDATE;";
+			if(calculationDate!=null) {
+				tmpSQL = "Select * from (SELECT tradeddate, closeprice, volume FROM DAILYSTOCKDATA where stockname='"
+						+ stockCode + "' and tradeddate <='" + dateFormat.format(calculationDate) + "' order by tradeddate desc limit 5) as dsd order by TRADEDDATE;";
+			} else {
+				tmpSQL = "Select * from (SELECT first 5 tradeddate, closeprice, volume FROM DAILYSTOCKDATA where stockname='"
+						+ stockCode + "' order by tradeddate desc limit 5) as dsd order by TRADEDDATE;";
+			}
+			
 			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 			resultSet = statement.executeQuery(tmpSQL);			

@@ -25,7 +25,8 @@ public class GenerateCombinedIndication {
 		Date dte = new Date();
 		System.out.println("Start at -> " + dte.toString());
 		GenerateCombinedIndication obj = new GenerateCombinedIndication();
-		obj.generateCombinedIndicationForStocks(new Date("04-Oct-2017"));
+		obj.generateCombinedIndicationForStocks(new Date("19-Oct-2017"));
+		//obj.generateCombinedIndicationForStocks(null);
 	}
 
 	public void generateCombinedIndicationForStocks(Date calculationDate) {
@@ -33,8 +34,10 @@ public class GenerateCombinedIndication {
 		int selectedCounter=0;
 		ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList;
 		ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsBelowHundredList;
-		if( !StockUtils.marketOpenOnGivenDate(calculationDate))
+		if( !StockUtils.marketOpenOnGivenDate(calculationDate)) {
+			System.out.println("Returned due to weekend");
 			return;
+		}			
 		ArrayList<FinalSelectedStock> objFinalSelectedStockList = new ArrayList<FinalSelectedStock>();
 		ArrayList<FinalSelectedStock> objFinalSelectedBelowHundredStockList = new ArrayList<FinalSelectedStock>();
 		ArrayList<FinalSelectedStock> objFinalSelectedStockListWithLowRSI = new ArrayList<FinalSelectedStock>();
@@ -61,7 +64,7 @@ public class GenerateCombinedIndication {
 			
 		
 		//Send top stock in mail
-		//sendTopStockInMail(objFinalSelectedStockList, false, "Combined -> Stocklist on ");
+		sendTopStockInMail(objFinalSelectedStockList, false, "Combined -> Stocklist on ");
 		//CreateWatchListForTopStock(objFinalSelectedStockList, false);
 		System.out.println("********* - process below hundred seleted stocks to send mail");
 		selectedCounter = 0;
@@ -84,7 +87,6 @@ public class GenerateCombinedIndication {
 						break;
 					}
 				} 
-				objFinalSelectedBelowHundredStockList.add(objFinalSelectedBelowHunderdStock);
 			}			
 		}
 		//Send top below 100 stock in mail

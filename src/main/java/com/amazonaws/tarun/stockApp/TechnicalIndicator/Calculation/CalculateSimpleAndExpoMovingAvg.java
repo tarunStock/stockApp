@@ -19,17 +19,15 @@ public class CalculateSimpleAndExpoMovingAvg {
 		logger.debug("CalculateSimpleAndExpoMovingAvg Started");
 		System.out.println("Start at -> " + dte.toString());
 		CalculateSimpleAndExpoMovingAvg obj = new CalculateSimpleAndExpoMovingAvg();
-		obj.MovingAverageCalculation();
+		obj.MovingAverageCalculation(null);
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());
 		logger.debug("CalculateSimpleAndExpoMovingAvg End");
 	}
 	
-	public void MovingAverageCalculation(){
+	public void MovingAverageCalculation(Date calculationDate){
 		ArrayList<String> stockList = null;
-		Date todayDate = new Date();
-		
-		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
+		if( !StockUtils.marketOpenOnGivenDate(calculationDate))
 			return;
 		stockList = StockUtils.getStockListFromDB();
 		String stockName;
@@ -45,7 +43,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 			//calculate average on daily basis
 			
 			//calculateSimpleMovingAverageDaily(nseCode, new Date("19-Oct-2017"));
-			calculateSimpleMovingAverageDaily(nseCode, null);
+			calculateSimpleMovingAverageDaily(nseCode, calculationDate);
 		}
 	}
 

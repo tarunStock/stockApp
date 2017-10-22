@@ -26,7 +26,7 @@ public class QuoteApplication {
 			} else if (args[0].equalsIgnoreCase("movingaveragecalculation")) {
 				logger.debug("MA Calculation Started");
 				CalculateSimpleAndExpoMovingAvg obj = new CalculateSimpleAndExpoMovingAvg();
-				obj.MovingAverageCalculation();
+				obj.MovingAverageCalculation(null);
 				logger.debug("MA Calculation End");
 			} else if (args[0].equalsIgnoreCase("movingaverageindicator")) {
 				logger.debug("MA Indication Started");
@@ -36,12 +36,12 @@ public class QuoteApplication {
 			} else if (args[0].equalsIgnoreCase("volumeindicator")) {
 				logger.debug("Volume Indication Started");
 				OnBalanceVolumeUpdated obj = new OnBalanceVolumeUpdated();
-				obj.OnBalanceVolumeCalculation();
+				obj.OnBalanceVolumeCalculation(null);
 				logger.debug("Volume Indication End");
 			} else if (args[0].equalsIgnoreCase("calculateBB")) {
 				logger.debug("calculateBB Started");
 				CalculateBollingerBands obj = new CalculateBollingerBands();
-				obj.calculateBollingerBands();
+				obj.calculateBollingerBands(null);
 				logger.debug("calculateBB End");
 			} else if (args[0].equalsIgnoreCase("combined")) {
 				logger.debug("Combined Indication Started");
@@ -51,17 +51,17 @@ public class QuoteApplication {
 			}  else if (args[0].equalsIgnoreCase("calculateRSI")) {
 				logger.debug("CalculateRSIIndicator Started");
 				CalculateRSIIndicator obj = new CalculateRSIIndicator();
-				obj.CalculateRSIForAllStocks();
+				obj.CalculateRSIForAllStocks(null);
 				logger.debug("CalculateRSIIndicator End");
 			} else if (args[0].equalsIgnoreCase("calculateStochastic")) {
 				logger.debug("CalculateStochasticIndicator Started");
 				CalculateStochasticOscillator obj = new CalculateStochasticOscillator();
-				obj.CalculateStochasticOscillatorForAllStocks();
+				obj.CalculateStochasticOscillatorForAllStocks(null);
 				logger.debug("CalculateStochasticIndicator End");
 			} else if (args[0].equalsIgnoreCase("calculateATR")) {
 				logger.debug("CalculateATR Started");
 				CalculateAverageTrueRange obj = new CalculateAverageTrueRange();
-				obj.calculateAverageTrueRangeForAllStocks();
+				obj.calculateAverageTrueRangeForAllStocks(null);
 				logger.debug("CalculateATR End");
 			}
 		} else {
@@ -90,7 +90,7 @@ public class QuoteApplication {
 			} else if (args.equalsIgnoreCase("movingaveragecalculation")) {
 				logger.debug("MA Calculation Started");
 				CalculateSimpleAndExpoMovingAvg obj = new CalculateSimpleAndExpoMovingAvg();
-				obj.MovingAverageCalculation();
+				obj.MovingAverageCalculation(null);
 				logger.debug("MA Calculation End");
 			} else if (args.equalsIgnoreCase("movingaverageindicator")) {
 				logger.debug("MA Indication Started");
@@ -100,12 +100,12 @@ public class QuoteApplication {
 			} else if (args.equalsIgnoreCase("volumeindicator")) {
 				logger.debug("Volume Indication Started");
 				OnBalanceVolumeUpdated obj = new OnBalanceVolumeUpdated();
-				obj.OnBalanceVolumeCalculation();
+				obj.OnBalanceVolumeCalculation(null);
 				logger.debug("Volume Indication End");
 			} else if (args.equalsIgnoreCase("calculateBB")) {
 				logger.debug("calculateBB Started");
 				CalculateBollingerBands obj = new CalculateBollingerBands();
-				obj.calculateBollingerBands();
+				obj.calculateBollingerBands(null);
 				logger.debug("calculateBB End");
 			} else if (args.equalsIgnoreCase("combined")) {
 				logger.debug("Combined Indication Started");
@@ -115,17 +115,17 @@ public class QuoteApplication {
 			}  else if (args.equalsIgnoreCase("calculateRSI")) {
 				logger.debug("CalculateRSIIndicator Started");
 				CalculateRSIIndicator obj = new CalculateRSIIndicator();
-				obj.CalculateRSIForAllStocks();
+				obj.CalculateRSIForAllStocks(null);
 				logger.debug("CalculateRSIIndicator End");
 			} else if (args.equalsIgnoreCase("calculateStochastic")) {
 				logger.debug("CalculateStochasticIndicator Started");
 				CalculateStochasticOscillator obj = new CalculateStochasticOscillator();
-				obj.CalculateStochasticOscillatorForAllStocks();
+				obj.CalculateStochasticOscillatorForAllStocks(null);
 				logger.debug("CalculateStochasticIndicator End");
 			} else if (args.equalsIgnoreCase("calculateATR")) {
 				logger.debug("CalculateATR Started");
 				CalculateAverageTrueRange obj = new CalculateAverageTrueRange();
-				obj.calculateAverageTrueRangeForAllStocks();
+				obj.calculateAverageTrueRangeForAllStocks(null);
 				logger.debug("CalculateATR End");
 			}
 //		} else {

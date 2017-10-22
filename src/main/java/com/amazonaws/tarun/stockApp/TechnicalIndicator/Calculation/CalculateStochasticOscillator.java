@@ -24,19 +24,18 @@ public class CalculateStochasticOscillator {
 		logger.debug("CalculateStochasticOscillator Started");
 		System.out.println("Start at -> " + dte.toString());
 		CalculateStochasticOscillator obj = new CalculateStochasticOscillator();
-		//obj.CalculateStochasticOscillatorForAllStocks();
-		obj.getStochasticIndicator("HATSUN",new Date("04-Oct-2017"));
+		obj.CalculateStochasticOscillatorForAllStocks(null);
+		//obj.getStochasticIndicator("HATSUN",new Date("04-Oct-2017"));
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());
 		logger.debug("CalculateStochasticOscillator End");
 	}
 	
-	public void CalculateStochasticOscillatorForAllStocks() {
+	public void CalculateStochasticOscillatorForAllStocks(Date calculationDate) {
 		ArrayList<String> stockList = null;
-		Date todayDate = new Date();
-		
-		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
+		if( !StockUtils.marketOpenOnGivenDate(calculationDate))
 			return;
+		
 		stockList = StockUtils.getStockListFromDB();
 		String stockName;
 		String bseCode;
@@ -50,7 +49,7 @@ public class CalculateStochasticOscillator {
 			//calculateStochasticOscillatorForStockInBulk(nseCode);
 			//calculate average on daily basis
 			//calculateStochasticOscillatorForStockDaily(nseCode, new Date("19-Oct-2017"));
-			calculateStochasticOscillatorForStockDaily(nseCode, null);
+			calculateStochasticOscillatorForStockDaily(nseCode, calculationDate);
 		}
 	}
 	

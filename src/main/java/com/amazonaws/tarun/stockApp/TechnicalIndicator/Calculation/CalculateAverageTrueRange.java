@@ -27,17 +27,15 @@ public class CalculateAverageTrueRange {
 		logger.debug("CalculateAverageTrueRange Started");
 		System.out.println("Start at -> " + dte.toString());
 		CalculateAverageTrueRange obj = new CalculateAverageTrueRange();
-		obj.calculateAverageTrueRangeForAllStocks();
+		obj.calculateAverageTrueRangeForAllStocks(null);
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());
 		logger.debug("CalculateAverageTrueRange End");
 	}
 	
-	public void calculateAverageTrueRangeForAllStocks() {
+	public void calculateAverageTrueRangeForAllStocks(Date calculationDate) {
 		ArrayList<String> stockList = null;
-		Date todayDate = new Date();
-		
-		if(todayDate.getDay() == 0 || todayDate.getDay() == 6)
+		if( !StockUtils.marketOpenOnGivenDate(calculationDate))
 			return;
 		stockList = StockUtils.getStockListFromDB();
 		String stockName;
@@ -55,7 +53,7 @@ public class CalculateAverageTrueRange {
 //			//calculate average on daily basis
 			
 			//calculateAverageTrueRangeForStockDaily(nseCode, new Date("19-Oct-2017"));
-			calculateAverageTrueRangeForStockDaily(nseCode, null);
+			calculateAverageTrueRangeForStockDaily(nseCode, calculationDate);
 		}
 	}
 	

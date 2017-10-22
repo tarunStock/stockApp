@@ -26,18 +26,19 @@ public class CalculateBollingerBands {
 		logger.debug("CalculateBollingerBands Started");
 		System.out.println("Start at -> " + dte.toString());
 		CalculateBollingerBands obj = new CalculateBollingerBands();
-		obj.calculateBollingerBands();		
+		obj.calculateBollingerBands(null);		
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());
 		logger.debug("CalculateBollingerBands End");
 	}
 	
-	public void calculateBollingerBands() {
+	public void calculateBollingerBands(Date calculationDate) {
 		ArrayList<String> stockList = null;
 		String stockName;
 		String bseCode;
 		String nseCode;
-		
+		if( !StockUtils.marketOpenOnGivenDate(calculationDate))
+			return;
 		stockList = StockUtils.getStockListFromDB();
 		for (String stockCode : stockList) {
 			stockName = stockCode.split("!")[1];
@@ -45,7 +46,7 @@ public class CalculateBollingerBands {
 			nseCode = stockCode.split("!")[2];
 			//BulkBollingerBandCalculateAndStore(nseCode);
 			//calculateBollingerBandsDaily(nseCode, new Date("19-Oct-2017"));
-			calculateBollingerBandsDaily(nseCode, null);
+			calculateBollingerBandsDaily(nseCode, calculationDate);
 		}
 	}
 	

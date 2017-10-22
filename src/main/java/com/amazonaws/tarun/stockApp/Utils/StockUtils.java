@@ -148,6 +148,9 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 	}
 	
 	public static boolean marketOpenOnGivenDate(Date targetDate) {
+		if(targetDate == null) {
+			targetDate = new Date();
+		}
 		if(targetDate.getDay() == 0 || targetDate.getDay() == 6)
 			return false;
 		else

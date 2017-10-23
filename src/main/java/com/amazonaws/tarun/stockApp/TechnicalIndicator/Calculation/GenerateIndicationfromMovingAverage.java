@@ -244,7 +244,13 @@ public class GenerateIndicationfromMovingAverage {
 			}
 			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
-			tmpSQL = "SELECT SMA FROM DAILYSNEMOVINGAVERAGES where stockname='" + stockCode + "' and period = " + period.intValue() + " and tradeddate <='" + dateFormat.format(targetDate) + "' order by tradeddate desc limit 30;";
+			if(targetDate!=null) {
+				tmpSQL = "SELECT SMA FROM DAILYSNEMOVINGAVERAGES where stockname='" + stockCode + "' and period = " + period.intValue() 
+						  + " and tradeddate <='" + dateFormat.format(targetDate) + "' order by tradeddate desc limit 30;";
+			} else {
+				tmpSQL = "SELECT SMA FROM DAILYSNEMOVINGAVERAGES where stockname='" + stockCode + "' and period = " + period.intValue() 
+				  + " order by tradeddate desc limit 30;";
+			}
 			resultSet = statement.executeQuery(tmpSQL);
 			while (resultSet.next()) {
 				SMAvalue = resultSet.getString(1);

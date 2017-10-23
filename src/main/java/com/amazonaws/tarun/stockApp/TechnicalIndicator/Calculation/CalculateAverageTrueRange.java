@@ -27,7 +27,8 @@ public class CalculateAverageTrueRange {
 		logger.debug("CalculateAverageTrueRange Started");
 		System.out.println("Start at -> " + dte.toString());
 		CalculateAverageTrueRange obj = new CalculateAverageTrueRange();
-		obj.calculateAverageTrueRangeForAllStocks(null);
+		//obj.calculateAverageTrueRangeForAllStocks(new Date("16-Oct-2017"));
+		obj.getChandelierExitLong("20MICRONS", new Date("16-Oct-2017"));
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());
 		logger.debug("CalculateAverageTrueRange End");

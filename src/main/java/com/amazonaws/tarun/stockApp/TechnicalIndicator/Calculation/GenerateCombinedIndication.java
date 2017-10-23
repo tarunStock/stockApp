@@ -25,7 +25,7 @@ public class GenerateCombinedIndication {
 		Date dte = new Date();
 		System.out.println("Start at -> " + dte.toString());
 		GenerateCombinedIndication obj = new GenerateCombinedIndication();
-		obj.generateCombinedIndicationForStocks(new Date("19-Oct-2017"));
+		obj.generateCombinedIndicationForStocks(null);
 		//obj.generateCombinedIndicationForStocks(null);
 	}
 
@@ -253,16 +253,16 @@ public class GenerateCombinedIndication {
 				mailBody.append("<td>" + objFinalSelectedStockList.get(counter).rsiValue + "</td>");
 			}
 			
-			String chandelierExitColValue = objFinalSelectedStockList.get(counter).chandelierExitShort + " - " + objFinalSelectedStockList.get(counter).chandelierExitLong;
-			if(objFinalSelectedStockList.get(counter).stockPrice> objFinalSelectedStockList.get(counter).chandelierExitShort) {
+			String chandelierExitColValue = objFinalSelectedStockList.get(counter).chandelierExitLong + "";// + " - " + objFinalSelectedStockList.get(counter).chandelierExitShort;
+			//if(objFinalSelectedStockList.get(counter).stockPrice> objFinalSelectedStockList.get(counter).chandelierExitShort) {
 				if(objFinalSelectedStockList.get(counter).stockPrice>= objFinalSelectedStockList.get(counter).chandelierExitLong) {
 					mailBody.append("<td bgcolor='green'>" + chandelierExitColValue + "</td>");
 				} else {
-					mailBody.append("<td bgcolor='orange'>" + chandelierExitColValue + "</td>");
+					mailBody.append("<td bgcolor='red'>" + chandelierExitColValue + "</td>");
 				}				
-			} else {
+		/*	} else {
 				mailBody.append("<td bgcolor='red'>" + chandelierExitColValue + "</td>");
-			}
+			}*/
 			
 			mailBody.append("<td>" +  "</td>");
 			mailBody.append("<td>" +  "</td>");

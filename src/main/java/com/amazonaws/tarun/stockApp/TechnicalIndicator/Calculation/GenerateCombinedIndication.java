@@ -140,7 +140,7 @@ public class GenerateCombinedIndication {
 		String bbIndicator;
 		float rsiIndication;
 		float chandelierExitLong;
-		float chandelierExitShort;
+		//float chandelierExitShort;
 		
 		objCalculateStochasticOscillator = new CalculateStochasticOscillator();
 		if(!objCalculateStochasticOscillator.getStochasticIndicator(objSMAIndicatorDetails.stockCode, calculationDate)) {
@@ -156,7 +156,7 @@ public class GenerateCombinedIndication {
 		
 		CalculateAverageTrueRange objCalculateAverageTrueRange = new CalculateAverageTrueRange();
 		chandelierExitLong = objCalculateAverageTrueRange.getChandelierExitLong(objSMAIndicatorDetails.stockCode, calculationDate);
-		chandelierExitShort =  objCalculateAverageTrueRange.getChandelierExitShort(objSMAIndicatorDetails.stockCode, calculationDate);
+		//chandelierExitShort =  objCalculateAverageTrueRange.getChandelierExitShort(objSMAIndicatorDetails.stockCode, calculationDate);
 		
 		objCalculateRSIIndicator = new CalculateRSIIndicator();
 		rsiIndication= objCalculateRSIIndicator.getRSIValue(objSMAIndicatorDetails.stockCode, objSMAIndicatorDetails.signalDate);
@@ -171,7 +171,7 @@ public class GenerateCombinedIndication {
 		objFinalSelectedStock.BBIndicator = bbIndicator;
 		objFinalSelectedStock.rsiValue = rsiIndication;
 		objFinalSelectedStock.chandelierExitLong = chandelierExitLong;
-		objFinalSelectedStock.chandelierExitShort = chandelierExitShort;
+		//objFinalSelectedStock.chandelierExitShort = chandelierExitShort;
 		
 		return objFinalSelectedStock;
 	}
@@ -198,7 +198,7 @@ public class GenerateCombinedIndication {
 		
 		CalculateAverageTrueRange objCalculateAverageTrueRange = new CalculateAverageTrueRange();
 		chandelierExitLong = objCalculateAverageTrueRange.getChandelierExitLong(objSMAIndicatorDetails.stockCode, null);
-		chandelierExitShort =  objCalculateAverageTrueRange.getChandelierExitShort(objSMAIndicatorDetails.stockCode, null);
+		//chandelierExitShort =  objCalculateAverageTrueRange.getChandelierExitShort(objSMAIndicatorDetails.stockCode, null);
 		
 //		objCalculateRSIIndicator = new CalculateRSIIndicator();
 //		rsiIndication= objCalculateRSIIndicator.getRSIValue(objSMAIndicatorDetails.stockCode, objSMAIndicatorDetails.signalDate);
@@ -213,7 +213,7 @@ public class GenerateCombinedIndication {
 		objFinalSelectedStock.BBIndicator = bbIndicator;
 		//objFinalSelectedStock.rsiValue = rsiIndication;
 		objFinalSelectedStock.chandelierExitLong = chandelierExitLong;
-		objFinalSelectedStock.chandelierExitShort = chandelierExitShort;
+		//objFinalSelectedStock.chandelierExitShort = chandelierExitShort;
 		
 		return objFinalSelectedStock;
 	}

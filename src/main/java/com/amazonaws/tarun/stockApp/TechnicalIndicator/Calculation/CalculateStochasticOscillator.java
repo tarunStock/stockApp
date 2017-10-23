@@ -324,8 +324,8 @@ public class CalculateStochasticOscillator {
 						+ stockCode + "' and dsp.stockname='" + stockCode + "' and osc.tradeddate<='" + dateFormat.format(targetDate) +"' and dsp.tradeddate<='" 
 						+ dateFormat.format(targetDate) +"' and osc.TRADEDDATE = dsp.TRADEDDATE order by dsp.tradeddate desc limit 2;";
 			} else {
-				tmpSQL = "SELECT dsp.closeprice, osc.STOCHASTIC_OSCILLATOR FROM DAILYDAILY_STOCHASTIC_OSCILLATORSTOCKDATA as osc, DAILYSTOCKDATA as dsp where osc.stockname='"
-						+ stockCode + "' and dsp.stockname='" + stockCode + "' osc.TRADEDDATE = dsp.TRADEDDATE order by dsp.tradeddate desc limit 2;";
+				tmpSQL = "SELECT dsp.closeprice, osc.STOCHASTIC_OSCILLATOR FROM DAILY_STOCHASTIC_OSCILLATOR as osc, DAILYSTOCKDATA as dsp where osc.stockname='"
+						+ stockCode + "' and dsp.stockname='" + stockCode + "' and osc.TRADEDDATE = dsp.TRADEDDATE order by dsp.tradeddate desc limit 2;";
 			}
 			resultSet = statement.executeQuery(tmpSQL);
 			if( resultSet.next()) {

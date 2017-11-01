@@ -46,11 +46,11 @@ public class CalculateSimpleAndExpoMovingAvg {
 			nseCode = stockCode.split("!")[2];
 			//calculate average on bulk
 			//calculateSimpleMovingAverage(nseCode, calculationDate);
-			calculateExpMovingAverageForMACD(nseCode, calculationDate);
+			//calculateExpMovingAverageForMACD(nseCode, calculationDate);
 			//calculate average on daily basis
 			
 			//calculateSimpleMovingAverageDaily(nseCode, new Date("19-Oct-2017"));
-			//calculateSimpleMovingAverageDaily(nseCode, calculationDate);
+			calculateSimpleMovingAverageDaily(nseCode, calculationDate);
 		}
 	}
 
@@ -282,8 +282,8 @@ public class CalculateSimpleAndExpoMovingAvg {
 					if (expMovingAvg == -1) {
 						expMovingAvg = simpleMovingAverage;
 					}
-					/*storeMovingAverageinDB(stockCode, stockDetails.tradeddate.get(0), simpleMovingAverage, period,
-							stockDetails.closePrice.get(0).floatValue(), expMovingAvg);*/
+					storeMovingAverageinDB(stockCode, stockDetails.tradeddate.get(0), simpleMovingAverage, period,
+							stockDetails.closePrice.get(0).floatValue(), expMovingAvg);
 				}
 				period++;
 				if (period > 200) {

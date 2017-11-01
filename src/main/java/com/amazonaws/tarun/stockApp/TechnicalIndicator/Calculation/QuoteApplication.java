@@ -15,9 +15,6 @@ public class QuoteApplication {
 
 		logger.debug("QuoteApplication Started");
 		if (args.length > 0) {
-			if (args[0].equalsIgnoreCase("test")) {
-				logger.debug("test called");
-			}
 			if (args[0].equalsIgnoreCase("quote")) {
 				logger.debug("Daily Quote Collection Started");
 				CollectDailyStockData obj = new CollectDailyStockData();

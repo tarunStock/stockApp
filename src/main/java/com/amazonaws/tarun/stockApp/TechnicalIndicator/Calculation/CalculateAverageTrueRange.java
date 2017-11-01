@@ -20,7 +20,7 @@ public class CalculateAverageTrueRange {
 	Connection connection = null;
 	static Logger logger = Logger.getLogger(CalculateAverageTrueRange.class);
 	public static int ATR_PERIOD = 14;
-	public static int CHANDLIER_MULTIPLIER = 14;
+	public static int CHANDLIER_MULTIPLIER = 3;
 	
 	public static void main(String[] args) {
 		Date dte = new Date();

@@ -24,7 +24,7 @@ public class GenerateIndicationfromMovingAverage {
 	String stockName;
 	String bseCode;
 	String nseCode;
-	static Logger logger = Logger.getLogger(CalculateSimpleAndExpoMovingAvg.class);
+	static Logger logger = Logger.getLogger(GenerateIndicationfromMovingAverage.class);
 	
 	public static void main(String[] args) {
 		Date dte = new Date();

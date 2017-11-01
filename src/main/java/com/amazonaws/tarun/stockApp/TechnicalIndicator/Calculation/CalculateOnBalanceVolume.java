@@ -144,9 +144,9 @@ public class CalculateOnBalanceVolume {
 			return onBalanceVolumeDataObj;
 		} catch (Exception ex) {
 			try{
-				System.out.println("Error in DB action Date = " + resultSet.getString(1));
+				System.out.println("getStockDetailsFromDBDaily Error in DB action Date = " + resultSet.getString(1));
 			} catch(Exception ex1) { }
-			logger.error("Error in getStockDetailsFromDB  -> ", ex);
+			logger.error("Error in getStockDetailsFromDBDaily  -> ", ex);
 			return null;
 		}
 	}	

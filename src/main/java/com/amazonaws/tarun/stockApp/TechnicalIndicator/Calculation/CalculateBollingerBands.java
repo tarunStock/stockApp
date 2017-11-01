@@ -213,7 +213,7 @@ public class CalculateBollingerBands {
 			}
 			return objDailyStockDataList;
 		} catch (Exception ex) {
-			System.out.println("Error in DB action "+ex);
+			System.out.println("CalculateBollingerBands -> getStockDetailsFromDBForDaily Error in DB action "+ex);
 			logger.error("Error in getStockDetailsFromDBForDaily  -> ", ex);
 			return null;
 		} finally {
@@ -223,8 +223,8 @@ public class CalculateBollingerBands {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
-				System.out.println("getStockDetailsFromDBForDaily Error in closing resultset "+ex);
-				logger.error("Error in closing resultset getStockDetailsFromDBForDaily  -> ", ex);
+				System.out.println("CalculateBollingerBands -> getStockDetailsFromDBForDaily Error in closing resultset "+ex);
+				logger.error("CalculateBollingerBands ->  Error in closing resultset getStockDetailsFromDBForDaily  -> ", ex);
 			}
 			try {
 				if(statement != null) {
@@ -232,8 +232,8 @@ public class CalculateBollingerBands {
 					statement = null;
 				}
 			} catch (Exception ex) {
-				System.out.println("getStockDetailsFromDBForDaily Error in closing statement "+ex);
-				logger.error("Error in closing statement getStockDetailsFromDBForDaily  -> ", ex);
+				System.out.println("CalculateBollingerBands ->  getStockDetailsFromDBForDaily Error in closing statement "+ex);
+				logger.error("CalculateBollingerBands ->  Error in closing statement getStockDetailsFromDBForDaily  -> ", ex);
 			}
 			try {
 				if (connection != null) {
@@ -241,8 +241,8 @@ public class CalculateBollingerBands {
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				System.out.println("getStockDetailsFromDBForDaily Error in closing connection "+ex);
-				logger.error("Error in closing connection getStockDetailsFromDBForDaily  -> ", ex);
+				System.out.println("CalculateBollingerBands ->  getStockDetailsFromDBForDaily Error in closing connection "+ex);
+				logger.error("CalculateBollingerBands -> Error in closing connection getStockDetailsFromDBForDaily  -> ", ex);
 			}
 		}
 	}
@@ -269,8 +269,8 @@ public class CalculateBollingerBands {
 					statement = null;
 				}
 			} catch (Exception ex) {
-				System.out.println("getStockDetailsFromDBForDaily Error in closing statement "+ex);
-				logger.error("Error in closing statement getStockDetailsFromDBForDaily  -> ", ex);
+				System.out.println("CalculateBollingerBands -> insertBBToDB Error in closing statement "+ex);
+				logger.error("Error in closing statement insertBBToDB  -> ", ex);
 			}
 		}
 	}	
@@ -348,8 +348,8 @@ public class CalculateBollingerBands {
 					counter++;	
 				}
 			} catch (Exception ex) {
-				System.out.println("Error in DB action");
-				logger.error("Error in getBBIndicationForStock  -> ", ex);
+				System.out.println("calculateBollingerBandsDaily Error in DB action"+ex);
+				logger.error("Error in calculateBollingerBandsDaily  -> ", ex);
 			} finally {
 				try {
 					if (connection != null) {
@@ -357,13 +357,13 @@ public class CalculateBollingerBands {
 						connection = null;
 					} 
 				} catch (Exception ex) {
-					System.out.println("Error in DB action");
-					logger.error("Error in getStockDetailsFromDB  -> ", ex);
+					System.out.println("calculateBollingerBandsDaily Error in DB action"+ex);
+					logger.error("Error in calculateBollingerBandsDaily  -> ", ex);
 				}
 			}
 			
 		} else {
-			System.out.println("Quote size is 0 for stock -> "+stockCode);
+			System.out.println("calculateBollingerBandsDaily Quote size is 0 for stock -> "+stockCode);
 			
 		}
 		System.out.println("Test");

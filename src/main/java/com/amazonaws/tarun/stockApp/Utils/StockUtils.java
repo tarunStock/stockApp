@@ -1,4 +1,6 @@
 package com.amazonaws.tarun.stockApp.Utils;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -10,7 +12,29 @@ import org.apache.log4j.Logger;
 
 public class StockUtils implements AmazonRDSDBConnectionInterface{
 	static Logger logger = Logger.getLogger(StockUtils.class);	
-	
+	static ArrayList<Date> holidayList;
+	static {
+		BufferedReader br = null;
+		try {
+			br = new BufferedReader(new FileReader("C:\\StockApp\\Holidays.txt"));
+		    String line = br.readLine();
+		    holidayList = new ArrayList<Date>();
+		    while (line != null) {
+		    	holidayList.add(new Date(Date.parse(line)));		    	
+		        line = br.readLine();
+		    }
+		} catch (Exception ex) {
+			System.out.println("Error in reading holiday file in static block ->"+ex);
+			logger.error("Error in reading holiday file in static block  -> ", ex);
+		} finally {
+			try {
+				br.close();
+			} catch (Exception ex) {
+				System.out.println("Error in closing BufferedReader ->"+ex);
+				logger.error("Error in closing BufferedReader  -> ", ex);
+			}
+		}
+	}
 	public static Connection connectToDB () {
 		Connection connection = null;
 		boolean connectToFirebird = false;
@@ -151,9 +175,12 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 		if(targetDate == null) {
 			targetDate = new Date();
 		}
-		if(targetDate.getDay() == 0 || targetDate.getDay() == 6)
+		if(targetDate.getDay() == 0 || targetDate.getDay() == 6) {
 			return false;
-		else
+		} else if(holidayList.contains(targetDate)) {
+			return false;
+		} else {
 			return true;
+		}	
 	}
 }

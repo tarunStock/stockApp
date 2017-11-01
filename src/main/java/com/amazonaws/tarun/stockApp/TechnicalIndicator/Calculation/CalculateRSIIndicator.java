@@ -103,8 +103,8 @@ public class CalculateRSIIndicator {
 				}
 			}
 		} catch (Exception ex) {
-			System.out.println("Error in DB action");
-			logger.error("Error in getBBIndicationForStock  -> ", ex);
+			System.out.println("calculateRSIForStockInBulk Error in DB action"+ex);
+			logger.error("Error in calculateRSIForStockInBulk  -> ", ex);
 		} finally {
 			try {
 				if (connection != null) {
@@ -112,8 +112,8 @@ public class CalculateRSIIndicator {
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				System.out.println("Error in DB action");
-				logger.error("Error in getStockDetailsFromDB  -> ", ex);
+				System.out.println("calculateRSIForStockInBulk Error in DB action"+ex);
+				logger.error("Error in calculateRSIForStockInBulk  -> ", ex);
 			}
 		}
 	}
@@ -150,8 +150,8 @@ public class CalculateRSIIndicator {
 			System.out.println("Inserting RSI value in DB");
 			storeRSIinDB(stockCode, stockDetails.tradeddate.get(0), stockRS, stockRSI, RSI_PERIOD, avgGain, avgLoss);
 		} catch (Exception ex) {
-			System.out.println("Error in DB action");
-			logger.error("Error in getBBIndicationForStock  -> ", ex);
+			System.out.println("calculateRSIForStock Error in DB action"+ex);
+			logger.error("Error in calculateRSIForStock  -> ", ex);
 		} finally {
 			try {
 				if (connection != null) {
@@ -159,8 +159,8 @@ public class CalculateRSIIndicator {
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				System.out.println("Error in DB action");
-				logger.error("Error in getStockDetailsFromDB  -> ", ex);
+				System.out.println("calculateRSIForStock Error in DB action"+ex);
+				logger.error("Error in calculateRSIForStock  -> ", ex);
 			}
 		}
 	}
@@ -284,7 +284,7 @@ public class CalculateRSIIndicator {
 			}
 			return rsiDataObj;
 		} catch (Exception ex) {
-			System.out.println("Error in DB action");
+			System.out.println("getStockDetailsFromDBForDaily Error in DB action"+ex);
 			logger.error("Error in getStockDetailsFromDBForDaily  -> ", ex);
 			return null;
 		} finally {
@@ -294,8 +294,8 @@ public class CalculateRSIIndicator {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
-				System.out.println("getStockDetailsFromDBForBulk Error in closing resultset "+ex);
-				logger.error("Error in closing resultset getStockDetailsFromDB  -> ", ex);
+				System.out.println("getStockDetailsFromDBForDaily Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getStockDetailsFromDBForDaily  -> ", ex);
 			}
 			try {
 				if(statement != null) {
@@ -304,7 +304,7 @@ public class CalculateRSIIndicator {
 				}
 			} catch (Exception ex) {
 				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
-				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
+				logger.error("Error in closing statement getStockDetailsFromDBForDaily  -> ", ex);
 			}
 			try {
 				if (connection != null) {
@@ -313,7 +313,7 @@ public class CalculateRSIIndicator {
 				} 
 			} catch (Exception ex) {
 				System.out.println("getStockDetailsFromDBForBulk Error in closing connection "+ex);
-				logger.error("Error in closing connection getStockDetailsFromDB  -> ", ex);
+				logger.error("Error in closing connection getStockDetailsFromDBForDaily  -> ", ex);
 			}
 		}
 	}
@@ -339,8 +339,8 @@ public class CalculateRSIIndicator {
 					statement = null;
 				}
 			} catch (Exception ex) {
-				System.out.println("getRSIValue Error in closing statement "+ex);
-				logger.error("Error in closing statement getRSIValue  -> ", ex);
+				System.out.println("storeRSIinDB Error in closing statement "+ex);
+				logger.error("Error in closing statement storeRSIinDB  -> ", ex);
 			}
 		}
 	}
@@ -358,7 +358,12 @@ public class CalculateRSIIndicator {
 				connection = null;
 			}
 			connection = StockUtils.connectToDB();
-			tmpSQL = "SELECT STOCKRSI FROM DAILY_RELATIVE_STRENGTH_INDEX where stockname='"	+ stockCode + "' and tradeddate='" + objDate.toString() +"' and period =" + RSI_PERIOD + ";";
+			if(objDate!=null) {
+				tmpSQL = "SELECT STOCKRSI FROM DAILY_RELATIVE_STRENGTH_INDEX where stockname='"	+ stockCode + "' and tradeddate='" + objDate.toString() +"' and period =" + RSI_PERIOD + ";";
+			} else {
+				tmpSQL = "SELECT STOCKRSI FROM DAILY_RELATIVE_STRENGTH_INDEX where stockname='"	+ stockCode + "' and period =" + RSI_PERIOD + " order by tradeddate desc limit 1;";
+			}
+			
 			statement = connection.createStatement();
 			resultSet = statement.executeQuery(tmpSQL);
 			while (resultSet.next()) {

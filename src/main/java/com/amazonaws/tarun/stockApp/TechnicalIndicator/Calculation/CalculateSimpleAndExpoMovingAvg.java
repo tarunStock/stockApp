@@ -13,13 +13,16 @@ import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 public class CalculateSimpleAndExpoMovingAvg {
 	Connection connection = null;
 	static Logger logger = Logger.getLogger(CalculateSimpleAndExpoMovingAvg.class);
+	float simpleMovingAverageForTwelve = 0;
+	float simpleMovingAverageForTwentySix = 0;
 	
 	public static void main(String[] args) {
 		Date dte = new Date();
 		logger.debug("CalculateSimpleAndExpoMovingAvg Started");
 		System.out.println("Start at -> " + dte.toString());
 		CalculateSimpleAndExpoMovingAvg obj = new CalculateSimpleAndExpoMovingAvg();
-		obj.MovingAverageCalculation(null);
+		obj.MovingAverageCalculation(new Date("01-Jun-2017"));
+		//obj.MovingAverageCalculation(new Date("19-Jun-2017"));
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());
 		logger.debug("CalculateSimpleAndExpoMovingAvg End");
@@ -34,25 +37,30 @@ public class CalculateSimpleAndExpoMovingAvg {
 		String bseCode;
 		String nseCode;
 
+		//calculateSimpleMovingAverage("20MICRONS", new Date("20-Oct-2017"));
+		//calculateExpMovingAverageForMACD("20MICRONS", new Date("01-Jun-2017"));
+		
 		for (String stockCode : stockList) {
 			stockName = stockCode.split("!")[1];
 			bseCode = stockCode.split("!")[0];
 			nseCode = stockCode.split("!")[2];
 			//calculate average on bulk
-			//calculateSimpleMovingAverage(nseCode);
+			//calculateSimpleMovingAverage(nseCode, calculationDate);
+			calculateExpMovingAverageForMACD(nseCode, calculationDate);
 			//calculate average on daily basis
 			
 			//calculateSimpleMovingAverageDaily(nseCode, new Date("19-Oct-2017"));
-			calculateSimpleMovingAverageDaily(nseCode, calculationDate);
+			//calculateSimpleMovingAverageDaily(nseCode, calculationDate);
 		}
 	}
 
-	private void calculateSimpleMovingAverage(String stockCode) {
+	private void calculateSimpleMovingAverage(String stockCode, Date targetDate) {
 		SMAData stockDetails = null;
 		float simpleMovingAverage = 0;
 		int period = 1;
 		float sumOfClosingPrices = 0;
 		float expMovingAvg = 0;
+		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		
 		ArrayList<Integer> smaPeriods;
 		try {
@@ -61,35 +69,44 @@ public class CalculateSimpleAndExpoMovingAvg {
 				connection = null;
 			}
 			connection = StockUtils.connectToDB();
-			stockDetails = getStockDetailsFromDB(stockCode);
+			stockDetails = getStockDetailsFromDB(stockCode, targetDate);
 			smaPeriods = GetSMAPeriodsFromDB(stockCode);
-			for (int counter = 0; counter < stockDetails.tradeddate.size() - 3; counter++) {
+			for (int counter = 0; counter < stockDetails.tradeddate.size(); counter++) {
 				period = 1;
 				sumOfClosingPrices = 0;
-				System.out.println(" Stock -> " + stockCode + " Round -> " + (counter + 1));
-				for (int counter1 = counter; counter1 < stockDetails.tradeddate.size(); counter1++) {
-					sumOfClosingPrices = sumOfClosingPrices + stockDetails.closePrice.get(counter1);
-					if(smaPeriods.contains(period)) {
+				System.out.println(" Stock -> " + stockCode + " Date -> " + stockDetails.tradeddate.get(counter));
+				
+				for (int counter1 = 0; counter1 < smaPeriods.size(); counter1++) {
+					//sumOfClosingPrices = sumOfClosingPrices + stockDetails.closePrice.get(counter1);
+					//if(smaPeriods.contains(period)) {
 					/*if (period != 3 && period != 5 && period != 9 && period != 14 && period != 20 && period != 50
 							&& period != 200) {*/
-						simpleMovingAverage = sumOfClosingPrices / period;
-						expMovingAvg = calculateExpMvingAvg(stockCode, stockDetails.closePrice.get(counter1), period);
+				//For testing	
+				System.out.print(" ** Period -> "+ smaPeriods.get(counter1));	
+					simpleMovingAverage = sumOfClosingPrices / period;
+					//For testing	
+					expMovingAvg = calculateExpMvingAvg(stockCode, stockDetails.closePrice.get(counter), smaPeriods.get(counter1), (Date)formatter.parse(stockDetails.tradeddate.get(counter)));
+					
+					//Remove after testing
+					//expMovingAvg = calculateExpMvingAvg(stockCode, stockDetails.closePrice.get(counter), 20, (Date)formatter.parse(stockDetails.tradeddate.get(counter)));
 						if (expMovingAvg == -1) {
 							expMovingAvg = simpleMovingAverage;
 						}
-						storeMovingAverageinDB(stockCode, stockDetails.tradeddate.get(counter1), simpleMovingAverage,
-								period, stockDetails.closePrice.get(counter1).floatValue(), expMovingAvg);
-					}
-					period++;
+						updateOrInsertExpMovingAverageinDB(stockCode, stockDetails.tradeddate.get(counter), 
+								smaPeriods.get(counter1), stockDetails.closePrice.get(counter).floatValue(), expMovingAvg);
+						/*storeMovingAverageinDB(stockCode, stockDetails.tradeddate.get(counter1), simpleMovingAverage,
+								period, stockDetails.closePrice.get(counter1).floatValue(), expMovingAvg);*/
+					//}
+					/*period++;
 					if (period > 200) {
 						break;
-					}
-	
+					}*/
+
 				}
 			}
 		}catch (Exception ex) {
-			System.out.println("Error in DB action");
-			logger.error("Error in getStockDetailsFromDB  -> ", ex);
+			System.out.println("calculateSimpleMovingAverage Error in DB action"+ex);
+			logger.error("Error in calculateSimpleMovingAverage  -> ", ex);
 		} finally {
 			try {
 				if (connection != null) {
@@ -97,12 +114,145 @@ public class CalculateSimpleAndExpoMovingAvg {
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				System.out.println("Error in DB action");
-				logger.error("Error in getStockDetailsFromDB  -> ", ex);
+				System.out.println("calculateSimpleMovingAverage Error in DB action"+ex);
+				logger.error("Error in calculateSimpleMovingAverage  -> ", ex);
 			}
 		}
 	}
 
+	private void calculateExpMovingAverageForMACD(String stockCode, Date targetDate) {
+		SMAData stockDetails = null;
+		
+		int period = 1;
+		float sumOfClosingPrices = 0;
+		float expMovingAvg = 0;
+		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		
+		ArrayList<Integer> smaPeriods= new ArrayList<Integer>();
+		try {
+			if (connection != null) {
+				connection.close();
+				connection = null;
+			}
+			connection = StockUtils.connectToDB();
+			stockDetails = getStockDetailsFromDB(stockCode, targetDate);
+			smaPeriods.add(12);
+			smaPeriods.add(26);
+			
+			calculateTwelveAndTwentySixSMA(stockCode);
+			//smaPeriods = GetSMAPeriodsFromDB(stockCode);
+			for (int counter = 0; counter < stockDetails.tradeddate.size(); counter++) {
+				period = 1;
+				sumOfClosingPrices = 0;
+				//System.out.println(" Stock -> " + stockCode + " Date -> " + stockDetails.tradeddate.get(counter));
+				
+				for (int counter1 = 0; counter1 < smaPeriods.size(); counter1++) {
+					//sumOfClosingPrices = sumOfClosingPrices + stockDetails.closePrice.get(counter1);
+					//if(smaPeriods.contains(period)) {
+					/*if (period != 3 && period != 5 && period != 9 && period != 14 && period != 20 && period != 50
+							&& period != 200) {*/
+				//For testing	
+				//System.out.print(" ** Period -> "+ smaPeriods.get(counter1));	
+					//simpleMovingAverage = sumOfClosingPrices / period;
+					//For testing	
+					expMovingAvg = calculateExpMvingAvg(stockCode, stockDetails.closePrice.get(counter), smaPeriods.get(counter1), (Date)formatter.parse(stockDetails.tradeddate.get(counter)));
+					
+					//Remove after testing
+					//expMovingAvg = calculateExpMvingAvg(stockCode, stockDetails.closePrice.get(counter), 20, (Date)formatter.parse(stockDetails.tradeddate.get(counter)));
+						if (expMovingAvg == -1 && smaPeriods.get(counter1) == 12) {
+							expMovingAvg = simpleMovingAverageForTwelve;
+						} else if (expMovingAvg == -1 && smaPeriods.get(counter1) == 26) {
+							expMovingAvg = simpleMovingAverageForTwentySix;
+						}
+						System.out.println(" Date -> " + stockDetails.tradeddate.get(counter) + " period = "+smaPeriods.get(counter1) + " EMA->" + expMovingAvg);
+						/*updateOrInsertExpMovingAverageinDB(stockCode, stockDetails.tradeddate.get(counter), 
+								smaPeriods.get(counter1), stockDetails.closePrice.get(counter).floatValue(), expMovingAvg);*/
+						storeMovingAverageinDB(stockCode, stockDetails.tradeddate.get(counter), 0,
+								smaPeriods.get(counter1), stockDetails.closePrice.get(counter).floatValue(), expMovingAvg);
+					//}
+					/*period++;
+					if (period > 200) {
+						break;
+					}*/
+
+				}
+			}
+		}catch (Exception ex) {
+			System.out.println("calculateExpMovingAverageForMACD Error in DB action"+ex);
+			logger.error("Error in calculateExpMovingAverageForMACD  -> ", ex);
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("calculateExpMovingAverageForMACD Error in DB action"+ex);
+				logger.error("Error in calculateExpMovingAverageForMACD  -> ", ex);
+			}
+		}
+	}
+
+	private void calculateTwelveAndTwentySixSMA(String stockCode) {
+		ResultSet resultSet = null;
+		Statement statement = null;
+		String tradedDate, tmpSQL;
+		Float closePrice;
+		float sumofPrice;
+		int counter =0;
+		
+		
+		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		
+		try {			
+			
+			statement = connection.createStatement();
+			tmpSQL = "SELECT tradeddate, closeprice FROM DAILYSTOCKDATA where stockname='"
+					+ stockCode + "' and tradeddate<='2017-01-02' order by tradeddate desc;";
+			resultSet = statement.executeQuery(tmpSQL);
+			sumofPrice = 0;
+			while (resultSet.next()) {
+				
+				tradedDate = resultSet.getString(1);
+				closePrice = Float.parseFloat(resultSet.getString(2));
+				sumofPrice = sumofPrice + closePrice;
+				
+				counter++;
+				if(counter == 12) {
+					simpleMovingAverageForTwelve = sumofPrice / counter;
+				}
+				if(counter == 26) {
+					simpleMovingAverageForTwentySix = sumofPrice / counter;
+					break;
+				}
+					
+			}
+		} catch (Exception ex) {
+			System.out.println("calculateTwelveAndTwentySixSMA Error in DB action"+ex);
+			logger.error("Error in calculateTwelveAndTwentySixSMA  -> ", ex);
+		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("calculateTwelveAndTwentySixSMA Error in closing resultset "+ex);
+				logger.error("Error in closing resultset calculateTwelveAndTwentySixSMA  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("calculateTwelveAndTwentySixSMA Error in closing statement "+ex);
+				logger.error("Error in closing statement calculateTwelveAndTwentySixSMA  -> ", ex);
+			}
+		}
+	}
+	
 	private void calculateSimpleMovingAverageDaily(String stockCode, Date tragetDate) {
 		SMAData stockDetails = null;
 		float simpleMovingAverage = 0;
@@ -128,12 +278,12 @@ public class CalculateSimpleAndExpoMovingAvg {
 				//		|| period == 200) {
 					simpleMovingAverage = sumOfClosingPrices / period;
 					System.out.println(" Stock -> " + stockCode + " Period -> " + (counter+1));
-					expMovingAvg = calculateExpMvingAvg(stockCode, stockDetails.closePrice.get(counter), period);
+					expMovingAvg = calculateExpMvingAvg(stockCode, stockDetails.closePrice.get(counter), period, tragetDate);
 					if (expMovingAvg == -1) {
 						expMovingAvg = simpleMovingAverage;
 					}
-					storeMovingAverageinDB(stockCode, stockDetails.tradeddate.get(0), simpleMovingAverage, period,
-							stockDetails.closePrice.get(0).floatValue(), expMovingAvg);
+					/*storeMovingAverageinDB(stockCode, stockDetails.tradeddate.get(0), simpleMovingAverage, period,
+							stockDetails.closePrice.get(0).floatValue(), expMovingAvg);*/
 				}
 				period++;
 				if (period > 200) {
@@ -141,8 +291,8 @@ public class CalculateSimpleAndExpoMovingAvg {
 				}
 			} 
 		}catch (Exception ex) {
-				System.out.println("Error in DB action");
-				logger.error("Error in getStockDetailsFromDB  -> ", ex);
+				System.out.println("calculateSimpleMovingAverageDaily Error in DB action"+ex);
+				logger.error("Error in calculateSimpleMovingAverageDaily  -> ", ex);
 		} finally {
 			try {
 				if (connection != null) {
@@ -150,26 +300,34 @@ public class CalculateSimpleAndExpoMovingAvg {
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				System.out.println("Error in DB action");
-				logger.error("Error in getStockDetailsFromDB  -> ", ex);
+				System.out.println("calculateSimpleMovingAverageDaily Error in DB action"+ex);
+				logger.error("Error in calculateSimpleMovingAverageDaily  -> ", ex);
 			}
 		}
 	}
 
-	private SMAData getStockDetailsFromDB(String stockCode) {
+	private SMAData getStockDetailsFromDB(String stockCode, Date targetDate) {
 		ResultSet resultSet = null;
 		Statement statement = null;
-		String tradedDate;
+		String tradedDate, tmpSQL;
 		Float closePrice;
 		SMAData smaDataObj = null;
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		
 		try {			
 			smaDataObj = new SMAData();
 			smaDataObj.closePrice = new ArrayList<Float>();
 			smaDataObj.tradeddate = new ArrayList<String>();
 			statement = connection.createStatement();
 			smaDataObj.stockName = stockCode;
-			resultSet = statement.executeQuery("SELECT tradeddate, closeprice FROM DAILYSTOCKDATA where stockname='"
-					+ stockCode + "' order by tradeddate;");
+			if(targetDate!=null) {
+				tmpSQL = "SELECT tradeddate, closeprice FROM DAILYSTOCKDATA where stockname='"
+						+ stockCode + "' and tradeddate>='" + dateFormat.format(targetDate) +"' order by tradeddate;";
+			} else {
+				tmpSQL = "SELECT tradeddate, closeprice FROM DAILYSTOCKDATA where stockname='"
+							+ stockCode + "' order by tradeddate;";
+			}
+			resultSet = statement.executeQuery(tmpSQL);
 			while (resultSet.next()) {
 				tradedDate = resultSet.getString(1);
 				closePrice = Float.parseFloat(resultSet.getString(2));
@@ -178,7 +336,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 			}
 			return smaDataObj;
 		} catch (Exception ex) {
-			System.out.println("Error in DB action");
+			System.out.println("getStockDetailsFromDB Error in DB action"+ex);
 			logger.error("Error in getStockDetailsFromDB  -> ", ex);
 			return null;
 		} finally {
@@ -236,7 +394,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 			}
 			return smaDataObj;
 		} catch (Exception ex) {
-			System.out.println("Error in DB action");
+			System.out.println("getStockDetailsFromDBForDaily Error in DB action"+ex);
 			logger.error("Error in getStockDetailsFromDBForDaily  -> ", ex);
 			return null;
 		} finally {
@@ -292,11 +450,61 @@ public class CalculateSimpleAndExpoMovingAvg {
 		}
 	}
 
-	private float calculateExpMvingAvg(String stockName, float closePrice, int period) {
+	private void updateOrInsertExpMovingAverageinDB(String stockName, String tradedDate, int period,
+			float closingPrice, float expMovingAverage) {
+		Statement statement = null;
+		ResultSet resultSet = null;
+		String tmpSQL;
+		try {
+			
+			//connection = StockUtils.connectToDB();
+			statement = connection.createStatement();
+			tmpSQL = "SELECT EMA FROM DAILYSNEMOVINGAVERAGES where stockName ='"
+					+ stockName + "' and PERIOD = " + period + " and tradeddate='" + tradedDate + "' order by tradeddate desc;";
+			resultSet = statement.executeQuery(tmpSQL);
+			if (resultSet.next()) {
+				tmpSQL = "update DAILYSNEMOVINGAVERAGES set EMA=" + expMovingAverage + " where stockName ='"
+						+ stockName + "' and PERIOD = " + period + " and tradeddate='" + tradedDate + "'";
+			} else {
+				tmpSQL = "INSERT INTO DAILYSNEMOVINGAVERAGES (STOCKNAME, TRADEDDATE, SMA, EMA, PERIOD, CLOSINGPRICE) VALUES('"
+						+ stockName + "','" + tradedDate + "',0," + expMovingAverage + "," + period
+						+ "," + closingPrice + ");";
+			}
+			
+			statement.executeUpdate(tmpSQL);
+		} catch (Exception ex) {
+			System.out.println("updateOrInsertExpMovingAverageinDB for quote -> " + stockName + " and Date - > " + tradedDate
+					+ " and period  - > " + period + " Error in DB action" + ex);
+			logger.error("Error in updateOrInsertExpMovingAverageinDB  ->  updateOrInsertExpMovingAverageinDB for quote -> " + stockName + " and Date - > " + tradedDate
+					+ " and period  - > " + period, ex);
+		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("updateOrInsertExpMovingAverageinDB Error in closing resultset "+ex);
+				logger.error("Error in closing resultset updateOrInsertExpMovingAverageinDB  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("updateOrInsertExpMovingAverageinDB Error in closing statement "+ex);
+				logger.error("Error in closing statement updateOrInsertExpMovingAverageinDB  -> ", ex);
+			}
+			
+		}
+	}
+	
+	private float calculateExpMvingAvg(String stockName, float closePrice, int period, Date tragetDate) {
 		float eMA;
 		float lastExpMovingAvgStored;
 
-		lastExpMovingAvgStored = getExpMovingAverageFromDB(stockName, period);
+		lastExpMovingAvgStored = getExpMovingAverageFromDB(stockName, period, tragetDate);
 
 		if (lastExpMovingAvgStored != -1) {
 			eMA = (2 / ((float) period + 1)) * (closePrice - lastExpMovingAvgStored) + lastExpMovingAvgStored;
@@ -306,16 +514,26 @@ public class CalculateSimpleAndExpoMovingAvg {
 		return eMA;
 	}
 
-	private float getExpMovingAverageFromDB(String stockName, int period) {
+	private float getExpMovingAverageFromDB(String stockName, int period, Date tragetDate) {
 
 		ResultSet resultSet = null;
 		Statement statement = null;
 		float eMA = -1;
+		String tmpSQL;
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		
 		try {
 			statement = connection.createStatement();
 
-			resultSet = statement.executeQuery("SELECT EMA, tradeddate FROM DAILYSNEMOVINGAVERAGES where stockName ='"
-					+ stockName + "' and PERIOD = " + period + " order by tradeddate desc;");
+			if(tragetDate!=null) {
+				tmpSQL = "SELECT EMA, tradeddate FROM DAILYSNEMOVINGAVERAGES where stockName ='"
+						+ stockName + "' and PERIOD = " + period + " and tradeddate<'" + dateFormat.format(tragetDate) + "' order by tradeddate desc;";
+			} else {
+				tmpSQL = "SELECT EMA, tradeddate FROM DAILYSNEMOVINGAVERAGES where stockName ='"
+						+ stockName + "' and PERIOD = " + period + " order by tradeddate desc;";
+			}
+			
+			resultSet = statement.executeQuery(tmpSQL);
 			while (resultSet.next()) {
 				eMA = Float.parseFloat(resultSet.getString(1));
 				break;
@@ -323,7 +541,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 			}
 			return eMA;
 		} catch (Exception ex) {
-			System.out.println("Error in DB action");
+			System.out.println("getExpMovingAverageFromDB Error in DB action"+ex);
 			logger.error("Error in getExpMovingAverageFromDB", ex);
 			return eMA;
 		} finally {

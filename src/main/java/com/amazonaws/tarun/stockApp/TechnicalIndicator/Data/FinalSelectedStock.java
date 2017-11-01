@@ -14,6 +14,8 @@ public class FinalSelectedStock {
 	public float rsiValue;
 	public float chandelierExitLong;
 	public float chandelierExitShort;
+	public boolean MACDCross;
+	public boolean MACDIncreasing;
 	
 	@Override
 	public int hashCode() {

@@ -32,9 +32,9 @@ public class GenerateIndicationFromMACD {
 		//obj.isSignalCrossedInMACD("20MICRONS", null);
 		//To get indication from MACD
 		//obj.CalculateIndicationfromMACD(null);
-		//obj.CalculateIndicationfromMACD(new Date("03-Nov-2017"));		
+		obj.CalculateIndicationfromMACD(new Date("10-Nov-2017"));		
 		//To calculate MACD values and store
-		obj.calculateSignalAndMACDBulkForAllStocks(new Date("30-Oct-2017"));
+		//obj.calculateSignalAndMACDBulkForAllStocks(new Date("30-Oct-2017"));
 	}
 
 	public void calculateSignalAndMACDBulkForAllStocks(Date calculationDate) {
@@ -315,12 +315,16 @@ public class GenerateIndicationFromMACD {
 	
 	public boolean isSignalCrossedInMACD(String stockCode, Date calculationDate) {
 		MACDData objMACDData = null;
-		//System.out.println("CHecking cross");
+		System.out.println("CHecking cross");
+		if(stockCode.equalsIgnoreCase("AGARIND")) {
+			System.out.println("test");;
+		}
 		objMACDData = getMACDData(stockCode, calculationDate);
 		//System.out.println("CHecking cross2"+objMACDData);
-		if(!(objMACDData!=null && objMACDData.MACDValues!=null && objMACDData.MACDValues.size()>3))
+		if(!(objMACDData!=null && objMACDData.MACDValues!=null && objMACDData.MACDValues.size()>2))
 			return false;
-		for (int counter = 0 ; counter < daysToCheck-1 ; counter++ ) {
+		
+		for (int counter = 0 ; counter < objMACDData.MACDValues.size()-1 ; counter++ ) {
 			if((objMACDData.MACDValues.get(counter)>objMACDData.signalValues.get(counter)) && (objMACDData.MACDValues.get(counter+1)<objMACDData.signalValues.get(counter+1))) {
 				//System.out.println("CHecked cross");
 				return true;
@@ -429,7 +433,7 @@ public class GenerateIndicationFromMACD {
 			statement = connection.createStatement();
 			if(targetDate!=null) {
 				tmpSQL = "SELECT MACDSignal, MACD, tradeddate FROM Daily_MACD where stockname='" + stockCode + "' " 
-						  + " and tradeddate >='" + dateFormat.format(new Date(targetDate.getTime() - daysToCheck*24*60*60)) + "' order by tradeddate desc limit " + (daysToCheck) + ";";
+						  + " and tradeddate >='" + dateFormat.format(new Date(targetDate.getTime() - daysToCheck*24*60*60*1000)) + "' order by tradeddate desc limit " + (daysToCheck) + ";";
 			} else {
 				tmpSQL = "SELECT MACDSignal, MACD, tradeddate FROM Daily_MACD where stockname='" + stockCode + "' order by tradeddate desc limit " + (daysToCheck) + ";";
 				  //+ " order by tradeddate limit " + (daysToCheck+18) + ";";
@@ -502,12 +506,13 @@ public class GenerateIndicationFromMACD {
 		CalculateBollingerBands objCalculateBollingerBands;
 		CalculateRSIIndicator objCalculateRSIIndicator;
 		CalculateStochasticOscillator objCalculateStochasticOscillator;
-			
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		String bbIndicator;
 		float rsiIndication;
 		float chandelierExitLong;
 		boolean MACDCross;
 		//float chandelierExitShort;
+		System.out.println("Get All Details");
 		GenerateIndicationFromMACD objGenerateIndicationFromMACD = new GenerateIndicationFromMACD();
 		objCalculateStochasticOscillator = new CalculateStochasticOscillator();
 		if(!objCalculateStochasticOscillator.getStochasticIndicator(objSMAIndicatorDetails.stockCode, calculationDate)) {
@@ -530,7 +535,7 @@ public class GenerateIndicationFromMACD {
 		
 		objCalculateRSIIndicator = new CalculateRSIIndicator();
 		if(calculationDate!=null) { 
-			rsiIndication= objCalculateRSIIndicator.getRSIValue(objSMAIndicatorDetails.stockCode, LocalDate.parse(calculationDate.toString()));
+			rsiIndication= objCalculateRSIIndicator.getRSIValue(objSMAIndicatorDetails.stockCode, LocalDate.parse(dateFormat.format(calculationDate).toString()));
 		} else {
 			rsiIndication= objCalculateRSIIndicator.getRSIValue(objSMAIndicatorDetails.stockCode, null);
 		}

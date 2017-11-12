@@ -32,8 +32,8 @@ public class CollectDailyStockData extends SetupBase {
 	Connection connection = null;
 	static Logger logger = Logger.getLogger(CollectDailyStockData.class);
 	
-	Date date = new Date(System.currentTimeMillis()-2*24*60*60*1000L);
-	//Date date = new Date(); //Date(System.currentTimeMillis()-24*60*60*1000);
+	//Date date = new Date(System.currentTimeMillis()-2*24*60*60*1000L);
+	Date date = new Date(); //Date(System.currentTimeMillis()-24*60*60*1000);
 			
 	public static void main(String[] args) {
 		Date dte = new Date();

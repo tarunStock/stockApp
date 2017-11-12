@@ -21,8 +21,8 @@ public class CalculateSimpleAndExpoMovingAvg {
 		logger.debug("CalculateSimpleAndExpoMovingAvg Started");
 		System.out.println("Start at -> " + dte.toString());
 		CalculateSimpleAndExpoMovingAvg obj = new CalculateSimpleAndExpoMovingAvg();
-		obj.MovingAverageCalculation(new Date("01-Jun-2017"));
-		//obj.MovingAverageCalculation(new Date("19-Jun-2017"));
+		obj.MovingAverageCalculation(new Date("10-Nov-2017"));
+		//obj.MovingAverageCalculation(null);
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());
 		logger.debug("CalculateSimpleAndExpoMovingAvg End");
@@ -37,8 +37,8 @@ public class CalculateSimpleAndExpoMovingAvg {
 		String bseCode;
 		String nseCode;
 
-		//calculateSimpleMovingAverage("20MICRONS", new Date("20-Oct-2017"));
-		//calculateExpMovingAverageForMACD("20MICRONS", new Date("01-Jun-2017"));
+		//For Testing
+		//calculateSimpleMovingAverageDaily("MINDACORP", new Date("31-Oct-2017"));
 		
 		for (String stockCode : stockList) {
 			stockName = stockCode.split("!")[1];
@@ -61,6 +61,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 		float sumOfClosingPrices = 0;
 		float expMovingAvg = 0;
 		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		
 		
 		ArrayList<Integer> smaPeriods;
 		try {
@@ -278,7 +279,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 				//		|| period == 200) {
 					simpleMovingAverage = sumOfClosingPrices / period;
 					System.out.println(" Stock -> " + stockCode + " Period -> " + (counter+1));
-					expMovingAvg = calculateExpMvingAvg(stockCode, stockDetails.closePrice.get(counter), period, tragetDate);
+					expMovingAvg = calculateExpMvingAvg(stockCode, stockDetails.closePrice.get(0), period, tragetDate);
 					if (expMovingAvg == -1) {
 						expMovingAvg = simpleMovingAverage;
 					}

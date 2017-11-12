@@ -60,6 +60,16 @@ public class QuoteApplication {
 				CalculateAverageTrueRange obj = new CalculateAverageTrueRange();
 				obj.calculateAverageTrueRangeForAllStocks(null);
 				logger.debug("CalculateATR End");
+			} else if (args[0].equalsIgnoreCase("calculateMACD")) {
+				logger.debug("CalculateATR Started");
+				GenerateIndicationFromMACD obj = new GenerateIndicationFromMACD();
+				obj.calculateSignalAndMACDBulkForAllStocks(null);
+				logger.debug("CalculateATR End");
+			} else if (args[0].equalsIgnoreCase("combinedFromMACD")) {
+				logger.debug("CalculateATR Started");
+				GenerateIndicationFromMACD obj = new GenerateIndicationFromMACD();
+				obj.CalculateIndicationfromMACD(null);
+				logger.debug("CalculateATR End");
 			}
 		} else {
 			System.out.println("No Args specified");

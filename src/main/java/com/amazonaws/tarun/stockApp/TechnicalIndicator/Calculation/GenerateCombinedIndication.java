@@ -25,7 +25,7 @@ public class GenerateCombinedIndication {
 		Date dte = new Date();
 		System.out.println("Start at -> " + dte.toString());
 		GenerateCombinedIndication obj = new GenerateCombinedIndication();
-		//obj.generateCombinedIndicationForStocks(new Date("12-Oct-2017"));
+		//obj.generateCombinedIndicationForStocks(new Date("03-Nov-2017"));
 		obj.generateCombinedIndicationForStocks(null);
 	}
 
@@ -229,6 +229,7 @@ public class GenerateCombinedIndication {
 	private void sendTopStockInMail(ArrayList<FinalSelectedStock> objFinalSelectedStockList, Boolean belowHunderd, String subject) {
 		logger.debug("sendTopStockInMail Started");
 		StringBuilder mailBody = new StringBuilder();
+		System.out.println("Stocks to send in mail -> " + (objFinalSelectedStockList.size()>20?20:objFinalSelectedStockList.size()));
 		mailBody.append("<html><body><table border='1'><tr><th>Sr. No.</th><th>Date</th><th>Stock code</th>");
 		mailBody.append("<th>Stock Price</th><th>9 to 50 SM Cross</th><th>Price crossed 20 SMA</th><th>% Price Change</th><th>% Volume Increase</th><th>BB Indication</th>"
 				+ "<th>RSI Indication</th><th>Chandelier Exit</th><th>MACD Crossed</th><th>Accumulation/ Distribution Line</th></tr>");			
@@ -279,6 +280,7 @@ public class GenerateCombinedIndication {
 		mailBody.append("</table></body></html>");
         if(objFinalSelectedStockList.size() > 0) {
         	new SendSuggestedStockInMail("tarunstockcomm@gmail.com",subject+" "+objFinalSelectedStockList.get(0).tradeddate.toString(),mailBody.toString());
+        	System.out.println("Mail Sent");
         } /*else if( objFinalSelectedStockList.size() > 0 ){
         	new SendSuggestedStockInMail("tarunstockcomm@gmail.com",subject+" "+objFinalSelectedStockList.get(0).tradeddate.toString(),mailBody.toString());
         }*/

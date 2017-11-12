@@ -30,8 +30,11 @@ public class GenerateIndicationFromMACD {
 		System.out.println("Start at -> " + dte.toString());
 		GenerateIndicationFromMACD obj = new GenerateIndicationFromMACD();
 		//obj.isSignalCrossedInMACD("20MICRONS", null);
-		obj.CalculateIndicationfromMACD(null);
-		//obj.calculateSignalAndMACDBulkForAllStocks(null);
+		//To get indication from MACD
+		//obj.CalculateIndicationfromMACD(null);
+		//obj.CalculateIndicationfromMACD(new Date("03-Nov-2017"));		
+		//To calculate MACD values and store
+		obj.calculateSignalAndMACDBulkForAllStocks(new Date("30-Oct-2017"));
 	}
 
 	public void calculateSignalAndMACDBulkForAllStocks(Date calculationDate) {
@@ -43,15 +46,18 @@ public class GenerateIndicationFromMACD {
 		stocklist = StockUtils.getStockListFromDB();
 		SMAIndicatorDetailsList = new ArrayList<SMAIndicatorDetails>();
 		SMAIndicatorDetailsBelowHundredList = new ArrayList<SMAIndicatorDetails>();
+		
+		
 		int stockcounter = 1;
 		try {
+			
 			if (connection != null) {
 				connection.close();
 				connection = null;
 			}
 			connection = StockUtils.connectToDB();
 			//Remove after testing
-			//CalculateAndStoreMACDStockWise("20MICRONS", new Date("5-Sep-2017"));
+			//CalculateAndStoreMACDStockWise("MINDACORP", calculationDate);
 			for (String stock : stocklist) {
 				nseCode = stock.split("!")[2];
 				System.out.println("For Stock -> " + nseCode + " Stock count -> " + stockcounter++);
@@ -222,6 +228,7 @@ public class GenerateIndicationFromMACD {
 		logger.debug("CalculateIndicationfromMACD start");
 		ArrayList<String> stocklist = null;
 		String nseCode, bseCode;
+		ArrayList<String> stocklistSMA = null;
 		SMAIndicatorDetails objSMAIndicatorDetails;
 		FinalSelectedStock objFinalSelectedStock = null;
 		ArrayList<FinalSelectedStock> objFinalSelectedStockList = new ArrayList<FinalSelectedStock>();
@@ -230,36 +237,47 @@ public class GenerateIndicationFromMACD {
 		//UpdateIndicatedStocks tmpUpdateIndicatedStocks = new UpdateIndicatedStocks();
 		try {
 			stocklist = StockUtils.getStockListFromDB();
+			GenerateIndicationfromMovingAverage obj = new GenerateIndicationfromMovingAverage();
+			obj.CalculateIndicationfromSMA(calculationDate);
+			SMAIndicatorDetailsList = obj.getIndicationStocks();
+			SMAIndicatorDetailsBelowHundredList = obj.getBelowHunderdIndicationStocks();
 			if (connection != null) {
 				connection.close();
 				connection = null;
 			}
 			connection = StockUtils.connectToDB();
 			
-			SMAIndicatorDetailsList = new ArrayList<SMAIndicatorDetails>();
-			SMAIndicatorDetailsBelowHundredList = new ArrayList<SMAIndicatorDetails>();
+			//SMAIndicatorDetailsList = new ArrayList<SMAIndicatorDetails>();
+			//SMAIndicatorDetailsBelowHundredList = new ArrayList<SMAIndicatorDetails>();
 			int stockcounter = 1;
+			int stockwithMACDCrossed = 1;
+			int stockwithMACDCrossedAndGood = 1;
+			stocklistSMA = getStockList(SMAIndicatorDetailsList);
 			for (String stock : stocklist) {
 				//stockName = stock.split("!")[1];
 				bseCode = stock.split("!")[0];
 				nseCode = stock.split("!")[2];
 				System.out.println("For Stock -> " + nseCode + " Stock count -> " + stockcounter++);
 				if(StockUtils.getFinancialIndication(bseCode)) {	
-					objSMAIndicatorDetails = new SMAIndicatorDetails();
-					objSMAIndicatorDetails.stockCode = nseCode;
+					//objSMAIndicatorDetails = new SMAIndicatorDetails();
+					//objSMAIndicatorDetails.stockCode = nseCode;
 					//System.out.println("Under finacial check");
 					if(isSignalCrossedInMACD(nseCode, calculationDate)) {
 						System.out.println("*****************************Stock Added for indication -> " + nseCode);
+						stockwithMACDCrossed++;
 						//SMAIndicatorDetailsList.add(objSMAIndicatorDetails);
-						objFinalSelectedStock = getAlldetails(objSMAIndicatorDetails, calculationDate);
-						if(objFinalSelectedStock!=null) {
-							objFinalSelectedStockList.add(objFinalSelectedStock);
-/*							if(objSMAIndicatorDetails.stockPrice<100) {
-								System.out.println("****Added for below 100");
-								SMAIndicatorDetailsBelowHundredList.add(objSMAIndicatorDetails);
-							}
-*/						}
-						
+						if(stocklistSMA.contains(nseCode)) {
+							
+							objFinalSelectedStock = getAlldetails(SMAIndicatorDetailsList.get(stocklistSMA.indexOf(nseCode)), calculationDate);
+							if(objFinalSelectedStock!=null) {
+								objFinalSelectedStockList.add(objFinalSelectedStock);
+								stockwithMACDCrossedAndGood++;
+	/*							if(objSMAIndicatorDetails.stockPrice<100) {
+									System.out.println("****Added for below 100");
+									SMAIndicatorDetailsBelowHundredList.add(objSMAIndicatorDetails);
+								}
+	*/						}
+						}
 					}
 					
 				}
@@ -270,6 +288,8 @@ public class GenerateIndicationFromMACD {
 			//Send top stock in mail
 			System.out.println("Send mail");
 			sendTopStockInMail(objFinalSelectedStockList, false, "Combined MACD Crossed -> Stocklist on ");
+			System.out.println("MACD crossed stoks -> "+stockwithMACDCrossed);
+			System.out.println("MACD crossed stoks and good -> "+stockwithMACDCrossedAndGood);
 		}catch (Exception ex) {
 			System.out.println("CalculateIndicationfromMACD Error in DB action"+ex);
 			logger.error("Error in getStockDetailsFromDB  -> ", ex);
@@ -409,7 +429,7 @@ public class GenerateIndicationFromMACD {
 			statement = connection.createStatement();
 			if(targetDate!=null) {
 				tmpSQL = "SELECT MACDSignal, MACD, tradeddate FROM Daily_MACD where stockname='" + stockCode + "' " 
-						  + " and tradeddate >='" + dateFormat.format(new Date(targetDate.getTime() - daysToCheck*24*60*60)) + "';" + "' order by tradeddate desc limit " + (daysToCheck) + ";";
+						  + " and tradeddate >='" + dateFormat.format(new Date(targetDate.getTime() - daysToCheck*24*60*60)) + "' order by tradeddate desc limit " + (daysToCheck) + ";";
 			} else {
 				tmpSQL = "SELECT MACDSignal, MACD, tradeddate FROM Daily_MACD where stockname='" + stockCode + "' order by tradeddate desc limit " + (daysToCheck) + ";";
 				  //+ " order by tradeddate limit " + (daysToCheck+18) + ";";
@@ -427,7 +447,7 @@ public class GenerateIndicationFromMACD {
 			}
 			return objMACDData;
 		} catch (Exception ex) {
-			System.out.println("Error in getting SMA values  error = " + ex);
+			System.out.println("getMACDData - Error in getting MACD values  error = " + ex);
 			return null;
 		} finally {
 			try {
@@ -436,8 +456,8 @@ public class GenerateIndicationFromMACD {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
-				System.out.println("GetSMAData Error in closing resultset "+ex);
-				logger.error("Error in closing resultset GetSMAData  -> ", ex);
+				System.out.println("getMACDData Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getMACDData  -> ", ex);
 			}
 			try {
 				if(statement != null) {
@@ -445,8 +465,8 @@ public class GenerateIndicationFromMACD {
 					statement = null;
 				}
 			} catch (Exception ex) {
-				System.out.println("GetSMAData Error in closing statement "+ex);
-				logger.error("Error in closing statement GetSMAData  -> ", ex);
+				System.out.println("getMACDData Error in closing statement "+ex);
+				logger.error("Error in closing statement getMACDData  -> ", ex);
 			}
 			try {
 				if (connection != null) {
@@ -454,8 +474,8 @@ public class GenerateIndicationFromMACD {
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				System.out.println("getFinancialIndication Error in closing connection "+ex);
-				logger.error("Error in closing connection getFinancialIndication  -> ", ex);
+				System.out.println("getMACDData Error in closing connection "+ex);
+				logger.error("Error in closing connection getMACDData  -> ", ex);
 			}
 		}
 	}
@@ -544,22 +564,22 @@ public class GenerateIndicationFromMACD {
 				+ "<th>RSI Indication</th><th>Chandelier Exit</th><th>MACD Crossed</th><th>Accumulation/ Distribution Line</th></tr>");			
 		for (int counter = 0; counter <(objFinalSelectedStockList.size()>30?30:objFinalSelectedStockList.size()-1); counter++) {
 			mailBody.append("<tr><td>" + (counter+1) + "</td>");
-			mailBody.append("<td>" + /*objFinalSelectedStockList.get(counter).tradeddate +*/ "</td>");
+			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).tradeddate + "</td>");
 			mailBody.append("<td><a href='"+ YAHOO_URL + objFinalSelectedStockList.get(counter).stockCode + ".NS'>" + objFinalSelectedStockList.get(counter).stockCode + "</a></td>");
-			mailBody.append("<td>" + /*objFinalSelectedStockList.get(counter).stockPrice +*/ "</td>");
-			/*if(objFinalSelectedStockList.get(counter).SMNSMcrossover) {
+			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).stockPrice + "</td>");
+			if(objFinalSelectedStockList.get(counter).SMNSMcrossover) {
 				mailBody.append("<td bgcolor='green'>" + objFinalSelectedStockList.get(counter).SMNSMcrossover + "</td>");
-			} else {*/
-				mailBody.append("<td>" /*+ objFinalSelectedStockList.get(counter).SMNSMcrossover */+ "</td>");
-			//}
-			/*if(objFinalSelectedStockList.get(counter).PNSMAcrossover) {
+			} else {
+				mailBody.append("<td>" + objFinalSelectedStockList.get(counter).SMNSMcrossover + "</td>");
+			}
+			if(objFinalSelectedStockList.get(counter).PNSMAcrossover) {
 				mailBody.append("<td bgcolor='green'>" + objFinalSelectedStockList.get(counter).PNSMAcrossover + "</td>");
-			} else {*/
-				mailBody.append("<td>" + /*objFinalSelectedStockList.get(counter).PNSMAcrossover +*/ "</td>");
-			//}
+			} else {
+				mailBody.append("<td>" + objFinalSelectedStockList.get(counter).PNSMAcrossover + "</td>");
+			}
 			
-			mailBody.append("<td>" + /*objFinalSelectedStockList.get(counter).percentagePriceChange +*/ "</td>");
-			mailBody.append("<td>" + /*objFinalSelectedStockList.get(counter).percentageChangeInVolumeInLastDay +*/ "</td>");
+			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).percentagePriceChange + "</td>");
+			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).percentageChangeInVolumeInLastDay + "</td>");
 			if(objFinalSelectedStockList.get(counter).BBIndicator.equalsIgnoreCase("Contracting")) {
 				mailBody.append("<td bgcolor='green'>" + objFinalSelectedStockList.get(counter).BBIndicator + "</td>");
 			} else {
@@ -572,11 +592,11 @@ public class GenerateIndicationFromMACD {
 			}
 			
 			String chandelierExitColValue = objFinalSelectedStockList.get(counter).chandelierExitLong + "";
-			/*if(objFinalSelectedStockList.get(counter).stockPrice>= objFinalSelectedStockList.get(counter).chandelierExitLong) {
+			if(objFinalSelectedStockList.get(counter).stockPrice>= objFinalSelectedStockList.get(counter).chandelierExitLong) {
 				mailBody.append("<td bgcolor='green'>" + chandelierExitColValue + "</td>");
-			} else {*/
+			} else {
 				mailBody.append("<td bgcolor='red'>" /*+ chandelierExitColValue*/ + "</td>");
-			//}
+			}
 			
 			//MACDCross
 			if(objFinalSelectedStockList.get(counter).MACDCross) {
@@ -587,12 +607,24 @@ public class GenerateIndicationFromMACD {
 			mailBody.append("<td>" +  "</td></tr>");
 		}
 		mailBody.append("</table></body></html>");
-        if(objFinalSelectedStockList.size() > 0) {
-        	new SendSuggestedStockInMail("tarunstockcomm@gmail.com",subject+" "+new Date(),mailBody.toString());
-        } /*else if( objFinalSelectedStockList.size() > 0 ){
+		if(objFinalSelectedStockList.size() > 0) {
         	new SendSuggestedStockInMail("tarunstockcomm@gmail.com",subject+" "+objFinalSelectedStockList.get(0).tradeddate.toString(),mailBody.toString());
+        } 
+        /*if(objFinalSelectedStockList.size() > 0) {
+        	new SendSuggestedStockInMail("tarunstockcomm@gmail.com",subject+" "+new Date(),mailBody.toString());
         }*/
         logger.debug("sendTopStockInMail end");
+	}
+
+	private ArrayList<String> getStockList(ArrayList<SMAIndicatorDetails> objSMAIndicatorDetailsList) {
+		ArrayList<String> stocklistSMA = new ArrayList<String>();
+		for(int counter = 0;counter < objSMAIndicatorDetailsList.size(); counter++ ) {
+			if(objSMAIndicatorDetailsList.get(counter).stockCode!=null) {
+				stocklistSMA.add(objSMAIndicatorDetailsList.get(counter).stockCode);
+			}
+		}
+		return stocklistSMA;
+		
 	}
 	
 }

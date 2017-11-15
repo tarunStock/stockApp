@@ -68,7 +68,7 @@ public class CalculateOnBalanceVolume {
 			if(counter == 0) {
 				onBalanceVolume = 0;				
 			} else {
-				if (stockDetails.closePrice.get(counter) > lastDayClosingPrice) {
+				if (stockDetails.closePrice.get(counter) >= lastDayClosingPrice) {
 					onBalanceVolume = onBalanceVolume + stockDetails.volume.get(counter);
 				} else if (stockDetails.closePrice.get(counter) < lastDayClosingPrice) {
 					onBalanceVolume = onBalanceVolume - stockDetails.volume.get(counter);

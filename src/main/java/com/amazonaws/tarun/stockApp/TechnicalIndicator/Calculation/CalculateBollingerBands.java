@@ -26,7 +26,8 @@ public class CalculateBollingerBands {
 		logger.debug("CalculateBollingerBands Started");
 		System.out.println("Start at -> " + dte.toString());
 		CalculateBollingerBands obj = new CalculateBollingerBands();
-		obj.calculateBollingerBands(null);		
+		//obj.calculateBollingerBands(null);		
+		obj.calculateBollingerBands(new Date("21-Nov-2017"));
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());
 		logger.debug("CalculateBollingerBands End");
@@ -47,6 +48,10 @@ public class CalculateBollingerBands {
 			//BulkBollingerBandCalculateAndStore(nseCode);
 			//calculateBollingerBandsDaily(nseCode, new Date("19-Oct-2017"));
 			calculateBollingerBandsDaily(nseCode, calculationDate);
+			//System.out.println("stock " + nseCode);
+			/*if(getBBIndicationForStockV1(nseCode, calculationDate).equalsIgnoreCase("contracting")) {
+				System.out.println("*************stock " + nseCode + " has BB contracting ");
+			}*/
 		}
 	}
 	
@@ -412,6 +417,115 @@ public class CalculateBollingerBands {
 				} else {
 				}
 			}
+			return bbContracting;
+		} catch (Exception ex) {
+			System.out.println("getBBIndicationForStock Error in DB action "+ex);
+			logger.error("Error in getBBIndicationForStock  -> ", ex);
+			return "expanding";
+		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getBBIndicationForStock Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getBBIndicationForStock  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				System.out.println("getBBIndicationForStock Error in closing statement "+ex);
+				logger.error("Error in closing statement getBBIndicationForStock  -> ", ex);
+			}
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				System.out.println("getBBIndicationForStock Error in closing connection "+ex);
+				logger.error("Error in closing connection getBBIndicationForStock  -> ", ex);
+			}
+		}
+	}
+	
+	public String getBBIndicationForStockV1(String stockCode, Date targetDate) {
+		ResultSet resultSet = null;
+		Statement statement = null;
+		//ArrayList<Float> dailyBandwidth = new ArrayList<Float>();
+		float maxBandwidth=0, minBandwidth=0, currentBandwidth=0,avgBandwidth;
+		String bbContracting = "expanding";
+		//float BBcontractingPercentage;
+		String tmpSQL;
+		//boolean onedaydeviation = false;
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date startingDate;
+		if(targetDate != null) {
+			startingDate = new Date(targetDate.getTime()-365*24*60*60*1000L);
+		} else {
+			startingDate = new Date();
+		}
+		
+		try {
+			if (connection != null) {
+				connection.close();
+				connection = null;
+			}
+			connection = StockUtils.connectToDB();
+			statement = connection.createStatement();	
+			//get max value of bandwidth
+			/*if( targetDate != null) {
+				tmpSQL = "SELECT max(BANDWIDTH) from DAILYBOLLINGERBANDS where stockname='" + stockCode + "' and period = 20 and tradeddate >='" + dateFormat.format(startingDate) +  "';";
+			} else {
+				tmpSQL = "SELECT max(BANDWIDTH) from DAILYBOLLINGERBANDS where stockname='" + stockCode + "' and period = 20;";
+			}
+			
+			resultSet = statement.executeQuery(tmpSQL);
+			while (resultSet.next()) {
+				maxBandwidth = Float.parseFloat(resultSet.getString(1));
+			}
+			resultSet.close();
+			resultSet = null;
+			*/
+			//get min value of bandwidth
+			if( targetDate != null) {
+				tmpSQL = "SELECT min(BANDWIDTH) from DAILYBOLLINGERBANDS where stockname='" + stockCode + "' and period = 20 and tradeddate >='" + dateFormat.format(startingDate) +  "';";
+			} else {
+				tmpSQL = "SELECT min(BANDWIDTH) from DAILYBOLLINGERBANDS where stockname='" + stockCode + "' and period = 20;";
+			}
+			
+			resultSet = statement.executeQuery(tmpSQL);
+			while (resultSet.next()) {
+				minBandwidth = Float.parseFloat(resultSet.getString(1));
+			}
+			resultSet.close();
+			resultSet = null;
+			
+			//get given date bandwidth			
+			if( targetDate != null) {
+				tmpSQL = "SELECT BANDWIDTH from DAILYBOLLINGERBANDS where stockname='" + stockCode + "' and period = 20 and tradeddate ='" + dateFormat.format(targetDate) +  "';";
+			} else {
+				tmpSQL = "SELECT BANDWIDTH from DAILYBOLLINGERBANDS where stockname='" + stockCode + "' and period = 20 order by tradeddate desc limit 1;";
+			}
+			
+			resultSet = statement.executeQuery(tmpSQL);
+			while (resultSet.next()) {
+				currentBandwidth = Float.parseFloat(resultSet.getString(1));
+			}
+			
+			//avgBandwidth = (maxBandwidth+minBandwidth)/2;
+			
+			/*if(currentBandwidth <= (avgBandwidth/2)) {
+				bbContracting = "contracting";
+			} */
+			
+			if(currentBandwidth <= (minBandwidth+(minBandwidth*20/100))) {
+				bbContracting = "contracting";
+			} 
 			return bbContracting;
 		} catch (Exception ex) {
 			System.out.println("getBBIndicationForStock Error in DB action "+ex);

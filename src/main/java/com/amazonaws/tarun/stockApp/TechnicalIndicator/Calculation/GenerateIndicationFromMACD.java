@@ -31,8 +31,8 @@ public class GenerateIndicationFromMACD {
 		GenerateIndicationFromMACD obj = new GenerateIndicationFromMACD();
 		//obj.isSignalCrossedInMACD("20MICRONS", null);
 		//To get indication from MACD
-		//obj.CalculateIndicationfromMACD(null);
-		obj.CalculateIndicationfromMACD(new Date("10-Nov-2017"));		
+		obj.CalculateIndicationfromMACD(null);
+		//obj.CalculateIndicationfromMACD(new Date("10-Nov-2017"));		
 		//To calculate MACD values and store
 		//obj.calculateSignalAndMACDBulkForAllStocks(new Date("30-Oct-2017"));
 	}
@@ -527,7 +527,7 @@ public class GenerateIndicationFromMACD {
 		objOnBalanceVolumeIndicator = objCalculateOnBalanceVolume.calculateOnBalanceVolumeDaily(objSMAIndicatorDetails.stockCode, calculationDate);
 		
 		objCalculateBollingerBands = new CalculateBollingerBands();
-		bbIndicator = objCalculateBollingerBands.getBBIndicationForStock(objSMAIndicatorDetails.stockCode, calculationDate);
+		bbIndicator = objCalculateBollingerBands.getBBIndicationForStockV1(objSMAIndicatorDetails.stockCode, calculationDate);
 		
 		CalculateAverageTrueRange objCalculateAverageTrueRange = new CalculateAverageTrueRange();
 		chandelierExitLong = objCalculateAverageTrueRange.getChandelierExitLong(objSMAIndicatorDetails.stockCode, calculationDate);

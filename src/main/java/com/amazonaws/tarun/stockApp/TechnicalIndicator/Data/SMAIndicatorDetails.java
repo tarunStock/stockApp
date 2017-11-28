@@ -43,4 +43,14 @@ public class SMAIndicatorDetails {// implements Comparable<SMAIndicatorDetails> 
 	}
 	
 	
+	
+	
+	@Override
+	public String toString() {
+		return "SMAIndicatorDetails [stockCode=" + stockCode + ", SMNSMcrossover=" + SMNSMcrossover + ", PNSMAcrossover=" + PNSMAcrossover + ", signalSMAToSMA=" + signalSMAToSMA
+				+ ", signalPriceToSMA=" + signalPriceToSMA + "]";
+	}
+	
+	
+	
 }

@@ -30,7 +30,8 @@ public class GenerateIndicationfromMovingAverage {
 		Date dte = new Date();
 		System.out.println("Start at -> " + dte.toString());
 		GenerateIndicationfromMovingAverage obj = new GenerateIndicationfromMovingAverage();
-		obj.CalculateAndSendIndicationfromSMA(new Date("13-Oct-2017"));
+		//obj.CalculateAndSendIndicationfromSMA(new Date("13-Oct-2017"));
+		obj.CalculateIndicationfromSMA(null);
 	}
 
 	public void CalculateIndicationfromSMA(Date calculationDate) {
@@ -62,14 +63,14 @@ public class GenerateIndicationfromMovingAverage {
 					}
 				}
 			}
-			/*if (stockcounter > 100) {
+			/*if (stockcounter > 200) {
 				break;
 			}*/
 		}
 		logger.debug("CalculateAndSendIndicationfromSMA calculation completed");
 		// Collections.sort(SMAIndicatorDetailsList);
 		logger.debug("CalculateAndSendIndicationfromSMA start mail");
-		Collections.sort(SMAIndicatorDetailsList, new SMAIndicatorDetailsComparator());
+		Collections.sort(SMAIndicatorDetailsList, new SMAIndicatorDetailsComparator());		
 		Collections.sort(SMAIndicatorDetailsBelowHundredList, new SMAIndicatorDetailsComparator());
 		
 		//tmpUpdateIndicatedStocks.updateSMAIndication(SMAIndicatorDetailsList);

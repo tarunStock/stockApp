@@ -87,8 +87,11 @@ public class CalculateOnBalanceVolume {
 		tmpOnBalanceVolumeIndicator.tradeddate = stockDetails.tradeddate.get(stockDetails.tradeddate.size()-1);
 		tmpOnBalanceVolumeIndicator.volumeChangeInLastDay = tmpOnBalanceVol.get(tmpOnBalanceVol.size()-1) - tmpOnBalanceVol.get(tmpOnBalanceVol.size()-2);
 		tmpOnBalanceVolumeIndicator.continuousIncreasedVolume = continuousVolumeIncrease;
-		tmpOnBalanceVolumeIndicator.percentageChangeInLastDay = ((tmpOnBalanceVol.get(tmpOnBalanceVol.size()-1) - tmpOnBalanceVol.get(tmpOnBalanceVol.size()-2))/tmpOnBalanceVol.get(tmpOnBalanceVol.size()-2))*100;
-		
+		//Temporary check to avoid devide by zero error. Needs to be checked why the value is zero
+		if(tmpOnBalanceVol.get(tmpOnBalanceVol.size()-2)!=0)
+			tmpOnBalanceVolumeIndicator.percentageChangeInLastDay = ((tmpOnBalanceVol.get(tmpOnBalanceVol.size()-1) - tmpOnBalanceVol.get(tmpOnBalanceVol.size()-2))/tmpOnBalanceVol.get(tmpOnBalanceVol.size()-2))*100;
+		else
+			tmpOnBalanceVolumeIndicator.percentageChangeInLastDay = 0;
 		for (int counter = tmpOnBalanceVol.size()-2; counter > 0 ; counter--) {
 			if (tmpOnBalanceVol.get(counter) < tmpOnBalanceVol.get(counter-1)) {
 				continuousVolumeIncrease = false;

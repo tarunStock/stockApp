@@ -20,5 +20,18 @@ public class PurchasedStockData {
 	public String SMAComparison;
 	public float RSIValue;
 	public String BBChange;
-	public float chandleirExit;	
+	public float chandleirExit;
+	@Override
+	public String toString() {
+		return "PurchasedStockData [stockCode=" + stockCode + ", purchasedDate=" + purchasedDate
+				+ ", purchasedQuantity=" + purchasedQuantity + ", purchasedPrice=" + purchasedPrice + ", brokeragePaid="
+				+ brokeragePaid + ", currentPrice=" + currentPrice + ", oneDayPreviousPrice=" + oneDayPreviousPrice
+				+ ", twoDayPreviousPrice=" + twoDayPreviousPrice + ", threeDayPreviousPrice=" + threeDayPreviousPrice
+				+ ", currentVolume=" + currentVolume + ", oneDayPreviousVolume=" + oneDayPreviousVolume
+				+ ", twoDayPreviousVolume=" + twoDayPreviousVolume + ", threeDayPreviousVolume="
+				+ threeDayPreviousVolume + ", MACDStatus=" + MACDStatus + ", SMAComparison=" + SMAComparison
+				+ ", RSIValue=" + RSIValue + ", BBChange=" + BBChange + ", chandleirExit=" + chandleirExit + "]";
+	}	
+	
+	
 }

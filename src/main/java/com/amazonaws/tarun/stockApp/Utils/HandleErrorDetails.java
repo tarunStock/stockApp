@@ -9,8 +9,11 @@ public class HandleErrorDetails {
 	static ArrayList<ErrorDetails> objErrorDetailsList = new ArrayList<ErrorDetails>();
 	
 	public static void addError(String className, String methodName, String error) {
-		ErrorDetails obj = new ErrorDetails(className, methodName, error);
-		objErrorDetailsList.add(obj);
+		//Skip adding duplicate primary key error
+		if(!error.contains("Duplicate")) {
+			ErrorDetails obj = new ErrorDetails(className, methodName, error);
+			objErrorDetailsList.add(obj);
+		}
 	}
 	
 	public static void sendErrorsInMail(String flow) {

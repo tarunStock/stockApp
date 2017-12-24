@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import org.apache.log4j.Logger;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.SMAData;
+import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
 import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 
 public class CalculateSimpleAndExpoMovingAvg {
@@ -106,6 +107,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 				}
 			}
 		}catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("calculateSimpleMovingAverage Error in DB action"+ex);
 			logger.error("Error in calculateSimpleMovingAverage  -> ", ex);
 		} finally {
@@ -115,6 +117,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("calculateSimpleMovingAverage Error in DB action"+ex);
 				logger.error("Error in calculateSimpleMovingAverage  -> ", ex);
 			}
@@ -179,6 +182,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 				}
 			}
 		}catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("calculateExpMovingAverageForMACD Error in DB action"+ex);
 			logger.error("Error in calculateExpMovingAverageForMACD  -> ", ex);
 		} finally {
@@ -188,6 +192,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("calculateExpMovingAverageForMACD Error in DB action"+ex);
 				logger.error("Error in calculateExpMovingAverageForMACD  -> ", ex);
 			}
@@ -230,6 +235,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 					
 			}
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("calculateTwelveAndTwentySixSMA Error in DB action"+ex);
 			logger.error("Error in calculateTwelveAndTwentySixSMA  -> ", ex);
 		} finally {
@@ -239,6 +245,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("calculateTwelveAndTwentySixSMA Error in closing resultset "+ex);
 				logger.error("Error in closing resultset calculateTwelveAndTwentySixSMA  -> ", ex);
 			}
@@ -248,6 +255,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("calculateTwelveAndTwentySixSMA Error in closing statement "+ex);
 				logger.error("Error in closing statement calculateTwelveAndTwentySixSMA  -> ", ex);
 			}
@@ -292,8 +300,9 @@ public class CalculateSimpleAndExpoMovingAvg {
 				}
 			} 
 		}catch (Exception ex) {
-				System.out.println("calculateSimpleMovingAverageDaily Error in DB action"+ex);
-				logger.error("Error in calculateSimpleMovingAverageDaily  -> ", ex);
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+			System.out.println("calculateSimpleMovingAverageDaily Error in DB action"+ex);
+			logger.error("Error in calculateSimpleMovingAverageDaily  -> ", ex);
 		} finally {
 			try {
 				if (connection != null) {
@@ -301,6 +310,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("calculateSimpleMovingAverageDaily Error in DB action"+ex);
 				logger.error("Error in calculateSimpleMovingAverageDaily  -> ", ex);
 			}
@@ -337,6 +347,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 			}
 			return smaDataObj;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getStockDetailsFromDB Error in DB action"+ex);
 			logger.error("Error in getStockDetailsFromDB  -> ", ex);
 			return null;
@@ -347,6 +358,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDB Error in closing resultset "+ex);
 				logger.error("Error in closing resultset getStockDetailsFromDB  -> ", ex);
 			}
@@ -356,6 +368,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDB Error in closing statement "+ex);
 				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
 			}
@@ -395,6 +408,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 			}
 			return smaDataObj;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getStockDetailsFromDBForDaily Error in DB action"+ex);
 			logger.error("Error in getStockDetailsFromDBForDaily  -> ", ex);
 			return null;
@@ -405,6 +419,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForDaily Error in closing resultset "+ex);
 				logger.error("Error in closing resultset getStockDetailsFromDBForDaily  -> ", ex);
 			}
@@ -414,6 +429,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForDaily Error in closing statement "+ex);
 				logger.error("Error in closing statement getStockDetailsFromDBForDaily  -> ", ex);
 			}
@@ -433,6 +449,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 					+ "," + closingPrice + ");";
 			statement.executeUpdate(tmpsql);
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("storeMovingAverageinDB for quote -> " + stockName + " and Date - > " + tradedDate
 					+ " and period  - > " + period + " Error in DB action" + ex);
 			logger.error("Error in storeMovingAverageinDB  ->  storeMovingAverageinDB for quote -> " + stockName + " and Date - > " + tradedDate
@@ -444,6 +461,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForDaily Error in closing statement "+ex);
 				logger.error("Error in closing statement getStockDetailsFromDBForDaily  -> ", ex);
 			}
@@ -474,6 +492,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 			
 			statement.executeUpdate(tmpSQL);
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("updateOrInsertExpMovingAverageinDB for quote -> " + stockName + " and Date - > " + tradedDate
 					+ " and period  - > " + period + " Error in DB action" + ex);
 			logger.error("Error in updateOrInsertExpMovingAverageinDB  ->  updateOrInsertExpMovingAverageinDB for quote -> " + stockName + " and Date - > " + tradedDate
@@ -485,6 +504,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("updateOrInsertExpMovingAverageinDB Error in closing resultset "+ex);
 				logger.error("Error in closing resultset updateOrInsertExpMovingAverageinDB  -> ", ex);
 			}
@@ -494,6 +514,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("updateOrInsertExpMovingAverageinDB Error in closing statement "+ex);
 				logger.error("Error in closing statement updateOrInsertExpMovingAverageinDB  -> ", ex);
 			}
@@ -542,6 +563,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 			}
 			return eMA;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getExpMovingAverageFromDB Error in DB action"+ex);
 			logger.error("Error in getExpMovingAverageFromDB", ex);
 			return eMA;
@@ -552,6 +574,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getExpMovingAverageFromDB Error in closing resultset "+ex);
 				logger.error("Error in closing resultset getExpMovingAverageFromDB  -> ", ex);
 			}
@@ -561,6 +584,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getExpMovingAverageFromDB Error in closing statement "+ex);
 				logger.error("Error in closing statement getExpMovingAverageFromDB  -> ", ex);
 			}
@@ -590,6 +614,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 			}
 			resultSet.close();
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("Error in getting SMA period from DB" + ex);
 			return null;
 		} finally {
@@ -599,6 +624,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("GetSMAPeriodsFromDB Error in closing resultset "+ex);
 				logger.error("Error in closing resultset GetSMAPeriodsFromDB  -> ", ex);
 			}
@@ -608,6 +634,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("GetSMAPeriodsFromDB Error in closing statement "+ex);
 				logger.error("Error in closing statement GetSMAPeriodsFromDB  -> ", ex);
 			}

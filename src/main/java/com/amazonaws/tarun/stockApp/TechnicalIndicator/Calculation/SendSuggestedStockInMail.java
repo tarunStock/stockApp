@@ -15,6 +15,8 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
+
 public class SendSuggestedStockInMail {
 
 	final String senderEmailID = "tarunstockcomm@gmail.com";
@@ -51,6 +53,7 @@ public class SendSuggestedStockInMail {
 			Transport.send(msg);
 			System.out.println("Message send Successfully:)");
 		} catch (Exception mex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), mex.toString());
 			mex.printStackTrace();
 		}
 	}

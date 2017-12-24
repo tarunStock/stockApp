@@ -12,6 +12,7 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.StochasticOscillatorData;
+import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
 import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 
 public class CalculateStochasticOscillator {
@@ -82,6 +83,7 @@ public class CalculateStochasticOscillator {
 			
 			}
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("calculateStochasticOscillatorForStockInBulk Error in DB action "+ex);
 			logger.error("Error in getBBIndicationForStock  -> ", ex);
 		} finally {
@@ -91,6 +93,7 @@ public class CalculateStochasticOscillator {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("calculateStochasticOscillatorForStockInBulk Error in DB action ");
 				logger.error("Error in getStockDetailsFromDB  -> ", ex);
 			}
@@ -130,6 +133,7 @@ public class CalculateStochasticOscillator {
 			}
 			return soDataObj;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getStockDetailsFromDBForBulk -> Error in DB action"+ex);
 			logger.error("Error in getStockDetailsFromDBForBulk  -> ", ex);
 			return null;
@@ -140,6 +144,7 @@ public class CalculateStochasticOscillator {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForBulk Error in closing resultset "+ex);
 				logger.error("Error in closing resultset getStockDetailsFromDB  -> ", ex);
 			}
@@ -149,6 +154,7 @@ public class CalculateStochasticOscillator {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
 				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
 			}
@@ -158,6 +164,7 @@ public class CalculateStochasticOscillator {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForBulk Error in closing connection "+ex);
 				logger.error("Error in closing connection getStockDetailsFromDB  -> ", ex);
 			}
@@ -187,6 +194,7 @@ public class CalculateStochasticOscillator {
 			System.out.println("Inserting oschillator value in DB");
 			storeStochasticOscillatorinDB(stockCode, stockDetails.tradeddate.get(0), STOCHASTIC_PERIOD, stochasticOscillator);
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("calculateStochasticOscillatorForStockInBulk Error in DB action "+ex);
 			logger.error("Error in getBBIndicationForStock  -> ", ex);
 		} finally {
@@ -196,6 +204,7 @@ public class CalculateStochasticOscillator {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("calculateStochasticOscillatorForStockInBulk Error in DB action ");
 				logger.error("Error in getStockDetailsFromDB  -> ", ex);
 			}
@@ -244,6 +253,7 @@ public class CalculateStochasticOscillator {
 			}
 			return soDataObj;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getStockDetailsFromDBForBulk -> Error in DB action"+ex);
 			logger.error("Error in getStockDetailsFromDBForBulk  -> ", ex);
 			return null;
@@ -254,6 +264,7 @@ public class CalculateStochasticOscillator {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForBulk Error in closing resultset "+ex);
 				logger.error("Error in closing resultset getStockDetailsFromDB  -> ", ex);
 			}
@@ -263,6 +274,7 @@ public class CalculateStochasticOscillator {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
 				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
 			}
@@ -272,6 +284,7 @@ public class CalculateStochasticOscillator {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForBulk Error in closing connection "+ex);
 				logger.error("Error in closing connection getStockDetailsFromDB  -> ", ex);
 			}
@@ -287,6 +300,7 @@ public class CalculateStochasticOscillator {
 					+ stockName + "','" + tradedDate + "'," + period + "," + stochasticOscillator + ");";
 			statement.executeUpdate(tmpsql);			
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("storeStochasticOscillatorinDB for quote -> " + stockName + " and Date - > " + tradedDate
 					+ " and period  - > " + period + " Error in DB action" + ex);
 			logger.error("Error in storeStochasticOscillatorinDB  ->  storeRSIinDB for quote -> " + stockName + " and Date - > " + tradedDate
@@ -298,6 +312,7 @@ public class CalculateStochasticOscillator {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("storeStochasticOscillatorinDB Error in closing statement "+ex);
 				logger.error("Error in closing statement storeStochasticOscillatorinDB  -> ", ex);
 			}
@@ -342,6 +357,7 @@ public class CalculateStochasticOscillator {
 				return true;
 			}
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getStockDetailsFromDBForBulk -> Error in DB action"+ex);
 			logger.error("Error in getStockDetailsFromDBForBulk  -> ", ex);
 			return false;
@@ -352,6 +368,7 @@ public class CalculateStochasticOscillator {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForBulk Error in closing resultset "+ex);
 				logger.error("Error in closing resultset getStockDetailsFromDB  -> ", ex);
 			}
@@ -361,6 +378,7 @@ public class CalculateStochasticOscillator {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
 				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
 			}
@@ -370,6 +388,7 @@ public class CalculateStochasticOscillator {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForBulk Error in closing connection "+ex);
 				logger.error("Error in closing connection getStockDetailsFromDB  -> ", ex);
 			}

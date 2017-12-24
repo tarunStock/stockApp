@@ -21,6 +21,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.QuotesData;
+import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
 import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 
 
@@ -106,6 +107,7 @@ public class CollectDailyStockData extends SetupBase {
 				}
 			}			
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("Error in reading zip fil "+ex);
 			logger.error("Error in startCollectingDailyData - > "+ex);
 			inputFileForDeletion.delete();	
@@ -116,6 +118,7 @@ public class CollectDailyStockData extends SetupBase {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("Error in closing connection in startCollectingDailyData "+ex);
 				logger.error("Error in closing connection in startCollectingDailyData  -> ", ex);
 			}
@@ -138,6 +141,7 @@ public class CollectDailyStockData extends SetupBase {
 		try {
 			Thread.sleep(3000);
 		} catch(Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("Error in waiting for drop down suggestion");
 		}
 		ele = driver.findElement(By.xpath("//*[@id='wrapper_btm']/div[1]/div[4]/div/div[1]/div/div[4]/input[3]"));
@@ -148,6 +152,7 @@ public class CollectDailyStockData extends SetupBase {
 		try {
 			Thread.sleep(7000);
 		} catch(Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("Error in waiting for drop down suggestion");
 		}
 		logger.debug("getDailyDataFile End");
@@ -165,6 +170,7 @@ public class CollectDailyStockData extends SetupBase {
         				quotesDataObj.dailyLow + "," + quotesDataObj.openPrice + "," + quotesDataObj.volume + ",'" + dateFormat.format(new Date(quotesDataObj.quoteDate)) + "');";
         	statement.executeUpdate(tmpsql);
         } catch(Exception ex){
+        	HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
         	System.out.println("storeQuotestoDB for quote -> " + quotesDataObj.stockName + " and Date - > " + quotesDataObj.quoteDate + " Error in DB action"+ex);
         	logger.error("Error in storeQuotestoDB -> ", ex);
         } finally {
@@ -174,6 +180,7 @@ public class CollectDailyStockData extends SetupBase {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
 				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
 			}

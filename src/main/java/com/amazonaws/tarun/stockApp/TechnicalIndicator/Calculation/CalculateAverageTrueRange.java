@@ -14,6 +14,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.StochasticOscillatorData;
+import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
 import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 
 public class CalculateAverageTrueRange {
@@ -29,6 +30,7 @@ public class CalculateAverageTrueRange {
 		CalculateAverageTrueRange obj = new CalculateAverageTrueRange();
 		obj.calculateAverageTrueRangeForAllStocks(null);
 		//obj.getChandelierExitLong("20MICRONS", new Date("16-Oct-2017"));
+		HandleErrorDetails.sendErrorsInMail("Calculate Average True Range");
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());
 		logger.debug("CalculateAverageTrueRange End");
@@ -101,6 +103,7 @@ public class CalculateAverageTrueRange {
 			
 			}
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("calculateAverageTrueRangeForStockInBulk Error in DB action "+ex);
 			logger.error("Error in calculateAverageTrueRangeForStockInBulk  -> ", ex);
 		} finally {
@@ -110,6 +113,7 @@ public class CalculateAverageTrueRange {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("calculateAverageTrueRangeForStockInBulk Error in DB action ");
 				logger.error("Error in calculateAverageTrueRangeForStockInBulk  -> ", ex);
 			}
@@ -149,6 +153,7 @@ public class CalculateAverageTrueRange {
 			}
 			return soDataObj;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getStockDetailsFromDBForBulk -> Error in DB action"+ex);
 			logger.error("Error in getStockDetailsFromDBForBulk  -> ", ex);
 			return null;
@@ -159,6 +164,7 @@ public class CalculateAverageTrueRange {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForBulk Error in closing resultset "+ex);
 				logger.error("Error in closing resultset getStockDetailsFromDBForBulk  -> ", ex);
 			}
@@ -168,6 +174,7 @@ public class CalculateAverageTrueRange {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
 				logger.error("Error in closing statement getStockDetailsFromDBForBulk  -> ", ex);
 			}
@@ -177,6 +184,7 @@ public class CalculateAverageTrueRange {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForBulk Error in closing connection "+ex);
 				logger.error("Error in closing connection getStockDetailsFromDBForBulk  -> ", ex);
 			}
@@ -212,6 +220,7 @@ public class CalculateAverageTrueRange {
 			System.out.println("Inserting ATR value in DB");
 			storeATRinDB(stockCode, stockDetails.tradeddate.get(0), ATR_PERIOD, averageTrueRange);
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("calculateAverageTrueRangeForStockDaily Error in DB action "+ex);
 			logger.error("Error in calculateAverageTrueRangeForStockDaily  -> ", ex);
 		} finally {
@@ -221,6 +230,7 @@ public class CalculateAverageTrueRange {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("calculateAverageTrueRangeForStockDaily Error in DB action ");
 				logger.error("Error in calculateAverageTrueRangeForStockDaily  -> ", ex);
 			}
@@ -264,6 +274,7 @@ public class CalculateAverageTrueRange {
 			}
 			return soDataObj;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getStockDetailsFromDBDaily -> Error in DB action"+ex);
 			logger.error("Error in getStockDetailsFromDBDaily  -> ", ex);
 			return null;
@@ -274,6 +285,7 @@ public class CalculateAverageTrueRange {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBDaily Error in closing resultset "+ex);
 				logger.error("Error in closing resultset getStockDetailsFromDBDaily  -> ", ex);
 			}
@@ -283,6 +295,7 @@ public class CalculateAverageTrueRange {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBDaily Error in closing statement "+ex);
 				logger.error("Error in closing statement getStockDetailsFromDBDaily  -> ", ex);
 			}
@@ -307,6 +320,7 @@ public class CalculateAverageTrueRange {
 			}
 			return previousDayATR;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getATR -> Error in DB action"+ex);
 			logger.error("Error in getATR  -> ", ex);
 			return 0;
@@ -317,6 +331,7 @@ public class CalculateAverageTrueRange {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getATR Error in closing resultset "+ex);
 				logger.error("Error in closing resultset getATR  -> ", ex);
 			}
@@ -326,6 +341,7 @@ public class CalculateAverageTrueRange {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getATR Error in closing statement "+ex);
 				logger.error("Error in closing statement getATR  -> ", ex);
 			}
@@ -341,6 +357,7 @@ public class CalculateAverageTrueRange {
 					+ stockName + "','" + tradedDate + "'," + period + "," + atr + ");";
 			statement.executeUpdate(tmpsql);
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("storeATRinDB for quote -> " + stockName + " and Date - > " + tradedDate
 					+ " and period  - > " + period + " Error in DB action" + ex);
 			logger.error("Error in storeATRinDB  ->  storeRSIinDB for quote -> " + stockName + " and Date - > " + tradedDate
@@ -352,6 +369,7 @@ public class CalculateAverageTrueRange {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("storeATRinDB Error in closing statement "+ex);
 				logger.error("Error in closing statement storeATRinDB  -> ", ex);
 			}
@@ -387,6 +405,7 @@ public class CalculateAverageTrueRange {
 			System.out.println("chandelierExitLong-> "+ chandelierExitLong );					
 			return chandelierExitLong;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getChandelierExitLong Error in DB action "+ex);
 			logger.error("Error in getChandelierExitLong  -> ", ex);
 			return 0;
@@ -397,6 +416,7 @@ public class CalculateAverageTrueRange {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getChandelierExitLong Error in DB action ");
 				logger.error("Error in getChandelierExitLong  -> ", ex);
 			}
@@ -430,6 +450,7 @@ public class CalculateAverageTrueRange {
 			System.out.println("chandelierExitShort-> "+ chandelierExitShort );					
 			return chandelierExitShort;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getChandelierExitShort Error in DB action "+ex);
 			logger.error("Error in getChandelierExitShort  -> ", ex);
 			return 0;
@@ -440,6 +461,7 @@ public class CalculateAverageTrueRange {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getChandelierExitShort Error in DB action ");
 				logger.error("Error in getChandelierExitShort  -> ", ex);
 			}

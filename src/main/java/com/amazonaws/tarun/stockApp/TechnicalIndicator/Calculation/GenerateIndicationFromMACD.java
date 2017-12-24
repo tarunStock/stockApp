@@ -15,6 +15,7 @@ import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.FinalSelectedStock;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.MACDData;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.OnBalanceVolumeIndicator;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.SMAIndicatorDetails;
+import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
 import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 
 public class GenerateIndicationFromMACD {
@@ -64,6 +65,7 @@ public class GenerateIndicationFromMACD {
 				CalculateAndStoreMACDStockWise(nseCode, calculationDate);
 			}
 		}catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("calculateSignalAndMACDBulkForAllStocks Error in DB action"+ex);
 			logger.error("Error in getStockDetailsFromDB  -> ", ex);
 		} finally {
@@ -73,6 +75,7 @@ public class GenerateIndicationFromMACD {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("calculateSignalAndMACDBulkForAllStocks Error in DB action"+ex);
 				logger.error("Error in calculateSignalAndMACDBulkForAllStocks  -> ", ex);
 			}
@@ -167,6 +170,7 @@ public class GenerateIndicationFromMACD {
 			}
 			return eMA;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getSignalFromDB Error in DB action"+ex);
 			logger.error("Error in getExpMovingAverageFromDB", ex);
 			return eMA;
@@ -177,6 +181,7 @@ public class GenerateIndicationFromMACD {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getSignalFromDB Error in closing resultset "+ex);
 				logger.error("Error in closing resultset getExpMovingAverageFromDB  -> ", ex);
 			}
@@ -186,6 +191,7 @@ public class GenerateIndicationFromMACD {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getExpMovingAverageFromDB Error in closing statement "+ex);
 				logger.error("Error in closing statement getExpMovingAverageFromDB  -> ", ex);
 			}
@@ -208,6 +214,7 @@ public class GenerateIndicationFromMACD {
 			
 			
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("storeMACDDatatoDB for stock -> " + stockCode + " Error in DB action" + ex);
 			logger.error("Error in storeMACDDatatoDB  ->  storeMACDDatatoDB for stock -> " + stockCode, ex);
 		} finally {
@@ -217,6 +224,7 @@ public class GenerateIndicationFromMACD {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForDaily Error in closing statement "+ex);
 				logger.error("Error in closing statement getStockDetailsFromDBForDaily  -> ", ex);
 			}
@@ -291,6 +299,7 @@ public class GenerateIndicationFromMACD {
 			System.out.println("MACD crossed stoks -> "+stockwithMACDCrossed);
 			System.out.println("MACD crossed stoks and good -> "+stockwithMACDCrossedAndGood);
 		}catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("CalculateIndicationfromMACD Error in DB action"+ex);
 			logger.error("Error in getStockDetailsFromDB  -> ", ex);
 		} finally {
@@ -300,6 +309,7 @@ public class GenerateIndicationFromMACD {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("CalculateIndicationfromMACD Error in DB action"+ex);
 				logger.error("Error in getStockDetailsFromDB  -> ", ex);
 			}
@@ -391,6 +401,7 @@ public class GenerateIndicationFromMACD {
 			connection = null;*/
 			return objMACDData;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("Error in getting SMA values  error = " + ex);
 			return null;
 		} finally {
@@ -400,6 +411,7 @@ public class GenerateIndicationFromMACD {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("GetSMAData Error in closing resultset "+ex);
 				logger.error("Error in closing resultset GetSMAData  -> ", ex);
 			}
@@ -409,6 +421,7 @@ public class GenerateIndicationFromMACD {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("GetSMAData Error in closing statement "+ex);
 				logger.error("Error in closing statement GetSMAData  -> ", ex);
 			}
@@ -451,6 +464,7 @@ public class GenerateIndicationFromMACD {
 			}
 			return objMACDData;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getMACDData - Error in getting MACD values  error = " + ex);
 			return null;
 		} finally {
@@ -460,6 +474,7 @@ public class GenerateIndicationFromMACD {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getMACDData Error in closing resultset "+ex);
 				logger.error("Error in closing resultset getMACDData  -> ", ex);
 			}
@@ -469,6 +484,7 @@ public class GenerateIndicationFromMACD {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getMACDData Error in closing statement "+ex);
 				logger.error("Error in closing statement getMACDData  -> ", ex);
 			}
@@ -478,6 +494,7 @@ public class GenerateIndicationFromMACD {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getMACDData Error in closing connection "+ex);
 				logger.error("Error in closing connection getMACDData  -> ", ex);
 			}

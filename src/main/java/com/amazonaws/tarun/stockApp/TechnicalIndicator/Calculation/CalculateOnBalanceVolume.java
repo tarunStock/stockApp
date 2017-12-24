@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.OnBalanceVolumeData;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.OnBalanceVolumeIndicator;
+import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
 import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 
 public class CalculateOnBalanceVolume {
@@ -146,6 +147,7 @@ public class CalculateOnBalanceVolume {
 			}
 			return onBalanceVolumeDataObj;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			try{
 				System.out.println("getStockDetailsFromDBDaily Error in DB action Date = " + resultSet.getString(1));
 			} catch(Exception ex1) { }

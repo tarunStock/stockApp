@@ -11,6 +11,7 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.RSIData;
+import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
 import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 
 
@@ -103,6 +104,7 @@ public class CalculateRSIIndicator {
 				}
 			}
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("calculateRSIForStockInBulk Error in DB action"+ex);
 			logger.error("Error in calculateRSIForStockInBulk  -> ", ex);
 		} finally {
@@ -112,6 +114,7 @@ public class CalculateRSIIndicator {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("calculateRSIForStockInBulk Error in DB action"+ex);
 				logger.error("Error in calculateRSIForStockInBulk  -> ", ex);
 			}
@@ -150,6 +153,7 @@ public class CalculateRSIIndicator {
 			System.out.println("Inserting RSI value in DB");
 			storeRSIinDB(stockCode, stockDetails.tradeddate.get(0), stockRS, stockRSI, RSI_PERIOD, avgGain, avgLoss);
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("calculateRSIForStock Error in DB action"+ex);
 			logger.error("Error in calculateRSIForStock  -> ", ex);
 		} finally {
@@ -159,6 +163,7 @@ public class CalculateRSIIndicator {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("calculateRSIForStock Error in DB action"+ex);
 				logger.error("Error in calculateRSIForStock  -> ", ex);
 			}
@@ -192,6 +197,7 @@ public class CalculateRSIIndicator {
 			}
 			return smaDataObj;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getStockDetailsFromDBForBulk -> Error in DB action"+ex);
 			logger.error("Error in getStockDetailsFromDBForBulk  -> ", ex);
 			return null;
@@ -202,6 +208,7 @@ public class CalculateRSIIndicator {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForBulk Error in closing resultset "+ex);
 				logger.error("Error in closing resultset getStockDetailsFromDBForBulk  -> ", ex);
 			}
@@ -211,6 +218,7 @@ public class CalculateRSIIndicator {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
 				logger.error("Error in closing statement getStockDetailsFromDBForBulk  -> ", ex);
 			}
@@ -220,6 +228,7 @@ public class CalculateRSIIndicator {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForBulk Error in closing connection "+ex);
 				logger.error("Error in closing connection getStockDetailsFromDBForBulk  -> ", ex);
 			}
@@ -284,6 +293,7 @@ public class CalculateRSIIndicator {
 			}
 			return rsiDataObj;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getStockDetailsFromDBForDaily Error in DB action"+ex);
 			logger.error("Error in getStockDetailsFromDBForDaily  -> ", ex);
 			return null;
@@ -294,6 +304,7 @@ public class CalculateRSIIndicator {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForDaily Error in closing resultset "+ex);
 				logger.error("Error in closing resultset getStockDetailsFromDBForDaily  -> ", ex);
 			}
@@ -303,6 +314,7 @@ public class CalculateRSIIndicator {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
 				logger.error("Error in closing statement getStockDetailsFromDBForDaily  -> ", ex);
 			}
@@ -312,6 +324,7 @@ public class CalculateRSIIndicator {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForBulk Error in closing connection "+ex);
 				logger.error("Error in closing connection getStockDetailsFromDBForDaily  -> ", ex);
 			}
@@ -328,6 +341,7 @@ public class CalculateRSIIndicator {
 			statement.executeUpdate(tmpsql);
 			
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("storeRSIinDB for quote -> " + stockName + " and Date - > " + tradedDate
 					+ " and period  - > " + period + " Error in DB action" + ex);
 			logger.error("Error in storeRSIinDB  ->  storeRSIinDB for quote -> " + stockName + " and Date - > " + tradedDate
@@ -339,6 +353,7 @@ public class CalculateRSIIndicator {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("storeRSIinDB Error in closing statement "+ex);
 				logger.error("Error in closing statement storeRSIinDB  -> ", ex);
 			}
@@ -371,6 +386,7 @@ public class CalculateRSIIndicator {
 			}
 			return stockRSI;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getRSIValue Error in DB action"+ex);
 			logger.error("Error in getRSIValue  -> ", ex);
 			return 0;
@@ -381,6 +397,7 @@ public class CalculateRSIIndicator {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getRSIValue Error in closing resultset "+ex);
 				logger.error("Error in closing resultset getRSIValue  -> ", ex);
 			}
@@ -390,6 +407,7 @@ public class CalculateRSIIndicator {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getRSIValue Error in closing statement "+ex);
 				logger.error("Error in closing statement getRSIValue  -> ", ex);
 			}
@@ -399,6 +417,7 @@ public class CalculateRSIIndicator {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getRSIValue Error in closing connection "+ex);
 				logger.error("Error in closing connection getRSIValue  -> ", ex);
 			}

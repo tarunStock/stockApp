@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.SMAIndicatorDetails;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.SMAIndicatorDetailsComparator;
+import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
 import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 
 public class GenerateIndicationfromMovingAverage {
@@ -196,6 +197,7 @@ public class GenerateIndicationfromMovingAverage {
 			connection.close();
 			connection = null;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("Error in getting preferred period from DB" + ex);
 			return null;
 		} finally {
@@ -205,6 +207,7 @@ public class GenerateIndicationfromMovingAverage {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("GetPreferredSMA Error in closing resultset "+ex);
 				logger.error("Error in closing resultset GetPreferredSMA  -> ", ex);
 			}
@@ -214,6 +217,7 @@ public class GenerateIndicationfromMovingAverage {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("GetPreferredSMA Error in closing statement "+ex);
 				logger.error("Error in closing statement GetPreferredSMA  -> ", ex);
 			}
@@ -223,6 +227,7 @@ public class GenerateIndicationfromMovingAverage {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("GetPreferredSMA Error in closing connection "+ex);
 				logger.error("Error in closing connection GetPreferredSMA  -> ", ex);
 			}
@@ -262,6 +267,7 @@ public class GenerateIndicationfromMovingAverage {
 			connection.close();
 			connection = null;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("Error in getting SMA values for period = " + period + " error = " + ex);
 			return null;
 		} finally {
@@ -271,6 +277,7 @@ public class GenerateIndicationfromMovingAverage {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("GetSMAData Error in closing resultset "+ex);
 				logger.error("Error in closing resultset GetSMAData  -> ", ex);
 			}
@@ -280,6 +287,7 @@ public class GenerateIndicationfromMovingAverage {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("GetSMAData Error in closing statement "+ex);
 				logger.error("Error in closing statement GetSMAData  -> ", ex);
 			}
@@ -289,6 +297,7 @@ public class GenerateIndicationfromMovingAverage {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("GetSMAData Error in closing connection "+ex);
 				logger.error("Error in closing connection GetSMAData  -> ", ex);
 			}
@@ -331,8 +340,8 @@ public class GenerateIndicationfromMovingAverage {
 				// System.out.println("StockNme - " + stockNSECode);
 			}
 		} catch (Exception ex) {
-			System.out.println("Error in getting price = " + ex);
-			
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+			System.out.println("Error in getting price = " + ex);			
 			return null;
 		} finally {
 			try {
@@ -341,6 +350,7 @@ public class GenerateIndicationfromMovingAverage {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("GetStockPrices Error in closing resultset "+ex);
 				logger.error("Error in closing resultset GetStockPrices  -> ", ex);
 			}
@@ -350,6 +360,7 @@ public class GenerateIndicationfromMovingAverage {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("GetStockPrices Error in closing statement "+ex);
 				logger.error("Error in closing statement GetStockPrices  -> ", ex);
 			}
@@ -359,6 +370,7 @@ public class GenerateIndicationfromMovingAverage {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("GetStockPrices Error in closing connection "+ex);
 				logger.error("Error in closing connection GetStockPrices  -> ", ex);
 			}
@@ -545,6 +557,7 @@ public class GenerateIndicationfromMovingAverage {
 			}
 			
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getFinancialIndication Error in getting indication = " + ex);
 			return true;
 		} finally {
@@ -554,6 +567,7 @@ public class GenerateIndicationfromMovingAverage {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getFinancialIndication Error in closing resultset "+ex);
 				logger.error("Error in closing resultset getFinancialIndication  -> ", ex);
 			}
@@ -563,6 +577,7 @@ public class GenerateIndicationfromMovingAverage {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getFinancialIndication Error in closing statement "+ex);
 				logger.error("Error in closing statement getFinancialIndication  -> ", ex);
 			}
@@ -572,6 +587,7 @@ public class GenerateIndicationfromMovingAverage {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getFinancialIndication Error in closing connection "+ex);
 				logger.error("Error in closing connection getFinancialIndication  -> ", ex);
 			}

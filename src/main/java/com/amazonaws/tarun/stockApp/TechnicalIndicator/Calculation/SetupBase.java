@@ -14,6 +14,8 @@ import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 
+import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
+
 public class SetupBase {
 	public  WebDriver driver = null;
 	final String timeOut = "2000";
@@ -52,6 +54,7 @@ public class SetupBase {
 			driver.get(URL);
 
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			logger.error("Error occurred in setting up Selenium -> ", ex);
 			System.out.println("Error occurred in setting up Selenium -> " + ex.getMessage());
 		}
@@ -76,6 +79,7 @@ public class SetupBase {
 								break;
 							}
 						} catch (Exception ex) {
+							HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 							System.out.println("Selenium exception occurred during visiblity check. Error is - " + ex);
 						}
 					}
@@ -86,7 +90,7 @@ public class SetupBase {
 						break;
 				}
 			} catch (Exception e) {
-
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), e.toString());
 				System.out.println("Error in finding element  - > " + e);
 			}
 		}
@@ -123,6 +127,7 @@ public class SetupBase {
 			//configBean.getLogger().info("" + (System.currentTimeMillis() - initMilliSec));
 		} catch (Throwable error) {
 			//configBean.getLogger().error("Timeout waiting for Page Load Request to complete.");
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), error.toString());
 			System.out.println("Timeout waiting for Page Load Request to complete.");
 		}
 	}
@@ -133,7 +138,9 @@ public class SetupBase {
 		driver = null;
 		try{
 			Runtime.getRuntime().exec("taskkill /F /IM chromedriver.exe");
-		}catch(Exception ex) {System.out.println("Error in killing chromedriver.exe"+ex);}		
+		}catch(Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+			System.out.println("Error in killing chromedriver.exe"+ex);}		
 	}
 	
 }

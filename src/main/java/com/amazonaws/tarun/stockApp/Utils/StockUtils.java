@@ -52,6 +52,7 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 			}		
 			
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("connectToDB Error in DB action ->"+ex);
 			logger.error("Error in getStockListFromDB  -> ", ex);
 		}
@@ -81,6 +82,7 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 				}
 			}
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getFinancialIndication Error in getting indication = " + ex);
 			return true;
 		} finally {
@@ -90,6 +92,7 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getFinancialIndication Error in closing resultset "+ex);
 				logger.error("Error in closing resultset getFinancialIndication  -> ", ex);
 			}
@@ -99,6 +102,7 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getFinancialIndication Error in closing statement "+ex);
 				logger.error("Error in closing statement getFinancialIndication  -> ", ex);
 			}
@@ -108,6 +112,7 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getFinancialIndication Error in closing connection "+ex);
 				logger.error("Error in closing connection getFinancialIndication  -> ", ex);
 			}
@@ -138,6 +143,7 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 			}
 			return stockList;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("Error in DB action");
 			return null;
 		} finally {
@@ -147,6 +153,7 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockListFromDB Error in closing resultset "+ex);
 				logger.error("Error in closing resultset getStockListFromDB  -> ", ex);
 			}
@@ -156,6 +163,7 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockListFromDB Error in closing statement "+ex);
 				logger.error("Error in closing statement getStockListFromDB  -> ", ex);
 			}
@@ -165,6 +173,7 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockListFromDB Error in closing connection "+ex);
 				logger.error("Error in closing connection getStockListFromDB  -> ", ex);
 			}

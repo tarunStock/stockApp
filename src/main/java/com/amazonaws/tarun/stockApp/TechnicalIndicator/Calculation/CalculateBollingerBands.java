@@ -12,6 +12,7 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.DailyStockData;
+import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
 import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 
 
@@ -28,6 +29,7 @@ public class CalculateBollingerBands {
 		CalculateBollingerBands obj = new CalculateBollingerBands();
 		//obj.calculateBollingerBands(null);		
 		obj.calculateBollingerBands(new Date("21-Nov-2017"));
+		HandleErrorDetails.sendErrorsInMail("Calculate Bollinger Band");
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());
 		logger.debug("CalculateBollingerBands End");
@@ -152,6 +154,7 @@ public class CalculateBollingerBands {
 			}
 			return bbPeriod;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getBBPeriod Error in DB action "+ex);
 			logger.error("Error in getBBPeriod  -> ", ex);
 			return null;
@@ -171,6 +174,7 @@ public class CalculateBollingerBands {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getBBPeriod Error in closing statement "+ex);
 				logger.error("Error in closing statement getBBPeriod  -> ", ex);
 			}
@@ -180,6 +184,7 @@ public class CalculateBollingerBands {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getBBPeriod Error in closing connection "+ex);
 				logger.error("Error in closing connection getBBPeriod  -> ", ex);
 			}
@@ -218,6 +223,7 @@ public class CalculateBollingerBands {
 			}
 			return objDailyStockDataList;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("CalculateBollingerBands -> getStockDetailsFromDBForDaily Error in DB action "+ex);
 			logger.error("Error in getStockDetailsFromDBForDaily  -> ", ex);
 			return null;
@@ -228,6 +234,7 @@ public class CalculateBollingerBands {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("CalculateBollingerBands -> getStockDetailsFromDBForDaily Error in closing resultset "+ex);
 				logger.error("CalculateBollingerBands ->  Error in closing resultset getStockDetailsFromDBForDaily  -> ", ex);
 			}
@@ -237,6 +244,7 @@ public class CalculateBollingerBands {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("CalculateBollingerBands ->  getStockDetailsFromDBForDaily Error in closing statement "+ex);
 				logger.error("CalculateBollingerBands ->  Error in closing statement getStockDetailsFromDBForDaily  -> ", ex);
 			}
@@ -246,6 +254,7 @@ public class CalculateBollingerBands {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("CalculateBollingerBands ->  getStockDetailsFromDBForDaily Error in closing connection "+ex);
 				logger.error("CalculateBollingerBands -> Error in closing connection getStockDetailsFromDBForDaily  -> ", ex);
 			}
@@ -265,6 +274,7 @@ public class CalculateBollingerBands {
 					+ tradedDate + "', '" + stockNSECode + "', " + period + ", " + closingPrice + ", " + SMA + ", " + BBUpper + ", " + BBLOwer + ", " + bandwidth + ");";
 			statement.executeUpdate(tmpSQL);			
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("insertBBToDB Error in DB action ->"+ex);
 			logger.error("Error in insertBBToDB  -> ", ex);
 		} finally {			
@@ -274,6 +284,7 @@ public class CalculateBollingerBands {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("CalculateBollingerBands -> insertBBToDB Error in closing statement "+ex);
 				logger.error("Error in closing statement insertBBToDB  -> ", ex);
 			}
@@ -353,6 +364,7 @@ public class CalculateBollingerBands {
 					counter++;	
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("calculateBollingerBandsDaily Error in DB action"+ex);
 				logger.error("Error in calculateBollingerBandsDaily  -> ", ex);
 			} finally {
@@ -362,6 +374,7 @@ public class CalculateBollingerBands {
 						connection = null;
 					} 
 				} catch (Exception ex) {
+					HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 					System.out.println("calculateBollingerBandsDaily Error in DB action"+ex);
 					logger.error("Error in calculateBollingerBandsDaily  -> ", ex);
 				}
@@ -419,6 +432,7 @@ public class CalculateBollingerBands {
 			}
 			return bbContracting;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getBBIndicationForStock Error in DB action "+ex);
 			logger.error("Error in getBBIndicationForStock  -> ", ex);
 			return "expanding";
@@ -429,6 +443,7 @@ public class CalculateBollingerBands {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getBBIndicationForStock Error in closing resultset "+ex);
 				logger.error("Error in closing resultset getBBIndicationForStock  -> ", ex);
 			}
@@ -438,6 +453,7 @@ public class CalculateBollingerBands {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getBBIndicationForStock Error in closing statement "+ex);
 				logger.error("Error in closing statement getBBIndicationForStock  -> ", ex);
 			}
@@ -447,6 +463,7 @@ public class CalculateBollingerBands {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getBBIndicationForStock Error in closing connection "+ex);
 				logger.error("Error in closing connection getBBIndicationForStock  -> ", ex);
 			}
@@ -528,6 +545,7 @@ public class CalculateBollingerBands {
 			} 
 			return bbContracting;
 		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getBBIndicationForStock Error in DB action "+ex);
 			logger.error("Error in getBBIndicationForStock  -> ", ex);
 			return "expanding";
@@ -538,6 +556,7 @@ public class CalculateBollingerBands {
 					resultSet = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getBBIndicationForStock Error in closing resultset "+ex);
 				logger.error("Error in closing resultset getBBIndicationForStock  -> ", ex);
 			}
@@ -547,6 +566,7 @@ public class CalculateBollingerBands {
 					statement = null;
 				}
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getBBIndicationForStock Error in closing statement "+ex);
 				logger.error("Error in closing statement getBBIndicationForStock  -> ", ex);
 			}
@@ -556,6 +576,7 @@ public class CalculateBollingerBands {
 					connection = null;
 				} 
 			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getBBIndicationForStock Error in closing connection "+ex);
 				logger.error("Error in closing connection getBBIndicationForStock  -> ", ex);
 			}

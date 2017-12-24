@@ -47,6 +47,7 @@ public class PurchasedStocksOperations {
         	statement.executeUpdate(tmpsql);
         	return true;
         } catch(Exception ex){
+        	
         	System.out.println("addPurchasedStock for Stock -> " + objPurchasedStockData.stockCode + " Error in DB action"+ex);
         	logger.error("Error in addPurchasedStock -> ", ex);
         	return false;

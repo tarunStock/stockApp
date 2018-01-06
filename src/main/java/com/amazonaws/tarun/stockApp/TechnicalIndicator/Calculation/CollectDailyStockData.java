@@ -22,6 +22,7 @@ import org.openqa.selenium.support.ui.Select;
 
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.QuotesData;
 import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
+import com.amazonaws.tarun.stockApp.Utils.SetupBase;
 import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 
 
@@ -32,6 +33,7 @@ public class CollectDailyStockData extends SetupBase {
 	QuotesData quotesDataObj;
 	Connection connection = null;
 	static Logger logger = Logger.getLogger(CollectDailyStockData.class);
+	public String downloadFilepath = "c:\\StockApp\\download";
 	
 	//Date date = new Date(System.currentTimeMillis()-2*24*60*60*1000L);
 	Date date = new Date(); //Date(System.currentTimeMillis()-24*60*60*1000);
@@ -54,7 +56,7 @@ public class CollectDailyStockData extends SetupBase {
 			if(!StockUtils.marketOpenOnGivenDate(date))
 				return;
 			logger.debug("startCollectingDailyData Started");
-			setupSelenium(URL);
+			setupSelenium(URL, downloadFilepath);
 			logger.debug("Selenium Setup Completed");
 			getDailyDataFile();
 			stopSelenium();
@@ -127,7 +129,7 @@ public class CollectDailyStockData extends SetupBase {
 	
 	private void getDailyDataFile () {		
 		logger.debug("getDailyDataFile Started");
-		WebElement ele = null;		
+		WebElement ele = null;
 		ele = driver.findElement(By.id("h_filetype"));
 		Select select= new Select(ele);		
 		select.selectByVisibleText("Bhavcopy");

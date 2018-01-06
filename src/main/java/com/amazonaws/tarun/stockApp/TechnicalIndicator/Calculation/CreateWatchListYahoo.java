@@ -9,6 +9,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 
+import com.amazonaws.tarun.stockApp.Utils.SetupBase;
+
 public class CreateWatchListYahoo extends SetupBase {
 	
 	static final String URL = "https://in.finance.yahoo.com/";
@@ -46,7 +48,7 @@ public class CreateWatchListYahoo extends SetupBase {
 		WebElement ele = null;	
 		try{
 			logger.debug("startCollectingDailyData Started");
-			setupSelenium(URL);
+			//setupSelenium(URL);
 			logger.debug("Selenium Setup Completed");
 			try {
 				Thread.sleep(4000);

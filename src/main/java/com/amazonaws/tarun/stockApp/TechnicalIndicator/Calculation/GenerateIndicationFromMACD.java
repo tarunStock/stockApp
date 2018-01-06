@@ -249,11 +249,11 @@ public class GenerateIndicationFromMACD {
 			obj.CalculateIndicationfromSMA(calculationDate);
 			SMAIndicatorDetailsList = obj.getIndicationStocks();
 			SMAIndicatorDetailsBelowHundredList = obj.getBelowHunderdIndicationStocks();
-			if (connection != null) {
+			/*if (connection != null) {
 				connection.close();
 				connection = null;
 			}
-			connection = StockUtils.connectToDB();
+			connection = StockUtils.connectToDB();*/
 			
 			//SMAIndicatorDetailsList = new ArrayList<SMAIndicatorDetails>();
 			//SMAIndicatorDetailsBelowHundredList = new ArrayList<SMAIndicatorDetails>();
@@ -302,18 +302,7 @@ public class GenerateIndicationFromMACD {
 			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("CalculateIndicationfromMACD Error in DB action"+ex);
 			logger.error("Error in getStockDetailsFromDB  -> ", ex);
-		} finally {
-			try {
-				if (connection != null) {
-					connection.close();
-					connection = null;
-				} 
-			} catch (Exception ex) {
-				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("CalculateIndicationfromMACD Error in DB action"+ex);
-				logger.error("Error in getStockDetailsFromDB  -> ", ex);
-			}
-		}
+		} 
 		
 		logger.debug("CalculateIndicationfromMACD calculation completed");
 		// Collections.sort(SMAIndicatorDetailsList);

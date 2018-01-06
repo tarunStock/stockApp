@@ -1,16 +1,22 @@
 package com.amazonaws.tarun.stockApp.TechnicalIndicator.Calculation;
-import java.time.format.DateTimeFormatter;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
 
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.FinalSelectedStock;
-import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.OnBalanceVolumeIndicator;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.SMAIndicatorDetails;
+import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.StockDetailsForDecision;
+import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
+import com.amazonaws.tarun.stockApp.Utils.SalesforceIntegration;
 import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 
-public class GenerateCombinedIndication {
+public class GenerateCombinedIndicationV1 {
 	
 	public static int daysToCheck = 5;
 	public static String YAHOO_URL = "https://in.finance.yahoo.com/chart/";
@@ -19,14 +25,14 @@ public class GenerateCombinedIndication {
 	String stockName;
 	String bseCode;
 	String nseCode;
-	static Logger logger = Logger.getLogger(GenerateCombinedIndication.class);
+	static Logger logger = Logger.getLogger(GenerateCombinedIndicationV1.class);
 	
 	public static void main(String[] args) {
 		Date dte = new Date();
 		System.out.println("Start at -> " + dte.toString());
-		GenerateCombinedIndication obj = new GenerateCombinedIndication();
-		//obj.generateCombinedIndicationForStocks(new Date("03-Nov-2017"));
-		obj.generateCombinedIndicationForStocks(null);
+		GenerateCombinedIndicationV1 obj = new GenerateCombinedIndicationV1();
+		obj.generateCombinedIndicationForStocks(new Date("29-Dec-2017"));
+		//obj.generateCombinedIndicationForStocks(null);
 	}
 
 	public void generateCombinedIndicationForStocks(Date calculationDate) {
@@ -38,12 +44,12 @@ public class GenerateCombinedIndication {
 			System.out.println("Returned due to weekend");
 			return;
 		}			
-		ArrayList<FinalSelectedStock> objFinalSelectedStockList = new ArrayList<FinalSelectedStock>();
-		ArrayList<FinalSelectedStock> objFinalSelectedBelowHundredStockList = new ArrayList<FinalSelectedStock>();
-		ArrayList<FinalSelectedStock> objFinalSelectedStockListWithLowRSI = new ArrayList<FinalSelectedStock>();
-		ArrayList<FinalSelectedStock> objFinalSelectedBelowHundredStockListWithLowRSI = new ArrayList<FinalSelectedStock>();
-		FinalSelectedStock objFinalSelectedStock = null;
-		FinalSelectedStock objFinalSelectedBelowHunderdStock;
+		ArrayList<StockDetailsForDecision> objFinalSelectedStockList = new ArrayList<StockDetailsForDecision>();
+		ArrayList<StockDetailsForDecision> objFinalSelectedBelowHundredStockList = new ArrayList<StockDetailsForDecision>();
+		ArrayList<StockDetailsForDecision> objFinalSelectedStockListWithLowRSI = new ArrayList<StockDetailsForDecision>();
+		ArrayList<StockDetailsForDecision> objFinalSelectedBelowHundredStockListWithLowRSI = new ArrayList<StockDetailsForDecision>();
+		StockDetailsForDecision objFinalSelectedStock = null;
+		StockDetailsForDecision objFinalSelectedBelowHunderdStock;
 		System.out.println("********* - Get seleted stocks based on SMA");
 		GenerateIndicationfromMovingAverage obj = new GenerateIndicationfromMovingAverage();
 		obj.CalculateIndicationfromSMA(calculationDate);
@@ -61,8 +67,13 @@ public class GenerateCombinedIndication {
 				}
 			} 
 		} 
-			
 		
+		SalesforceIntegration objSalesforceIntegration = new SalesforceIntegration();
+		
+		objSalesforceIntegration.connectToSalesforc();
+		objSalesforceIntegration.createSuggestedStocks(objFinalSelectedStockList);
+		
+		/*
 		//Send top stock in mail
 		sendTopStockInMail(objFinalSelectedStockList, false, "Combined -> Stocklist on ");
 		//CreateWatchListForTopStock(objFinalSelectedStockList, false);
@@ -99,40 +110,16 @@ public class GenerateCombinedIndication {
 		//Get Low RSI below 100 stocks
 		objFinalSelectedBelowHundredStockListWithLowRSI = getLowRSIStocks(SMAIndicatorDetailsBelowHundredList, calculationDate);
 		//Send top low RSI beow 100 stock in mail
-		sendTopStockInMail(objFinalSelectedBelowHundredStockListWithLowRSI, true, "Combined -> Low RSI below 100 Stocklist on ");
+		sendTopStockInMail(objFinalSelectedBelowHundredStockListWithLowRSI, true, "Combined -> Low RSI below 100 Stocklist on ");*/
 		logger.debug("generateCombinedIndicationForStocks End");
 	}
 	
 	
-	private ArrayList<FinalSelectedStock> getLowRSIStocks(ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList, Date calculationDate) {
-		ArrayList<FinalSelectedStock> objFinalSelectedStockListWithLowRSI = new ArrayList<FinalSelectedStock>();
-		FinalSelectedStock objFinalSelectedStock;
-		CalculateRSIIndicator objCalculateRSIIndicator = new CalculateRSIIndicator();
-		float rsiIndication;
-		int totalStocksAdded = 0;
-		
-		for(int counter = 0; counter<SMAIndicatorDetailsList.size(); counter++){
-			objSMAIndicatorDetails = SMAIndicatorDetailsList.get(counter);
-			rsiIndication= objCalculateRSIIndicator.getRSIValue(objSMAIndicatorDetails.stockCode, objSMAIndicatorDetails.signalDate);
-			if(rsiIndication < 50) {
-				objFinalSelectedStock = getAlldetailsExceptRSI(SMAIndicatorDetailsList.get(counter), calculationDate);
-				objFinalSelectedStock.rsiValue = rsiIndication;
-				objFinalSelectedStockListWithLowRSI.add(objFinalSelectedStock);
-				totalStocksAdded = totalStocksAdded + 1;
-				if(totalStocksAdded==20) {
-					break;
-				}
-			}
-		}
-		//Send top below 100 stock in mail
-		//sendTopStockInMail(objFinalSelectedStockListWithLowRSI, true, "Combined -> Low RSI Stocklist on ");
-		return objFinalSelectedStockListWithLowRSI;
-	}
 	
-	private FinalSelectedStock getAlldetails (SMAIndicatorDetails objSMAIndicatorDetails, Date calculationDate) {
-		FinalSelectedStock objFinalSelectedStock = null;
+	
+	private StockDetailsForDecision getAlldetails (SMAIndicatorDetails objSMAIndicatorDetails, Date calculationDate) {
+		StockDetailsForDecision objFinalSelectedStock = null;
 		CalculateOnBalanceVolume objCalculateOnBalanceVolume;
-		OnBalanceVolumeIndicator objOnBalanceVolumeIndicator;
 		CalculateBollingerBands objCalculateBollingerBands;
 		CalculateRSIIndicator objCalculateRSIIndicator;
 		CalculateStochasticOscillator objCalculateStochasticOscillator;
@@ -150,10 +137,10 @@ public class GenerateCombinedIndication {
 		if(!objGenerateIndicationFromMACD.isMACDIncreasing(objSMAIndicatorDetails.stockCode, calculationDate)) {
 			return null;
 		}
-		objFinalSelectedStock = new FinalSelectedStock();
+		objFinalSelectedStock = new StockDetailsForDecision();
 		//add selcted stock
-		objCalculateOnBalanceVolume = new CalculateOnBalanceVolume();
-		objOnBalanceVolumeIndicator = objCalculateOnBalanceVolume.calculateOnBalanceVolumeDaily(objSMAIndicatorDetails.stockCode, calculationDate);
+		//objCalculateOnBalanceVolume = new CalculateOnBalanceVolume();
+		//objOnBalanceVolumeIndicator = objCalculateOnBalanceVolume.calculateOnBalanceVolumeDaily(objSMAIndicatorDetails.stockCode, calculationDate);
 		
 		objCalculateBollingerBands = new CalculateBollingerBands();
 		bbIndicator = objCalculateBollingerBands.getBBIndicationForStockV1(objSMAIndicatorDetails.stockCode, calculationDate);
@@ -169,61 +156,109 @@ public class GenerateCombinedIndication {
 		MACDCross = objGenerateIndicationFromMACD.isSignalCrossedInMACD(objSMAIndicatorDetails.stockCode, calculationDate);
 		
 		objFinalSelectedStock.stockCode = objSMAIndicatorDetails.stockCode;
-		objFinalSelectedStock.stockPrice = objSMAIndicatorDetails.stockPrice;
-		objFinalSelectedStock.tradeddate = objSMAIndicatorDetails.signalDate;
-		objFinalSelectedStock.percentagePriceChange = objSMAIndicatorDetails.percentagePriceChange;
-		objFinalSelectedStock.PNSMAcrossover = objSMAIndicatorDetails.PNSMAcrossover;
-		objFinalSelectedStock.SMNSMcrossover = objSMAIndicatorDetails.SMNSMcrossover;
-		objFinalSelectedStock.percentageChangeInVolumeInLastDay = objOnBalanceVolumeIndicator.percentageChangeInLastDay;
-		objFinalSelectedStock.BBIndicator = bbIndicator;
-		objFinalSelectedStock.rsiValue = rsiIndication;
-		objFinalSelectedStock.chandelierExitLong = chandelierExitLong;
-		objFinalSelectedStock.MACDCross = MACDCross;
-		//objFinalSelectedStock.chandelierExitShort = chandelierExitShort;
+		objFinalSelectedStock.CurrentPrice = objSMAIndicatorDetails.stockPrice;
+		objFinalSelectedStock.suggestedDate = objSMAIndicatorDetails.signalDate;
+		//objFinalSelectedStock.percentagePriceChange = objSMAIndicatorDetails.percentagePriceChange;
+		if(objSMAIndicatorDetails.PNSMAcrossover)
+			objFinalSelectedStock.SMAToPriceComparison = "Crossed";
+		else
+			objFinalSelectedStock.SMAToPriceComparison = "NotCrossed";
 		
+		if(objSMAIndicatorDetails.SMNSMcrossover)
+			objFinalSelectedStock.SMAComparison = "Crossed";
+		else
+			objFinalSelectedStock.SMAComparison = "NotCrossed";
+		//objFinalSelectedStock.percentageChangeInVolumeInLastDay = objOnBalanceVolumeIndicator.percentageChangeInLastDay;
+		objFinalSelectedStock.BBTrend = bbIndicator;
+		objFinalSelectedStock.RSIValue = rsiIndication;
+		objFinalSelectedStock.ChandelierExit = chandelierExitLong;
+		if(MACDCross)
+			objFinalSelectedStock.MACDStatus = "Crossed";
+		else
+			objFinalSelectedStock.MACDStatus = "NotCrossed";
+		//objFinalSelectedStock.chandelierExitShort = chandelierExitShort;
+		objFinalSelectedStock = getPriceAndVolumeDetails(objFinalSelectedStock,calculationDate);
+		objFinalSelectedStock.TypeofSuggestedStock = "All";
 		return objFinalSelectedStock;
 	}
 	
-	private FinalSelectedStock getAlldetailsExceptRSI (SMAIndicatorDetails objSMAIndicatorDetails, Date calculationDate) {
-		FinalSelectedStock objFinalSelectedStock = null;
-		CalculateOnBalanceVolume objCalculateOnBalanceVolume;
-		OnBalanceVolumeIndicator objOnBalanceVolumeIndicator;
-		CalculateBollingerBands objCalculateBollingerBands;
-		CalculateRSIIndicator objCalculateRSIIndicator;
+	private StockDetailsForDecision getPriceAndVolumeDetails(StockDetailsForDecision objFinalSelectedStock, Date targetDate) {
+		Connection connection = null;
+		ResultSet resultSet = null;
+		Statement statement = null;
+		String tmpSQL;
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		
-		String bbIndicator;
-		float rsiIndication;
-		float chandelierExitLong;
-		float chandelierExitShort;
-		
-		objFinalSelectedStock = new FinalSelectedStock();
-		//add selcted stock
-		objCalculateOnBalanceVolume = new CalculateOnBalanceVolume();
-		objOnBalanceVolumeIndicator = objCalculateOnBalanceVolume.calculateOnBalanceVolumeDaily(objSMAIndicatorDetails.stockCode, calculationDate);
-		
-		objCalculateBollingerBands = new CalculateBollingerBands();
-		bbIndicator = objCalculateBollingerBands.getBBIndicationForStockV1(objSMAIndicatorDetails.stockCode, calculationDate);
-		
-		CalculateAverageTrueRange objCalculateAverageTrueRange = new CalculateAverageTrueRange();
-		chandelierExitLong = objCalculateAverageTrueRange.getChandelierExitLong(objSMAIndicatorDetails.stockCode, null);
-		//chandelierExitShort =  objCalculateAverageTrueRange.getChandelierExitShort(objSMAIndicatorDetails.stockCode, null);
-		
-//		objCalculateRSIIndicator = new CalculateRSIIndicator();
-//		rsiIndication= objCalculateRSIIndicator.getRSIValue(objSMAIndicatorDetails.stockCode, objSMAIndicatorDetails.signalDate);
-		
-		objFinalSelectedStock.stockCode = objSMAIndicatorDetails.stockCode;
-		objFinalSelectedStock.stockPrice = objSMAIndicatorDetails.stockPrice;
-		objFinalSelectedStock.tradeddate = objSMAIndicatorDetails.signalDate;
-		objFinalSelectedStock.percentagePriceChange = objSMAIndicatorDetails.percentagePriceChange;
-		objFinalSelectedStock.PNSMAcrossover = objSMAIndicatorDetails.PNSMAcrossover;
-		objFinalSelectedStock.SMNSMcrossover = objSMAIndicatorDetails.SMNSMcrossover;
-		objFinalSelectedStock.percentageChangeInVolumeInLastDay = objOnBalanceVolumeIndicator.percentageChangeInLastDay;
-		objFinalSelectedStock.BBIndicator = bbIndicator;
-		//objFinalSelectedStock.rsiValue = rsiIndication;
-		objFinalSelectedStock.chandelierExitLong = chandelierExitLong;
-		//objFinalSelectedStock.chandelierExitShort = chandelierExitShort;
-		
-		return objFinalSelectedStock;
+		try {
+			connection = StockUtils.connectToDB();
+			statement = connection.createStatement();
+			if(targetDate!=null) {
+				tmpSQL = "SELECT closeprice, Volume  FROM DAILYSTOCKDATA where stockname='" + objFinalSelectedStock.stockCode + "' " 
+						  + " and tradeddate >'" + dateFormat.format(new Date(targetDate.getTime() - 7*24*60*60*1000)) + "' order by tradeddate desc limit 3;";
+			} else {
+				tmpSQL = "SELECT closeprice, Volume  FROM DAILYSTOCKDATA where stockname='" + objFinalSelectedStock.stockCode + "' order by tradeddate desc limit 3;";
+				  //+ " order by tradeddate limit " + (daysToCheck+18) + ";";
+			}
+			resultSet = statement.executeQuery(tmpSQL);
+			
+			//while (resultSet.next()) {
+			if(!resultSet.next())
+				return objFinalSelectedStock;
+			objFinalSelectedStock.CurrentPrice = Float.parseFloat(resultSet.getString(1));
+			objFinalSelectedStock.CurrentVolume = Long.parseLong(resultSet.getString(2));
+			
+			if(!resultSet.next())
+				return objFinalSelectedStock;
+			objFinalSelectedStock.OneDayPreviousPrice = Float.parseFloat(resultSet.getString(1));
+			objFinalSelectedStock.OneDayPreviousVolume = Long.parseLong(resultSet.getString(2));
+			
+			if(!resultSet.next())
+				return objFinalSelectedStock;
+			objFinalSelectedStock.TwoDayPreviousPrice = Float.parseFloat(resultSet.getString(1));
+			objFinalSelectedStock.TwoDayPreviousVolume = Long.parseLong(resultSet.getString(2));
+			if(!resultSet.next())
+				return objFinalSelectedStock;
+			objFinalSelectedStock.ThreeDayPreviousPrice = Float.parseFloat(resultSet.getString(1));
+			objFinalSelectedStock.ThreeDayPreviousVolume = Long.parseLong(resultSet.getString(2));
+				
+			//}
+			return objFinalSelectedStock;
+		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+			System.out.println("getPriceAndVolumeDetails - Error in getting MACD values  error = " + ex);
+			return null;
+		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("getPriceAndVolumeDetails Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getPriceAndVolumeDetails  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("getPriceAndVolumeDetails Error in closing statement "+ex);
+				logger.error("Error in closing statement getPriceAndVolumeDetails  -> ", ex);
+			}
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("getPriceAndVolumeDetails Error in closing connection "+ex);
+				logger.error("Error in closing connection getPriceAndVolumeDetails  -> ", ex);
+			}
+		}
 	}
 	
 	private void sendTopStockInMail(ArrayList<FinalSelectedStock> objFinalSelectedStockList, Boolean belowHunderd, String subject) {
@@ -285,25 +320,5 @@ public class GenerateCombinedIndication {
         	new SendSuggestedStockInMail("tarunstockcomm@gmail.com",subject+" "+objFinalSelectedStockList.get(0).tradeddate.toString(),mailBody.toString());
         }*/
         logger.debug("sendTopStockInMail end");
-	}
-	
-	private void CreateWatchListForTopStock(ArrayList<FinalSelectedStock> objFinalSelectedStockList, Boolean belowHunderd) {
-		logger.debug("CreateWatchListForTopStock Started");
-		DateTimeFormatter formatters = DateTimeFormatter.ofPattern("dd-MMM");
-		CreateWatchListYahoo objCreateWatchListYahoo = new CreateWatchListYahoo();
-		
-		for (int counter = (objFinalSelectedStockList.size()>20?20:objFinalSelectedStockList.size()-1); counter > 0; counter--) {
-			if(counter == objFinalSelectedStockList.size()-1 || counter == 20) {
-				if(!belowHunderd){
-					objCreateWatchListYahoo.creatWatchList(objFinalSelectedStockList.get(counter).tradeddate.format(formatters) + " All", belowHunderd);
-				} else {
-					objCreateWatchListYahoo.creatWatchList(objFinalSelectedStockList.get(counter).tradeddate.format(formatters) + " Below 100", belowHunderd);
-				}
-			}
-			objCreateWatchListYahoo.addStocksToWatchList(objFinalSelectedStockList.get(counter).stockCode);
-		}
-        //objCreateWatchListYahoo.stopSelenium();
-        logger.debug("CreateWatchListForTopStock end");
-	}
-	
+	}	
 }

@@ -1,4 +1,4 @@
-package com.amazonaws.tarun.stockApp.TechnicalIndicator.Calculation;
+package com.amazonaws.tarun.stockApp.Utils;
 import java.io.File;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -14,16 +14,14 @@ import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 
-import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
-
 public class SetupBase {
 	public  WebDriver driver = null;
 	final String timeOut = "2000";
 	//String downloadFilepath = "c:\\Selenium\\download";
-	String downloadFilepath = "c:\\StockApp\\download";
+	
 	static Logger logger = Logger.getLogger(SetupBase.class);
 	
-	public void setupSelenium(String URL) {
+	public void setupSelenium(String URL, String downloadFilepath) {
 		try {
 			logger.debug("Setup Selenium Started");
 			File file = new File("C:\\StockApp\\chromedriver.exe");
@@ -102,7 +100,7 @@ public class SetupBase {
 	 * @param driver
 	 * @param totalWaitForSeconds
 	 */
-	void waitForPageLoad(int totalWaitForSeconds) {
+	public void waitForPageLoad(int totalWaitForSeconds) {
 		            
 		ExpectedCondition<Boolean> expectation = new ExpectedCondition<Boolean>() {
 			@Override
@@ -132,7 +130,7 @@ public class SetupBase {
 		}
 	}
 	
-	void stopSelenium() {
+	public void stopSelenium() {
 		if (driver != null)
 			driver.quit();
 		driver = null;

@@ -3,7 +3,7 @@ import java.time.LocalDate;
 
 public class SMAIndicatorDetails {// implements Comparable<SMAIndicatorDetails> {
 	public String stockCode;
-	public double stockPrice;
+	public float stockPrice;
 	public boolean pricegrowth = false;
 	public float percentagePriceChange;
 	public String signalPriceToSMA; //"put" for options in case stock dropping down. "buy" in case price going up and crossed middleperiodSMA

@@ -133,7 +133,7 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 
-			resultSet = statement.executeQuery("SELECT BSECODE, stockname, NSECODE FROM STOCKDETAILS;");
+			resultSet = statement.executeQuery("SELECT NSECODE, stockname, NSECODE FROM STOCKDETAILS;");
 			while (resultSet.next()) {
 				stockBSECode = resultSet.getString(1);
 				stockBSECode = stockBSECode + "!" + resultSet.getString(2);

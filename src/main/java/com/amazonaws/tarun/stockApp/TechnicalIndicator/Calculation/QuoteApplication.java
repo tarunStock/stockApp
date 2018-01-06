@@ -2,6 +2,7 @@ package com.amazonaws.tarun.stockApp.TechnicalIndicator.Calculation;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import com.amazonaws.tarun.stockApp.Common.StoreStockList;
 import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
 
 public class QuoteApplication {
@@ -17,6 +18,14 @@ public class QuoteApplication {
 
 		logger.debug("QuoteApplication Started");
 		if (args.length > 0) {
+			if (args[0].equalsIgnoreCase("CollectStockDetails")) {
+				//Will be called once a month on Saturday
+				logger.debug("Stock details Collection Started");
+				StoreStockList obj = new StoreStockList();
+				obj.StoreAndCollectStockDetails();
+				HandleErrorDetails.sendErrorsInMail("Stock details");
+				logger.debug("Stock details Collection End");
+			}
 			if (args[0].equalsIgnoreCase("quote")) {
 				logger.debug("Daily Quote Collection Started");
 				CollectDailyStockData obj = new CollectDailyStockData();

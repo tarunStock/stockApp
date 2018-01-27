@@ -36,5 +36,6 @@
 	<classpathentry kind="lib" path="C:/StockApp/Req_Libs/jsoup-1.10.2.jar"/>
 	<classpathentry kind="lib" path="C:/StockApp/Req_Libs/log4j-1.2.13.jar"/>
 	<classpathentry kind="lib" path="C:/StockApp/Req_Libs/mysql-connector-java-5.1.44-bin.jar"/>
+	<classpathentry kind="lib" path="C:/StockApp/Req_Libs/java-json.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

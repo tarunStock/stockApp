@@ -16,7 +16,7 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 
 public class SetupBase {
 	public  WebDriver driver = null;
-	final String timeOut = "2000";
+	final String timeOut = "100";
 	//String downloadFilepath = "c:\\Selenium\\download";
 	
 	static Logger logger = Logger.getLogger(SetupBase.class);

@@ -33,7 +33,7 @@ public class GenerateIndicationFromMACD {
 		//obj.isSignalCrossedInMACD("20MICRONS", null);
 		//To get indication from MACD
 		obj.CalculateIndicationfromMACD(null);
-		//obj.CalculateIndicationfromMACD(new Date("10-Nov-2017"));		
+		//obj.CalculateIndicationfromMACD(new Date("19-Jan-2018"));		
 		//To calculate MACD values and store
 		//obj.calculateSignalAndMACDBulkForAllStocks(new Date("30-Oct-2017"));
 	}
@@ -538,7 +538,7 @@ public class GenerateIndicationFromMACD {
 		CalculateAverageTrueRange objCalculateAverageTrueRange = new CalculateAverageTrueRange();
 		chandelierExitLong = objCalculateAverageTrueRange.getChandelierExitLong(objSMAIndicatorDetails.stockCode, calculationDate);
 		//chandelierExitShort =  objCalculateAverageTrueRange.getChandelierExitShort(objSMAIndicatorDetails.stockCode, calculationDate);
-		
+		System.out.println("adding RSI");
 		objCalculateRSIIndicator = new CalculateRSIIndicator();
 		if(calculationDate!=null) { 
 			rsiIndication= objCalculateRSIIndicator.getRSIValue(objSMAIndicatorDetails.stockCode, LocalDate.parse(dateFormat.format(calculationDate).toString()));

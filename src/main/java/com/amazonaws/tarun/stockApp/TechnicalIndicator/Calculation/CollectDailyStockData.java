@@ -35,8 +35,8 @@ public class CollectDailyStockData extends SetupBase {
 	static Logger logger = Logger.getLogger(CollectDailyStockData.class);
 	public String downloadFilepath = "c:\\StockApp\\download";
 	
-	//Date date = new Date(System.currentTimeMillis()-2*24*60*60*1000L);
-	Date date = new Date(); //Date(System.currentTimeMillis()-24*60*60*1000);
+	Date date = new Date(System.currentTimeMillis()-2*24*60*60*1000L);
+	//Date date = new Date(); //Date(System.currentTimeMillis()-24*60*60*1000);
 			
 	public static void main(String[] args) {
 		Date dte = new Date();
@@ -148,8 +148,8 @@ public class CollectDailyStockData extends SetupBase {
 		}
 		ele = driver.findElement(By.xpath("//*[@id='wrapper_btm']/div[1]/div[4]/div/div[1]/div/div[4]/input[3]"));
 		ele.click();
-		waitForPageLoad(5000);
-		ele = driver.findElement(By.xpath("//*[@id='spanDisplayBox']/table/tbody/tr/td/a"));
+		waitForPageLoad(10000);
+		ele = driver.findElement(By.xpath("//*[@id='spanDisplayBox']/table/tbody/tr/td/a"));		
 		ele.click();			
 		try {
 			Thread.sleep(7000);

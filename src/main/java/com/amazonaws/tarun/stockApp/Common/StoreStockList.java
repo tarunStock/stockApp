@@ -116,11 +116,11 @@ public class StoreStockList extends SetupBase {
         
         try {
         	statement = connection.createStatement();
-        	tmpsql = "delete from STOCKDETAILSNEW;";
+        	tmpsql = "delete from STOCKDETAILS;";
         	statement.executeUpdate(tmpsql);
         	for(int counter = 0; counter < objStockDetailsList.size(); counter++) {
         		objStockDetails = objStockDetailsList.get(counter);
-        		tmpsql = "INSERT INTO STOCKDETAILSNEW (STOCKNAME,NSECODE,ISINCODE) VALUES('" + 
+        		tmpsql = "INSERT INTO STOCKDETAILS (STOCKNAME,NSECODE,ISINCODE) VALUES('" + 
         				objStockDetails.companyName + "','" + objStockDetails.stockCode + "','" + objStockDetails.isinNo + "');";
         		statement.executeUpdate(tmpsql);
         	}    

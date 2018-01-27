@@ -3,6 +3,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import com.amazonaws.tarun.stockApp.Common.StoreStockList;
+import com.amazonaws.tarun.stockApp.FinancialIndicator.Calculation.CollectFinancialDataForCompanies;
 import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
 
 public class QuoteApplication {
@@ -92,6 +93,12 @@ public class QuoteApplication {
 				obj.CalculateIndicationfromMACD(null);
 				HandleErrorDetails.sendErrorsInMail("Generate MACD Indication");
 				logger.debug("MACD Indication End");
+			} else if (args[0].equalsIgnoreCase("financialData")) {
+				logger.debug("Financialdata collection Started");
+				CollectFinancialDataForCompanies obj = new CollectFinancialDataForCompanies();
+				obj.collectAnnualFinancialDataMC();
+				HandleErrorDetails.sendErrorsInMail("Financialdata collection Indication");
+				logger.debug("Financialdata collection End");
 			}
 		} else {
 			System.out.println("No Args specified");

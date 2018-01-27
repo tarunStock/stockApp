@@ -31,8 +31,8 @@ public class GenerateCombinedIndicationV1 {
 		Date dte = new Date();
 		System.out.println("Start at -> " + dte.toString());
 		GenerateCombinedIndicationV1 obj = new GenerateCombinedIndicationV1();
-		obj.generateCombinedIndicationForStocks(new Date("29-Dec-2017"));
-		//obj.generateCombinedIndicationForStocks(null);
+		//obj.generateCombinedIndicationForStocks(new Date("29-Dec-2017"));
+		obj.generateCombinedIndicationForStocks(null);
 	}
 
 	public void generateCombinedIndicationForStocks(Date calculationDate) {

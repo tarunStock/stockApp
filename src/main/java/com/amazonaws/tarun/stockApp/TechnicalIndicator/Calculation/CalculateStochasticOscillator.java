@@ -25,7 +25,8 @@ public class CalculateStochasticOscillator {
 		logger.debug("CalculateStochasticOscillator Started");
 		System.out.println("Start at -> " + dte.toString());
 		CalculateStochasticOscillator obj = new CalculateStochasticOscillator();
-		obj.CalculateStochasticOscillatorForAllStocks(null);
+		//obj.CalculateStochasticOscillatorForAllStocks(null);
+		obj.CalculateStochasticOscillatorForAllStocks(new Date("12-Jan-2018"));
 		//obj.getStochasticIndicator("HATSUN",new Date("04-Oct-2017"));
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());

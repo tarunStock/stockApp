@@ -15,8 +15,6 @@ import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.DailyStockData;
 import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
 import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 
-
-
 public class CalculateBollingerBands {
 	Connection connection = null;
 	static Logger logger = Logger.getLogger(CalculateBollingerBands.class);
@@ -28,7 +26,7 @@ public class CalculateBollingerBands {
 		System.out.println("Start at -> " + dte.toString());
 		CalculateBollingerBands obj = new CalculateBollingerBands();
 		//obj.calculateBollingerBands(null);		
-		obj.calculateBollingerBands(new Date("12-Jan-2018"));
+		obj.calculateBollingerBands(new Date("25-Jan-2018"));
 		HandleErrorDetails.sendErrorsInMail("Calculate Bollinger Band");
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());

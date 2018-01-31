@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -35,8 +36,8 @@ public class CollectDailyStockData extends SetupBase {
 	static Logger logger = Logger.getLogger(CollectDailyStockData.class);
 	public String downloadFilepath = "c:\\StockApp\\download";
 	
-	Date date = new Date(System.currentTimeMillis()-2*24*60*60*1000L);
-	//Date date = new Date(); //Date(System.currentTimeMillis()-24*60*60*1000);
+	//Date date = new Date(System.currentTimeMillis()-2*24*60*60*1000L);
+	Date date = new Date(); //Date(System.currentTimeMillis()-24*60*60*1000);
 			
 	public static void main(String[] args) {
 		Date dte = new Date();
@@ -185,6 +186,56 @@ public class CollectDailyStockData extends SetupBase {
 				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
 				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
+			}
+		}
+	}
+	
+	public void sendNotificationForDailyStockDataCollection() {
+		Statement statement = null;
+		String tmpSQL, lastDate = null, msgSubject = null, mailBody="Stock Quote Data Notification";
+		Date dbDate, todaysDate;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		ResultSet resultSet = null;
+		if( !StockUtils.marketOpenOnGivenDate(null))
+			return;
+		
+		try { 
+			if (connection == null) {
+				connection = StockUtils.connectToDB();
+			}	
+			todaysDate = sdf.parse((sdf.format(new Date())));
+			statement = connection.createStatement();
+			tmpSQL = "select max(tradeddate) from DAILYSTOCKDATA;";
+			resultSet = statement.executeQuery(tmpSQL);	
+			while (resultSet.next()) {
+				lastDate = resultSet.getString(1);
+			}
+			if(lastDate!=null) {
+				dbDate = sdf.parse(lastDate);
+				
+				if(dbDate.compareTo(todaysDate) == 0) {
+					msgSubject = "Stock Data collected for -> " + todaysDate;
+				} else {
+					msgSubject = "Stock Data ***NOT*** collected for -> " + todaysDate;
+				}
+			} else {
+				msgSubject = "Stock Data ***NOT*** collected for -> " + todaysDate;
+			}
+			new SendSuggestedStockInMail("tarunstockcomm@gmail.com",msgSubject,mailBody);			
+		} catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+			System.out.println("insertBBToDB Error in DB action ->"+ex);
+			logger.error("Error in insertBBToDB  -> ", ex);
+		} finally {			
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("CalculateBollingerBands -> insertBBToDB Error in closing statement "+ex);
+				logger.error("Error in closing statement insertBBToDB  -> ", ex);
 			}
 		}
 	}

@@ -5,10 +5,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
+
+import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.StockDetailsForDecision;
 
 public class StockUtils implements AmazonRDSDBConnectionInterface{
 	static Logger logger = Logger.getLogger(StockUtils.class);	
@@ -192,4 +196,84 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 			return true;
 		}	
 	}
+
+	public static StockDetailsForDecision getPriceAndVolumeDetails(StockDetailsForDecision objFinalSelectedStock, Date targetDate) {
+		Connection connection = null;
+		ResultSet resultSet = null;
+		Statement statement = null;
+		String tmpSQL;
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		
+		try {
+			connection = StockUtils.connectToDB();
+			statement = connection.createStatement();
+			if(targetDate!=null) {
+				tmpSQL = "SELECT closeprice, Volume  FROM DAILYSTOCKDATA where stockname='" + objFinalSelectedStock.stockCode + "' " 
+						  + " and tradeddate >'" + dateFormat.format(new Date(targetDate.getTime() - 9*24*60*60*1000)) + "' order by tradeddate desc limit 4;";
+			} else {
+				tmpSQL = "SELECT closeprice, Volume  FROM DAILYSTOCKDATA where stockname='" + objFinalSelectedStock.stockCode + "' order by tradeddate desc limit 4;";
+				  //+ " order by tradeddate limit " + (daysToCheck+18) + ";";
+			}
+			resultSet = statement.executeQuery(tmpSQL);
+			
+			//while (resultSet.next()) {
+			if(!resultSet.next())
+				return objFinalSelectedStock;
+			objFinalSelectedStock.CurrentPrice = Float.parseFloat(resultSet.getString(1));
+			objFinalSelectedStock.CurrentVolume = Long.parseLong(resultSet.getString(2));
+			
+			if(!resultSet.next())
+				return objFinalSelectedStock;
+			objFinalSelectedStock.OneDayPreviousPrice = Float.parseFloat(resultSet.getString(1));
+			objFinalSelectedStock.OneDayPreviousVolume = Long.parseLong(resultSet.getString(2));
+			
+			if(!resultSet.next())
+				return objFinalSelectedStock;
+			objFinalSelectedStock.TwoDayPreviousPrice = Float.parseFloat(resultSet.getString(1));
+			objFinalSelectedStock.TwoDayPreviousVolume = Long.parseLong(resultSet.getString(2));
+			if(!resultSet.next())
+				return objFinalSelectedStock;
+			objFinalSelectedStock.ThreeDayPreviousPrice = Float.parseFloat(resultSet.getString(1));
+			objFinalSelectedStock.ThreeDayPreviousVolume = Long.parseLong(resultSet.getString(2));
+				
+			//}
+			return objFinalSelectedStock;
+		} catch (Exception ex) {
+			HandleErrorDetails.addError(StockUtils.class.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+			System.out.println("getPriceAndVolumeDetails - Error in getting price values  error = " + ex);
+			return null;
+		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("getPriceAndVolumeDetails Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getPriceAndVolumeDetails  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("getPriceAndVolumeDetails Error in closing statement "+ex);
+				logger.error("Error in closing statement getPriceAndVolumeDetails  -> ", ex);
+			}
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("getPriceAndVolumeDetails Error in closing connection "+ex);
+				logger.error("Error in closing connection getPriceAndVolumeDetails  -> ", ex);
+			}
+		}
+	}
+
 }

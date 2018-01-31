@@ -7,14 +7,17 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 
-import com.amazonaws.tarun.stockApp.TechnicalIndicator.Calculation.CollectDailyStockData;
+import com.amazonaws.tarun.stockApp.TechnicalIndicator.Calculation.StockDetails;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.PurchasedStockData;
+import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.StockDetailsForDecision;
+import com.amazonaws.tarun.stockApp.Utils.SalesforceIntegration;
 import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 
-public class PurchasedStocksOperations {
+public class StockOperations {
 	
-	static Logger logger = Logger.getLogger(CollectDailyStockData.class);
+	static Logger logger = Logger.getLogger(StockOperations.class);
 	
 	public static void main(String[] args) {
 		PurchasedStockData objPurchasedStockData = new PurchasedStockData();
@@ -24,7 +27,7 @@ public class PurchasedStocksOperations {
 		objPurchasedStockData.purchasedQuantity = Integer.parseInt("21");
 		objPurchasedStockData.brokeragePaid = Float.parseFloat("5.5");
 		
-		PurchasedStocksOperations objAddPurchasedStocks = new PurchasedStocksOperations();
+		StockOperations objAddPurchasedStocks = new StockOperations();
 		objAddPurchasedStocks.addPurchasedStock(objPurchasedStockData);
 	}
 	
@@ -71,6 +74,15 @@ public class PurchasedStocksOperations {
 				logger.error("Error in closing connection getBBPeriod  -> ", ex);
 			}
 		}
+		
+	}
+
+	public JSONObject getStockDetails(String stockCode, Date targetDate) {
+		StockDetails objStockDetails = new StockDetails();
+		StockDetailsForDecision objStockDetailsForDecision;
+		objStockDetailsForDecision = objStockDetails.getStockDetails(stockCode, targetDate);
+		JSONObject stockDetails = SalesforceIntegration.getJsonObject(objStockDetailsForDecision);
+		return stockDetails;
 		
 	}
 }

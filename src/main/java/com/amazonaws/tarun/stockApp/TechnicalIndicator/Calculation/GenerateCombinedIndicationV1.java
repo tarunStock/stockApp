@@ -31,8 +31,8 @@ public class GenerateCombinedIndicationV1 {
 		Date dte = new Date();
 		System.out.println("Start at -> " + dte.toString());
 		GenerateCombinedIndicationV1 obj = new GenerateCombinedIndicationV1();
-		//obj.generateCombinedIndicationForStocks(new Date("29-Dec-2017"));
-		obj.generateCombinedIndicationForStocks(null);
+		obj.generateCombinedIndicationForStocks(new Date("25-Jan-2018"));
+		//obj.generateCombinedIndicationForStocks(null);
 	}
 
 	public void generateCombinedIndicationForStocks(Date calculationDate) {
@@ -73,25 +73,23 @@ public class GenerateCombinedIndicationV1 {
 		objSalesforceIntegration.connectToSalesforc();
 		objSalesforceIntegration.createSuggestedStocks(objFinalSelectedStockList);
 		
-		/*
-		//Send top stock in mail
-		sendTopStockInMail(objFinalSelectedStockList, false, "Combined -> Stocklist on ");
-		//CreateWatchListForTopStock(objFinalSelectedStockList, false);
 		System.out.println("********* - process below hundred seleted stocks to send mail");
 		selectedCounter = 0;
 		for(int counter = 0; counter<SMAIndicatorDetailsBelowHundredList.size(); counter++){
-			objFinalSelectedBelowHunderdStock = new FinalSelectedStock();
+			objFinalSelectedBelowHunderdStock = new StockDetailsForDecision();
 			objFinalSelectedBelowHunderdStock.stockCode = SMAIndicatorDetailsBelowHundredList.get(counter).stockCode;
 			if(objFinalSelectedStockList.contains(objFinalSelectedBelowHunderdStock)) {
 				objFinalSelectedBelowHunderdStock = objFinalSelectedStockList.get(objFinalSelectedStockList.indexOf(objFinalSelectedBelowHunderdStock));
+				objFinalSelectedBelowHunderdStock.TypeofSuggestedStock = "Below 100";
 				objFinalSelectedBelowHundredStockList.add(objFinalSelectedBelowHunderdStock);
 				selectedCounter = selectedCounter +1;
 				if(selectedCounter==20) {
 					break;
 				}
 			} else {
-				objFinalSelectedBelowHunderdStock = getAlldetails(SMAIndicatorDetailsBelowHundredList.get(counter), calculationDate);						
+				objFinalSelectedBelowHunderdStock = getAlldetails(SMAIndicatorDetailsBelowHundredList.get(counter), calculationDate);				
 				if(objFinalSelectedBelowHunderdStock!=null) {
+					objFinalSelectedBelowHunderdStock.TypeofSuggestedStock = "Below 100";
 					objFinalSelectedBelowHundredStockList.add(objFinalSelectedBelowHunderdStock);
 					selectedCounter = selectedCounter +1;
 					if(selectedCounter==20) {
@@ -100,17 +98,7 @@ public class GenerateCombinedIndicationV1 {
 				} 
 			}			
 		}
-		//Send top below 100 stock in mail
-		sendTopStockInMail(objFinalSelectedBelowHundredStockList, true, "Combined -> Below 100 Stocklist on ");
-		//CreateWatchListForTopStock(objFinalSelectedBelowHundredStockList, true);
-		//Get Low RSI stocks
-		objFinalSelectedStockListWithLowRSI = getLowRSIStocks(SMAIndicatorDetailsList, calculationDate);
-		//Send top low RSI stock in mail
-		sendTopStockInMail(objFinalSelectedStockListWithLowRSI, true, "Combined -> Low RSI Stocklist on ");
-		//Get Low RSI below 100 stocks
-		objFinalSelectedBelowHundredStockListWithLowRSI = getLowRSIStocks(SMAIndicatorDetailsBelowHundredList, calculationDate);
-		//Send top low RSI beow 100 stock in mail
-		sendTopStockInMail(objFinalSelectedBelowHundredStockListWithLowRSI, true, "Combined -> Low RSI below 100 Stocklist on ");*/
+		objSalesforceIntegration.createSuggestedStocks(objFinalSelectedBelowHundredStockList);
 		logger.debug("generateCombinedIndicationForStocks End");
 	}
 	
@@ -177,88 +165,9 @@ public class GenerateCombinedIndicationV1 {
 		else
 			objFinalSelectedStock.MACDStatus = "NotCrossed";
 		//objFinalSelectedStock.chandelierExitShort = chandelierExitShort;
-		objFinalSelectedStock = getPriceAndVolumeDetails(objFinalSelectedStock,calculationDate);
+		objFinalSelectedStock = StockUtils.getPriceAndVolumeDetails(objFinalSelectedStock,calculationDate);
 		objFinalSelectedStock.TypeofSuggestedStock = "All";
 		return objFinalSelectedStock;
-	}
-	
-	private StockDetailsForDecision getPriceAndVolumeDetails(StockDetailsForDecision objFinalSelectedStock, Date targetDate) {
-		Connection connection = null;
-		ResultSet resultSet = null;
-		Statement statement = null;
-		String tmpSQL;
-		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		
-		try {
-			connection = StockUtils.connectToDB();
-			statement = connection.createStatement();
-			if(targetDate!=null) {
-				tmpSQL = "SELECT closeprice, Volume  FROM DAILYSTOCKDATA where stockname='" + objFinalSelectedStock.stockCode + "' " 
-						  + " and tradeddate >'" + dateFormat.format(new Date(targetDate.getTime() - 7*24*60*60*1000)) + "' order by tradeddate desc limit 3;";
-			} else {
-				tmpSQL = "SELECT closeprice, Volume  FROM DAILYSTOCKDATA where stockname='" + objFinalSelectedStock.stockCode + "' order by tradeddate desc limit 3;";
-				  //+ " order by tradeddate limit " + (daysToCheck+18) + ";";
-			}
-			resultSet = statement.executeQuery(tmpSQL);
-			
-			//while (resultSet.next()) {
-			if(!resultSet.next())
-				return objFinalSelectedStock;
-			objFinalSelectedStock.CurrentPrice = Float.parseFloat(resultSet.getString(1));
-			objFinalSelectedStock.CurrentVolume = Long.parseLong(resultSet.getString(2));
-			
-			if(!resultSet.next())
-				return objFinalSelectedStock;
-			objFinalSelectedStock.OneDayPreviousPrice = Float.parseFloat(resultSet.getString(1));
-			objFinalSelectedStock.OneDayPreviousVolume = Long.parseLong(resultSet.getString(2));
-			
-			if(!resultSet.next())
-				return objFinalSelectedStock;
-			objFinalSelectedStock.TwoDayPreviousPrice = Float.parseFloat(resultSet.getString(1));
-			objFinalSelectedStock.TwoDayPreviousVolume = Long.parseLong(resultSet.getString(2));
-			if(!resultSet.next())
-				return objFinalSelectedStock;
-			objFinalSelectedStock.ThreeDayPreviousPrice = Float.parseFloat(resultSet.getString(1));
-			objFinalSelectedStock.ThreeDayPreviousVolume = Long.parseLong(resultSet.getString(2));
-				
-			//}
-			return objFinalSelectedStock;
-		} catch (Exception ex) {
-			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-			System.out.println("getPriceAndVolumeDetails - Error in getting MACD values  error = " + ex);
-			return null;
-		} finally {
-			try {
-				if(resultSet != null) {
-					resultSet.close();
-					resultSet = null;
-				}
-			} catch (Exception ex) {
-				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("getPriceAndVolumeDetails Error in closing resultset "+ex);
-				logger.error("Error in closing resultset getPriceAndVolumeDetails  -> ", ex);
-			}
-			try {
-				if(statement != null) {
-					statement.close();
-					statement = null;
-				}
-			} catch (Exception ex) {
-				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("getPriceAndVolumeDetails Error in closing statement "+ex);
-				logger.error("Error in closing statement getPriceAndVolumeDetails  -> ", ex);
-			}
-			try {
-				if (connection != null) {
-					connection.close();
-					connection = null;
-				} 
-			} catch (Exception ex) {
-				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("getPriceAndVolumeDetails Error in closing connection "+ex);
-				logger.error("Error in closing connection getPriceAndVolumeDetails  -> ", ex);
-			}
-		}
 	}
 	
 	private void sendTopStockInMail(ArrayList<FinalSelectedStock> objFinalSelectedStockList, Boolean belowHunderd, String subject) {

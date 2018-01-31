@@ -29,7 +29,7 @@ public class CalculateAverageTrueRange {
 		System.out.println("Start at -> " + dte.toString());
 		CalculateAverageTrueRange obj = new CalculateAverageTrueRange();
 		//obj.calculateAverageTrueRangeForAllStocks(null);
-		obj.calculateAverageTrueRangeForAllStocks(new Date("12-Jan-2018"));
+		obj.calculateAverageTrueRangeForAllStocks(new Date("25-Jan-2018"));
 		//obj.getChandelierExitLong("20MICRONS", new Date("16-Oct-2017"));
 		HandleErrorDetails.sendErrorsInMail("Calculate Average True Range");
 		dte = new Date();

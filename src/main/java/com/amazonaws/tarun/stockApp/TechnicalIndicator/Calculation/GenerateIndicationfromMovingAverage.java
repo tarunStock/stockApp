@@ -21,7 +21,7 @@ public class GenerateIndicationfromMovingAverage {
 	public static int daysToCheck = 5;
 	ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList;
 	ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsBelowHundredList;
-	SMAIndicatorDetails objSMAIndicatorDetails;
+	public SMAIndicatorDetails objSMAIndicatorDetails;
 	String stockName;
 	String bseCode;
 	String nseCode;
@@ -52,8 +52,7 @@ public class GenerateIndicationfromMovingAverage {
 			nseCode = stock.split("!")[2];
 			System.out.println("For Stock -> " + nseCode + " Stock count -> " + stockcounter++);
 			if(getFinancialIndication(bseCode)) {	
-				objSMAIndicatorDetails = new SMAIndicatorDetails();
-				objSMAIndicatorDetails.stockCode = nseCode;
+				
 				
 				CalculateIndicationfromSMA(nseCode, calculationDate);
 				if (objSMAIndicatorDetails.signalPriceToSMA != null || objSMAIndicatorDetails.signalSMAToSMA != null) {
@@ -139,7 +138,9 @@ public class GenerateIndicationfromMovingAverage {
 		System.out.println("End");
 	}
 
-	private void CalculateIndicationfromSMA(String stockCode, Date calculationDate) {
+	public void CalculateIndicationfromSMA(String stockCode, Date calculationDate) {
+		objSMAIndicatorDetails = new SMAIndicatorDetails();
+		objSMAIndicatorDetails.stockCode = nseCode;
 		ArrayList<Integer> prefPeriod = null;
 		ArrayList<Float> lowerSMAPeriodValues = null;
 		ArrayList<Float> middleSMAPeriodValues = null;
@@ -312,7 +313,6 @@ public class GenerateIndicationfromMovingAverage {
 		String price;
 		String tmpSQL;
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		
 		try {
 			priceData = new ArrayList<Float>();
 			if (connection != null) {

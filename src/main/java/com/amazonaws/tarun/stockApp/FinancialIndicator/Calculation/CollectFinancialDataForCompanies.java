@@ -95,14 +95,16 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 					 }
 					 counter++;
 				 }
-				 if(counter==21) break;
+				 if(counter==31) break;
 			}
 			System.out.println("*************************Successfully processed stock count -> "+counter);
-			storeProcessedStockList(newProcessedStockList);
-			storeErroredStockList(newErrorStockList);
+			
 		} catch (Exception ex) {
 			HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), "nseCode -->" + ex.toString());
 			System.out.println(" Error with stock ->" + nseCode + " Error -> " + ex);
+		} finally {
+			storeProcessedStockList(newProcessedStockList);
+			storeErroredStockList(newErrorStockList);
 		}
 		logger.debug("Close Selenium");
 		stopSelenium();
@@ -144,6 +146,7 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 		} catch (Exception ex) {
 			System.out.println("Error in clicking financial link");
 		}
+		/*commenting to only collect yearly data on first go
 		// Click on Profit Loss link
 		ele = driver.findElement(By.xpath("//*[@id='slider']/dd[3]/ul/li[2]/a"));
 		ele.click();
@@ -151,7 +154,7 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 			Thread.sleep(7000);
 		} catch (Exception ex) {
 			System.out.println("Error in clicking profit loss link");
-		}
+		}*/
 		objCompanyFinancialData = readPageAndLoadObjectMC(stockCode);
 		storeCompanyFinancialData(objCompanyFinancialData);
 	}
@@ -163,8 +166,9 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 		System.out.println("*********************Stockcode -> " + stockCode);
 		objCompanyFinancialData.objCompanyAnnualFinancialDataList = readPageAndLoadAnnualDataMC();
 		objCompanyFinancialData.objCompanyAnnualFinancialDataList = readPageAndLoadCashFlowDataMC(objCompanyFinancialData.objCompanyAnnualFinancialDataList);
+		/*commenting to only collect yearly data on first go
 		objCompanyFinancialData.objCompanyHalfYearlyFinancialDataList = readPageAndLoadHalfYearlyDataMC();
-		objCompanyFinancialData.objCompanyQuarterFinancialDataList = readPageAndLoadQuarterlyDataMC();
+		objCompanyFinancialData.objCompanyQuarterFinancialDataList = readPageAndLoadQuarterlyDataMC();*/
 
 		return objCompanyFinancialData;
 	}
@@ -174,7 +178,7 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 		CompanyAnnualFinancialData objCompanyAnnualFinancialData = null;
 		WebElement ele = null;
 		String temp, rowHeading;
-		//System.out.println("readPageAndLoadAnnualDataMC");
+		/*commenting to only collect yearly data on first go
 		// Click on Old Format Link
 		ele = driver.findElement(By.xpath("//*[@id='mc_mainWrapper']/div[3]/div[2]/div[3]/div[2]/div[2]/div[1]/div[1]/div/ul/li[2]/a"));
 		ele.click();
@@ -182,17 +186,83 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 			Thread.sleep(4000);
 		} catch (Exception ex) {
 			System.out.println("Error in wait after old format click");
+		}*/
+		
+		//Click on Yearly link
+		ele = driver.findElement(By.xpath("//*[@id='slider']/dd[3]/ul/li[6]/a"));
+		ele.click();
+		try {
+			Thread.sleep(7000);
+		} catch (Exception ex) {
+			System.out.println("Error in clicking yearly link");
 		}
+		
 		for (int counter = 2; counter <= 4; counter++) {
 			objCompanyAnnualFinancialData = new CompanyAnnualFinancialData();
 			//System.out.println("Getting year month");
 			// Get Year and Month
-			ele = driver.findElement(By.xpath("//*[@id='mc_mainWrapper']/div[3]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/table[2]/tbody/tr[1]/td[" + counter + "]"));
+			ele = driver.findElement(By.xpath("//*[@id='mc_mainWrapper']/div[3]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/table[2]/tbody/tr[3]/td[" + counter + "]"));
 			temp = ele.getText();
 			//System.out.println("Year -> " + temp);
 			objCompanyAnnualFinancialData.resultMonth = temp.split("'")[0].trim();
 			objCompanyAnnualFinancialData.resultYear = Integer.parseInt(temp.split("'")[1].trim());
 			//System.out.println("Getting Net Sales");
+			for (int rowCounter = 5; rowCounter <= 45; rowCounter++) {
+				ele = driver.findElement(By.xpath("//*[@id='mc_mainWrapper']/div[3]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/table[2]/tbody/tr[" + rowCounter + "]/td[1]"));
+				rowHeading = ele.getText();
+				// Net Sales
+				if (rowHeading.contains("Net Sales")) {
+					// Net Sales
+					ele = driver.findElement(By.xpath("//*[@id='mc_mainWrapper']/div[3]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/table[2]/tbody/tr[" + rowCounter + "]/td[" + counter + "]"));
+					temp = ele.getText().contains("--") ? "0" : ele.getText().replaceAll(",", "");
+					objCompanyAnnualFinancialData.netSales = Double.parseDouble(temp);
+				}
+				if (rowHeading.contains("Other Operating Income")) {
+					// Other Income
+					ele = driver.findElement(By.xpath("//*[@id='mc_mainWrapper']/div[3]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/table[2]/tbody/tr[" + rowCounter + "]/td[" + counter + "]"));
+					temp = ele.getText().contains("--") ? "0" : ele.getText().replaceAll(",", "");
+					objCompanyAnnualFinancialData.otherIncome = Double.parseDouble(temp);
+				}
+				if (rowHeading.contains("P/L Before Other Inc. , Int., Excpt. Items & Tax")) {
+					// pbdit
+					ele = driver.findElement(By.xpath("//*[@id='mc_mainWrapper']/div[3]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/table[2]/tbody/tr[" + rowCounter + "]/td[" + counter + "]"));
+					temp = ele.getText().contains("--") ? "0" : ele.getText().replaceAll(",", "");
+					objCompanyAnnualFinancialData.pbdit = Double.parseDouble(temp);
+				}
+				if (rowHeading.contains("Interest")) {
+					// interest
+					ele = driver.findElement(By.xpath("//*[@id='mc_mainWrapper']/div[3]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/table[2]/tbody/tr[" + rowCounter + "]/td[" + counter + "]"));
+					temp = ele.getText().contains("--") ? "0" : ele.getText().replaceAll(",", "");
+					objCompanyAnnualFinancialData.interest = Double.parseDouble(temp);
+				}
+				if (rowHeading.contains("P/L Before Exceptional Items & Tax")) {
+					// pbdt
+					ele = driver.findElement(By.xpath("//*[@id='mc_mainWrapper']/div[3]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/table[2]/tbody/tr[" + rowCounter + "]/td[" + counter + "]"));
+					temp = ele.getText().contains("--") ? "0" : ele.getText().replaceAll(",", "");
+					objCompanyAnnualFinancialData.pbdt = Double.parseDouble(temp);
+				}
+				if (rowHeading.contains("P/L Before Tax")) {
+					// profitBeforeTax
+					ele = driver.findElement(By.xpath("//*[@id='mc_mainWrapper']/div[3]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/table[2]/tbody/tr[" + rowCounter + "]/td[" + counter + "]"));
+					temp = ele.getText().contains("--") ? "0" : ele.getText().replaceAll(",", "");
+					objCompanyAnnualFinancialData.profitBeforeTax = Double.parseDouble(temp);
+				}
+				if (rowHeading.contains("Net Profit/(Loss) For the Period")) {
+					// netProfit
+					ele = driver.findElement(By.xpath("//*[@id='mc_mainWrapper']/div[3]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/table[2]/tbody/tr[" + rowCounter + "]/td[" + counter + "]"));
+					temp = ele.getText().contains("--") ? "0" : ele.getText().replaceAll(",", "");
+					objCompanyAnnualFinancialData.netProfit = Double.parseDouble(temp);
+				}
+				if (rowHeading.equalsIgnoreCase("Basic EPS")) {
+					// basicEPS
+					ele = driver.findElement(By.xpath("//*[@id='mc_mainWrapper']/div[3]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/table[2]/tbody/tr[" + rowCounter + "]/td[" + counter + "]"));
+					temp = ele.getText().contains("--") ? "0" : ele.getText().replaceAll(",", "");
+					objCompanyAnnualFinancialData.basicEPS = Float.parseFloat(temp);
+					break;
+				}				
+			}
+			
+			/*Commenting as changing the focus to yearly data. Might need profit loss later to get operating profit and marging
 			for (int rowCounter = 3; rowCounter <= 38; rowCounter++) {
 
 				ele = driver.findElement(By.xpath("//*[@id='mc_mainWrapper']/div[3]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/table[2]/tbody/tr[" + rowCounter + "]/td[1]"));
@@ -272,7 +342,8 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 					temp = ele.getText().contains("--") ? "0" : ele.getText().replaceAll(",", "");
 					objCompanyAnnualFinancialData.basicEPS = Float.parseFloat(temp);
 				}
-			}
+			}*/
+			
 			//System.out.println("&&&&&&&&Annual -> " + objCompanyAnnualFinancialData);
 			objCompanyAnnualFinancialDataList.add(objCompanyAnnualFinancialData);
 		}
@@ -730,8 +801,9 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 		try {
 			connection = StockUtils.connectToDB();
 			storeComapnyAnnualFinacialData(objCompanyFinancialData.nseCode, objCompanyFinancialData.objCompanyAnnualFinancialDataList);
+			/*commenting to only collect yearly data on first go
 			storeComapnyHalfYearlyFinacialData(objCompanyFinancialData.nseCode, objCompanyFinancialData.objCompanyHalfYearlyFinancialDataList);
-			storeComapnyQuarterlyFinacialData(objCompanyFinancialData.nseCode, objCompanyFinancialData.objCompanyQuarterFinancialDataList);
+			storeComapnyQuarterlyFinacialData(objCompanyFinancialData.nseCode, objCompanyFinancialData.objCompanyQuarterFinancialDataList);*/
 		} catch (Exception ex) {
 			HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("Error in storing finacial data of company");

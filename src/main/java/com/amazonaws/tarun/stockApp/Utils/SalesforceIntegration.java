@@ -45,7 +45,7 @@ public class SalesforceIntegration {
 	public static void main(String[] args) {
 		SalesforceIntegration objSalesforceIntegration = new SalesforceIntegration();
 		objSalesforceIntegration.connectToSalesforc();
-		objSalesforceIntegration.createSuggestedStocksTest();
+		
 
 		objSalesforceIntegration.httpPost.releaseConnection();
 	}
@@ -101,6 +101,43 @@ public class SalesforceIntegration {
 		System.out.println("Auth header -> "+oAuthHeader);
 	}
 
+	public static JSONObject getJsonObject( StockDetailsForDecision objStockDetailsForDecision) {
+		JSONObject stockDetails;
+		stockDetails = new JSONObject();
+		double tempVar;
+		try {
+			stockDetails.put("BBTrend", objStockDetailsForDecision.BBTrend);
+			tempVar = Math.round(objStockDetailsForDecision.ChandelierExit * 100.0) / 100.0;
+					
+			stockDetails.put("ChandelierExit", tempVar);
+			tempVar = Math.round(objStockDetailsForDecision.CurrentPrice * 100.0) / 100.0;
+			stockDetails.put("CurrentPrice", tempVar);
+			stockDetails.put("CurrentVolume", objStockDetailsForDecision.CurrentVolume);			
+			stockDetails.put("MACDStatus", objStockDetailsForDecision.MACDStatus);
+			tempVar = Math.round(objStockDetailsForDecision.OneDayPreviousPrice * 100.0) / 100.0;
+			stockDetails.put("OneDayPreviousPrice", tempVar);
+			stockDetails.put("OneDayPreviousVolume", objStockDetailsForDecision.OneDayPreviousVolume);
+			tempVar = Math.round(objStockDetailsForDecision.RSIValue * 100.0) / 100.0;
+			stockDetails.put("RSIValue", tempVar);
+			stockDetails.put("SMAComparison", objStockDetailsForDecision.SMAComparison);
+			stockDetails.put("SMAToPriceComparison", objStockDetailsForDecision.SMAToPriceComparison);
+			stockDetails.put("StockCode", objStockDetailsForDecision.stockCode);
+			stockDetails.put("SuggestedDate", objStockDetailsForDecision.suggestedDate);
+			tempVar = Math.round(objStockDetailsForDecision.ThreeDayPreviousPrice * 100.0) / 100.0;
+			stockDetails.put("ThreeDayPreviousPrice", tempVar);
+			stockDetails.put("ThreeDayPreviousVolume", objStockDetailsForDecision.ThreeDayPreviousVolume);
+			tempVar = Math.round(objStockDetailsForDecision.TwoDayPreviousPrice * 100.0) / 100.0;
+			stockDetails.put("TwoDayPreviousPrice", tempVar);
+			stockDetails.put("TwoDayPreviousVolume", objStockDetailsForDecision.TwoDayPreviousVolume);
+			stockDetails.put("TypeofSuggestedStock", objStockDetailsForDecision.TypeofSuggestedStock);
+		} catch (JSONException jsonException) {
+			System.out.println("Issue creating JSON or processing results");
+			jsonException.printStackTrace();
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+		return stockDetails;
+	}
 	public void createSuggestedStocks(List<StockDetailsForDecision> objStockDetailsForDecisionList) {
 		System.out.println("****************Suggested Stock Creation**************");
 		double tempVar;
@@ -111,7 +148,7 @@ public class SalesforceIntegration {
 			JSONArray jArray = new JSONArray();
 			JSONObject newSuggestedStock;
 			for(int counter = 0; counter < objStockDetailsForDecisionList.size(); counter++) {
-				newSuggestedStock = new JSONObject();
+				/*newSuggestedStock = new JSONObject();
 				newSuggestedStock.put("BBTrend", objStockDetailsForDecisionList.get(counter).BBTrend);
 				tempVar = Math.round(objStockDetailsForDecisionList.get(counter).ChandelierExit * 100.0) / 100.0;
 						
@@ -135,9 +172,9 @@ public class SalesforceIntegration {
 				tempVar = Math.round(objStockDetailsForDecisionList.get(counter).TwoDayPreviousPrice * 100.0) / 100.0;
 				newSuggestedStock.put("TwoDayPreviousPrice", tempVar);
 				newSuggestedStock.put("TwoDayPreviousVolume", objStockDetailsForDecisionList.get(counter).TwoDayPreviousVolume);
-				newSuggestedStock.put("TypeofSuggestedStock", objStockDetailsForDecisionList.get(counter).TypeofSuggestedStock);		
+				newSuggestedStock.put("TypeofSuggestedStock", objStockDetailsForDecisionList.get(counter).TypeofSuggestedStock);*/		
 				
-				jArray.put(newSuggestedStock);
+				jArray.put(getJsonObject(objStockDetailsForDecisionList.get(counter)));
 			}
 			
 			
@@ -173,69 +210,6 @@ public class SalesforceIntegration {
 		}
 	}
 
-	public void createSuggestedStocksTest() {
-		System.out.println("****************Suggested Stock Creation**************");
-		double tempVar;
-		String finalURI = instanceUrl + "/services/apexrest/SuggestedStock/v1/";
-		DecimalFormat df = new DecimalFormat("#.00");
-		//System.out.println(df.format(f));
-		try {
-			JSONArray jArray = new JSONArray();
-			JSONObject newSuggestedStock;
-			//for(int counter = 0; counter < objStockDetailsForDecisionList.size(); counter++) {
-				newSuggestedStock = new JSONObject();
-				newSuggestedStock.put("BBTrend", "Crossed");		
-				newSuggestedStock.put("ChandelierExit", 2343.34);
-				newSuggestedStock.put("CurrentPrice", 3423.34);
-				newSuggestedStock.put("CurrentVolume", 876545);			
-				newSuggestedStock.put("MACDStatus", "Crossed");				
-				newSuggestedStock.put("OneDayPreviousPrice", 3452.23);
-				newSuggestedStock.put("OneDayPreviousVolume", 8765543);				
-				newSuggestedStock.put("RSIValue", 78.23);
-				newSuggestedStock.put("SMAComparison", "Crossed");
-				newSuggestedStock.put("SMAToPriceComparison", "Crossed");
-				newSuggestedStock.put("StockCode", "Testcode");
-				newSuggestedStock.put("SuggestedDate", "2017-10-9");				
-				newSuggestedStock.put("ThreeDayPreviousPrice", 2342.34);
-				newSuggestedStock.put("ThreeDayPreviousVolume", 9876523);				
-				newSuggestedStock.put("TwoDayPreviousPrice", 123.23);
-				newSuggestedStock.put("TwoDayPreviousVolume", 1234323);
-				newSuggestedStock.put("TypeofSuggestedStock", "All");		
-				
-				jArray.put(newSuggestedStock);
-			//}
-			
-			
-			JSONObject mainObj = new JSONObject();
-			mainObj.put("StockDetails", jArray);
-			System.out.println("JSON for Suggested stock record to be inserted:\n" + mainObj.toString(1));
-
-			HttpClient httpClient = HttpClientBuilder.create().build();
-
-			HttpPost httpPost = new HttpPost(finalURI);
-			httpPost.addHeader(oAuthHeader);
-			httpPost.addHeader(printHeader);
-			StringEntity entityBody = new StringEntity(mainObj.toString(1));
-			entityBody.setContentType("application/json");
-			httpPost.setEntity(entityBody);
-
-			HttpResponse httpResponse = httpClient.execute(httpPost);
-
-			int statusCode = httpResponse.getStatusLine().getStatusCode();
-			if (statusCode == 200) {
-				String responseString = EntityUtils.toString(httpResponse.getEntity());
-				
-			} else {
-				System.out.println("Insertion unsuccessful. Status code returned is " + statusCode);
-			}
-		} catch (JSONException jsonException) {
-			System.out.println("Issue creating JSON or processing results");
-			jsonException.printStackTrace();
-		} catch (IOException ioException) {
-			ioException.printStackTrace();
-		} catch (Exception exception) {
-			exception.printStackTrace();
-		}
-	}
+	
 	
 }

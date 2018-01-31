@@ -26,13 +26,18 @@ public class QuoteApplication {
 				obj.StoreAndCollectStockDetails();
 				HandleErrorDetails.sendErrorsInMail("Stock details");
 				logger.debug("Stock details Collection End");
-			}
-			if (args[0].equalsIgnoreCase("quote")) {
+			} else if (args[0].equalsIgnoreCase("quote")) {
 				logger.debug("Daily Quote Collection Started");
 				CollectDailyStockData obj = new CollectDailyStockData();
 				obj.startCollectingDailyData();
 				HandleErrorDetails.sendErrorsInMail("Collect Quote");
 				logger.debug("Daily Quote Collection End");
+			} else if (args[0].equalsIgnoreCase("quoteNotification")) {
+				logger.debug("Quote Notification Started");
+				CollectDailyStockData obj = new CollectDailyStockData();
+				obj.sendNotificationForDailyStockDataCollection();;
+				HandleErrorDetails.sendErrorsInMail("Quote Notification");
+				logger.debug("Quote Notification End");
 			} else if (args[0].equalsIgnoreCase("movingaveragecalculation")) {
 				logger.debug("MA Calculation Started");
 				CalculateSimpleAndExpoMovingAvg obj = new CalculateSimpleAndExpoMovingAvg();

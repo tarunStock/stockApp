@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import com.amazonaws.tarun.stockApp.FinancialIndicator.Calculation.CollectFinancialDataForCompanies;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Calculation.StockDetails;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.PurchasedStockData;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.StockDetailsForDecision;
@@ -84,5 +85,10 @@ public class StockOperations {
 		JSONObject stockDetails = SalesforceIntegration.getJsonObject(objStockDetailsForDecision);
 		return stockDetails;
 		
+	}
+	
+	public void CollectFinancialData() {
+		CollectFinancialDataForCompanies objCollectFinancialDataForCompanies = new CollectFinancialDataForCompanies();
+		objCollectFinancialDataForCompanies.collectAnnualFinancialDataMC();
 	}
 }

@@ -105,6 +105,7 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 		} finally {
 			storeProcessedStockList(newProcessedStockList);
 			storeErroredStockList(newErrorStockList);
+			HandleErrorDetails.sendErrorsInMail("Financialdata collection Indication");
 		}
 		logger.debug("Close Selenium");
 		stopSelenium();

@@ -71,6 +71,7 @@ public class GenerateIndicationfromMovingAverage {
 		// Collections.sort(SMAIndicatorDetailsList);
 		logger.debug("CalculateAndSendIndicationfromSMA start mail");
 		Collections.sort(SMAIndicatorDetailsList, new SMAIndicatorDetailsComparator());		
+		
 		Collections.sort(SMAIndicatorDetailsBelowHundredList, new SMAIndicatorDetailsComparator());
 		
 		//tmpUpdateIndicatedStocks.updateSMAIndication(SMAIndicatorDetailsList);

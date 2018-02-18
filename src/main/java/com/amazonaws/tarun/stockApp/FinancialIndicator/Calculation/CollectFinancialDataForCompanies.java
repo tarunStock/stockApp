@@ -59,6 +59,7 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 		String stockName;
 		String bseCode;
 		String nseCode = null;
+		boolean allStocksFinished = true, errorProcessed=false;
 		// calculateRSIForStock("DAAWAT", new Date("13-Oct-2017"));
 		logger.debug("Open Selenium");
 		setupSelenium(URLMC, downloadFilepath);
@@ -85,6 +86,7 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 				 nseCode = stockCode.split("!")[2];
 				 if((processedStockList==null || !processedStockList.contains(nseCode)) && (errorStockList==null || !errorStockList.contains(nseCode))) {
 					 //System.out.println("Collecting Annual Financial data for stock - >"+nseCode);
+					 allStocksFinished = false;
 					 try {
 						 collectAndStoreFinancialDataForStockMC(nseCode);
 						 newProcessedStockList.add(nseCode);
@@ -94,17 +96,41 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 						 System.out.println("Error in collecting financial data for stock -> "+nseCode+" end the error is = "+ex);
 					 }
 					 counter++;
-				 }
+					 
+				 } 
 				 if(counter==31) break;
 			}
 			System.out.println("*************************Successfully processed stock count -> "+counter);
-			
+			if(allStocksFinished) {
+				for (String stockCode : stockList) {	
+					stockName = stockCode.split("!")[1]; 
+					 bseCode = stockCode.split("!")[0]; 
+					 nseCode = stockCode.split("!")[2];
+					 if(errorStockList!=null && errorStockList.contains(nseCode)) {
+						 //System.out.println("Collecting Annual Financial data for stock - >"+nseCode);
+						 try {
+							 collectAndStoreFinancialDataForStockMC(nseCode);
+							 newErrorStockList.add(nseCode);
+							 errorProcessed=true;
+						 } catch (Exception ex) {							 
+							 HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), "nseCode -->" + ex.toString());
+							 System.out.println("Error in collecting financial data for stock -> "+nseCode+" end the error is = "+ex);
+						 }
+						 counter++;
+						 
+					 }
+				}
+			}			
 		} catch (Exception ex) {
 			HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), "nseCode -->" + ex.toString());
 			System.out.println(" Error with stock ->" + nseCode + " Error -> " + ex);
 		} finally {
-			storeProcessedStockList(newProcessedStockList);
-			storeErroredStockList(newErrorStockList);
+			if(!allStocksFinished) {
+				storeProcessedStockList(newProcessedStockList);
+				storeErroredStockList(newErrorStockList);
+			} else if (allStocksFinished && errorProcessed) {
+				DeleteErroredStockList(newErrorStockList);
+			}
 			HandleErrorDetails.sendErrorsInMail("Financialdata collection Indication");
 		}
 		logger.debug("Close Selenium");
@@ -759,6 +785,56 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 			statement = connection.createStatement();
 			for (String stockCode : stockList) {
 				statement.executeUpdate("INSERT INTO ERRORSTOCKS (STOCKCODE) VALUES ('" + stockCode + "');");
+			}
+		} catch (Exception ex) {
+			HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+			System.out.println("Error in storing error stocks");
+		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("storeErroredStockList Error in closing resultset "+ex);
+				logger.error("Error in closing resultset storeErroredStockList  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("storeErroredStockList Error in closing statement "+ex);
+				logger.error("Error in closing statement storeErroredStockList  -> ", ex);
+			}
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("storeErroredStockList Error in closing connection "+ex);
+				logger.error("Error in closing connection storeErroredStockList  -> ", ex);
+			}
+		}
+	}
+	
+	private void DeleteErroredStockList(ArrayList<String> stockList) {
+
+		Connection connection = null;
+		ResultSet resultSet = null;
+		Statement statement = null;
+		System.out.println("Error delete ***********************");
+		try {
+			//stockList = new ArrayList<String>();
+			connection = StockUtils.connectToDB();
+			statement = connection.createStatement();
+			for (String stockCode : stockList) {
+				statement.executeUpdate("DELETE from ERRORSTOCKS where STOCKCODE='" + stockCode + "';");
 			}
 		} catch (Exception ex) {
 			HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());

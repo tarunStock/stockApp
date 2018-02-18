@@ -7,6 +7,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
@@ -15,6 +16,7 @@ import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.FinalSelectedStock;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.MACDData;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.OnBalanceVolumeIndicator;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.SMAIndicatorDetails;
+import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.StockComparatorOnMACDPrimeV1;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.StockDetailsForDecision;
 import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
 import com.amazonaws.tarun.stockApp.Utils.SalesforceIntegration;
@@ -34,8 +36,8 @@ public class GenerateIndicationFromMACDV1 {
 		GenerateIndicationFromMACDV1 obj = new GenerateIndicationFromMACDV1();
 		//obj.isSignalCrossedInMACD("20MICRONS", null);
 		//To get indication from MACD
-		//obj.CalculateIndicationfromMACD(null);
-		obj.CalculateIndicationfromMACD(new Date("25-Jan-2018"));		
+		obj.CalculateIndicationfromMACD(null);
+		//obj.CalculateIndicationfromMACD(new Date("25-Jan-2018"));		
 		//To calculate MACD values and store
 		//obj.calculateSignalAndMACDBulkForAllStocks(new Date("25-Jan-2018"));
 	}
@@ -172,6 +174,7 @@ public class GenerateIndicationFromMACDV1 {
 					break;
 				}*/
 			}
+			Collections.sort(objFinalSelectedStockList, new StockComparatorOnMACDPrimeV1());
 			SalesforceIntegration objSalesforceIntegration = new SalesforceIntegration();
 			
 			objSalesforceIntegration.connectToSalesforc();

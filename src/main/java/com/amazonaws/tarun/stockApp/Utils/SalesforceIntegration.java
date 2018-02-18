@@ -147,7 +147,7 @@ public class SalesforceIntegration {
 		try {
 			JSONArray jArray = new JSONArray();
 			JSONObject newSuggestedStock;
-			for(int counter = 0; counter < objStockDetailsForDecisionList.size(); counter++) {
+			for(int counter = 0; counter < (objStockDetailsForDecisionList.size()>20?20:objStockDetailsForDecisionList.size()); counter++) {
 				/*newSuggestedStock = new JSONObject();
 				newSuggestedStock.put("BBTrend", objStockDetailsForDecisionList.get(counter).BBTrend);
 				tempVar = Math.round(objStockDetailsForDecisionList.get(counter).ChandelierExit * 100.0) / 100.0;

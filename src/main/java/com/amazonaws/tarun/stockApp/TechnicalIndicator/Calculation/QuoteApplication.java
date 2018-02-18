@@ -68,7 +68,13 @@ public class QuoteApplication {
 				obj.generateCombinedIndicationForStocks(null);
 				HandleErrorDetails.sendErrorsInMail("Generate Combined Indication");
 				logger.debug("Combined Indication End");
-			}  else if (args[0].equalsIgnoreCase("calculateRSI")) {
+			}  else if (args[0].equalsIgnoreCase("combinedForPortal")) {
+				logger.debug("Combined Indication Started");
+				GenerateCombinedIndicationV1 obj = new GenerateCombinedIndicationV1();
+				obj.generateCombinedIndicationForStocks(null);
+				HandleErrorDetails.sendErrorsInMail("Generate Combined Indication");
+				logger.debug("Combined Indication End");
+			} else if (args[0].equalsIgnoreCase("calculateRSI")) {
 				logger.debug("CalculateRSIIndicator Started");
 				CalculateRSIIndicator obj = new CalculateRSIIndicator();
 				obj.CalculateRSIForAllStocks(null);
@@ -95,6 +101,12 @@ public class QuoteApplication {
 			} else if (args[0].equalsIgnoreCase("combinedFromMACD")) {
 				logger.debug("MACD Indication Started");
 				GenerateIndicationFromMACD obj = new GenerateIndicationFromMACD();
+				obj.CalculateIndicationfromMACD(null);
+				HandleErrorDetails.sendErrorsInMail("Generate MACD Indication");
+				logger.debug("MACD Indication End");
+			} else if (args[0].equalsIgnoreCase("combinedFromMACDForPortal")) {
+				logger.debug("MACD Indication Started");
+				GenerateIndicationFromMACDV1 obj = new GenerateIndicationFromMACDV1();
 				obj.CalculateIndicationfromMACD(null);
 				HandleErrorDetails.sendErrorsInMail("Generate MACD Indication");
 				logger.debug("MACD Indication End");

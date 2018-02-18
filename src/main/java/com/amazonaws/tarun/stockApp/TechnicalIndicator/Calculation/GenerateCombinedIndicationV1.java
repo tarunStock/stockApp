@@ -1,18 +1,14 @@
 package com.amazonaws.tarun.stockApp.TechnicalIndicator.Calculation;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
 
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.FinalSelectedStock;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.SMAIndicatorDetails;
+import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.StockComparatorOnSMAPrimeV1;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.StockDetailsForDecision;
-import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
 import com.amazonaws.tarun.stockApp.Utils.SalesforceIntegration;
 import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 
@@ -31,8 +27,8 @@ public class GenerateCombinedIndicationV1 {
 		Date dte = new Date();
 		System.out.println("Start at -> " + dte.toString());
 		GenerateCombinedIndicationV1 obj = new GenerateCombinedIndicationV1();
-		obj.generateCombinedIndicationForStocks(new Date("25-Jan-2018"));
-		//obj.generateCombinedIndicationForStocks(null);
+		//obj.generateCombinedIndicationForStocks(new Date("25-Jan-2018"));
+		obj.generateCombinedIndicationForStocks(null);
 	}
 
 	public void generateCombinedIndicationForStocks(Date calculationDate) {
@@ -62,12 +58,12 @@ public class GenerateCombinedIndicationV1 {
 			if(objFinalSelectedStock!=null) {
 				objFinalSelectedStockList.add(objFinalSelectedStock);
 				selectedCounter = selectedCounter +1;
-				if(selectedCounter==20) {
+				/*if(selectedCounter==20) {
 					break;
-				}
+				}*/
 			} 
 		} 
-		
+		Collections.sort(objFinalSelectedStockList, new StockComparatorOnSMAPrimeV1());
 		SalesforceIntegration objSalesforceIntegration = new SalesforceIntegration();
 		
 		objSalesforceIntegration.connectToSalesforc();

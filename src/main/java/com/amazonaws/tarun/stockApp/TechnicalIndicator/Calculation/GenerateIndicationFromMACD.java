@@ -32,10 +32,15 @@ public class GenerateIndicationFromMACD {
 		GenerateIndicationFromMACD obj = new GenerateIndicationFromMACD();
 		//obj.isSignalCrossedInMACD("20MICRONS", null);
 		//To get indication from MACD
-		obj.CalculateIndicationfromMACD(null);
+		//obj.CalculateIndicationfromMACD(null);
 		//obj.CalculateIndicationfromMACD(new Date("25-Jan-2018"));		
 		//To calculate MACD values and store
-		//obj.calculateSignalAndMACDBulkForAllStocks(new Date("25-Jan-2018"));
+		/*for(int i = 257; i>=0; i--) {
+			Date date = new Date(System.currentTimeMillis()-i*24*60*60*1000L);
+			if(StockUtils.marketOpenOnGivenDate(date))*/
+				obj.calculateSignalAndMACDBulkForAllStocks(new Date("01-Jun-2017"));
+			
+		//}
 	}
 
 	public void calculateSignalAndMACDBulkForAllStocks(Date calculationDate) {
@@ -94,36 +99,45 @@ public class GenerateIndicationFromMACD {
 		
 		//Calculate signal line values
 		float nineEMASMA, signalEMA = 0, nineDayEMASum = 0;
-		for (int counter = 0 ; counter < objMACDData.twelveEMAPeriodValues.size()  ; counter++ ) {
-			if( !StockUtils.marketOpenOnGivenDate(df.parse(objMACDData.tradeddate.get(counter)))) {
-				objMACDData.signalValues.add(counter, null);
-				continue;
+		int counter = 0;
+		try {
+			for (counter = 0 ; counter < objMACDData.twelveEMAPeriodValues.size()  ; counter++ ) {
+				if( !StockUtils.marketOpenOnGivenDate(df.parse(objMACDData.tradeddate.get(counter)))) {
+					objMACDData.signalValues.add(counter, null);
+					objMACDData.MACDValues.add(counter, null);
+					continue;
+				}
+				if(counter ==97)
+						System.out.println("Test");
+				objMACDData.MACDValues.add(objMACDData.twelveEMAPeriodValues.get(counter) - objMACDData.twentySixEMAPeriodValues.get(counter));
+				previousDaySignalValue = getSignalFromDB(stockCode, df.parse(objMACDData.tradeddate.get(counter)));
+				if (previousDaySignalValue == -9999) {
+					signalEMA = -9999;
+				} else {
+					signalEMA = (2 / ((float) 10)) * (objMACDData.MACDValues.get(counter) - previousDaySignalValue) + previousDaySignalValue;
+					objMACDData.signalValues.add(signalEMA);
+				}
+				if(signalEMA != -9999)
+					storeMACDDatatoDB(stockCode, objMACDData, counter);
+				/* Block for Bulk calculation. Not needed now
+				 * nineDayEMASum = nineDayEMASum + objMACDData.MACDValues.get(counter);
+				if(counter<8) {
+					objMACDData.signalValues.add(null);
+				}
+				if(counter==8) {
+					nineEMASMA = nineDayEMASum / (counter+1);
+					objMACDData.signalValues.add(nineEMASMA);
+					
+				} else if (counter>8) {
+					
+					signalEMA = (2 / ((float) 10)) * (objMACDData.MACDValues.get(counter) - objMACDData.signalValues.get(objMACDData.signalValues.size()-1)) + objMACDData.signalValues.get(objMACDData.signalValues.size()-1);
+					objMACDData.signalValues.add(signalEMA);
+				}	*/		
 			}
-				
-			objMACDData.MACDValues.add(objMACDData.twelveEMAPeriodValues.get(counter) - objMACDData.twentySixEMAPeriodValues.get(counter));
-			previousDaySignalValue = getSignalFromDB(stockCode, df.parse(objMACDData.tradeddate.get(counter)));
-			if (previousDaySignalValue == -9999) {
-				signalEMA = -9999;
-			} else {
-				signalEMA = (2 / ((float) 10)) * (objMACDData.MACDValues.get(counter) - previousDaySignalValue) + previousDaySignalValue;
-				objMACDData.signalValues.add(signalEMA);
-			}
-			if(signalEMA != -9999)
-				storeMACDDatatoDB(stockCode, objMACDData, counter);
-			/* Block for Bulk calculation. Not needed now
-			 * nineDayEMASum = nineDayEMASum + objMACDData.MACDValues.get(counter);
-			if(counter<8) {
-				objMACDData.signalValues.add(null);
-			}
-			if(counter==8) {
-				nineEMASMA = nineDayEMASum / (counter+1);
-				objMACDData.signalValues.add(nineEMASMA);
-				
-			} else if (counter>8) {
-				
-				signalEMA = (2 / ((float) 10)) * (objMACDData.MACDValues.get(counter) - objMACDData.signalValues.get(objMACDData.signalValues.size()-1)) + objMACDData.signalValues.get(objMACDData.signalValues.size()-1);
-				objMACDData.signalValues.add(signalEMA);
-			}	*/		
+		}catch (Exception ex) {
+			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+			System.out.println("CalculateAndStoreMACDStockWise Error in calculation"+ex);
+			logger.error("Error in CalculateAndStoreMACDStockWise  -> ", ex);
 		}
 		
 	}

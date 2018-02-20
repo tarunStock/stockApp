@@ -227,11 +227,13 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		
 		try {
-			connection = StockUtils.connectToDB();
+			//if(connection==null) {
+				connection = StockUtils.connectToDB();
+			//}			
 			statement = connection.createStatement();
 			if(targetDate!=null) {
 				tmpSQL = "SELECT closeprice, Volume  FROM DAILYSTOCKDATA where stockname='" + objFinalSelectedStock.stockCode + "' " 
-						  + " and tradeddate >'" + dateFormat.format(new Date(targetDate.getTime() - 9*24*60*60*1000)) + "' order by tradeddate desc limit 4;";
+						  + " and tradeddate >'" + dateFormat.format(new Date(targetDate.getTime() - 9*24*60*60*1000)) + "' and tradeddate <='" + dateFormat.format(new Date(targetDate.getTime())) + "' order by tradeddate desc limit 4;";
 			} else {
 				tmpSQL = "SELECT closeprice, Volume  FROM DAILYSTOCKDATA where stockname='" + objFinalSelectedStock.stockCode + "' order by tradeddate desc limit 4;";
 				  //+ " order by tradeddate limit " + (daysToCheck+18) + ";";
@@ -285,7 +287,7 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 				System.out.println("getPriceAndVolumeDetails Error in closing statement "+ex);
 				logger.error("Error in closing statement getPriceAndVolumeDetails  -> ", ex);
 			}
-			try {
+			/*try {
 				if (connection != null) {
 					connection.close();
 					connection = null;
@@ -294,7 +296,7 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 				HandleErrorDetails.addError(StockUtils.class.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getPriceAndVolumeDetails Error in closing connection "+ex);
 				logger.error("Error in closing connection getPriceAndVolumeDetails  -> ", ex);
-			}
+			}*/
 		}
 	}
 

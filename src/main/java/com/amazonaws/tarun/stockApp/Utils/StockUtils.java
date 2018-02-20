@@ -63,27 +63,49 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 		return connection;
 	}
 	
-	public static boolean getFinancialIndication(String bseCode) {
+	public static boolean getFinancialIndication(String nseCode) {
 		Connection connection = null;
 		ResultSet resultSet = null;
 		Statement statement = null;
 		String indication;
-
+		float netSales, netProfit, netCashFlow;
+		ArrayList<Float> netSalesList = new ArrayList<Float>();
+		ArrayList<Float> netProfitList = new ArrayList<Float>();
+		ArrayList<Float> netCashFlowList = new ArrayList<Float>();
 		try {
 			//priceData = new ArrayList<Float>();
 			connection = StockUtils.connectToDB();
-			statement = connection.createStatement();
+			statement = connection.createStatement();;
+			
 
-			resultSet = statement.executeQuery("SELECT ANNUALSALESINDICATOR FROM STOCK_FINANCIAL_TRACKING where bsecode='" + bseCode + "';");
+			resultSet = statement.executeQuery("SELECT netSales, netProfit, netCash FROM STOCKANNUALFINANCIALDATA where STOCKCODE='" + nseCode + "' order by resultYear;");
 			
 			// DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 			while (resultSet.next()) {
-				indication = resultSet.getString(1);
-				if(indication.equalsIgnoreCase("good")){
-					return true;
-				} else {
-					return false;
+				netSales = Float.parseFloat(resultSet.getString(1));
+				netProfit = Float.parseFloat(resultSet.getString(2));
+				netCashFlow = Float.parseFloat(resultSet.getString(3));
+				netSalesList.add(netSales);
+				netProfitList.add(netProfit);
+				netCashFlowList.add(netCashFlow);
+			}
+			
+			if(netSalesList.size()>0) {
+				if(netSalesList.size()>2) {
+					if(netSalesList.get(2)>=netSalesList.get(1) && netProfitList.get(2) >= netProfitList.get(1)) {
+						return true;
+					} else {
+						return false;
+					}
+				} else if(netSalesList.size()>1) {
+					if(netSalesList.get(1)>=netSalesList.get(0) && netProfitList.get(1) >= netProfitList.get(0)) {
+						return true;
+					} else {
+						return false;
+					}
 				}
+			} else {
+				return true;
 			}
 		} catch (Exception ex) {
 			HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());

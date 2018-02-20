@@ -50,7 +50,7 @@ public class OnBalanceVolumeUpdated {
 			bseCode = stockCode.split("!")[0];
 			nseCode = stockCode.split("!")[2];
 			System.out.println("Processing Stock -> "+ stockName + " count -> "+counter);
-			if(StockUtils.getFinancialIndication(bseCode)) {
+			if(StockUtils.getFinancialIndication(nseCode)) {
 				tmpOnBalanceVolumeIndicator = calculateOnBalanceVolumeDaily(stockCode, calculationDate);
 				if (tmpOnBalanceVolumeIndicator!=null) {
 					System.out.println("******************Stock Added -> "+ stockName);

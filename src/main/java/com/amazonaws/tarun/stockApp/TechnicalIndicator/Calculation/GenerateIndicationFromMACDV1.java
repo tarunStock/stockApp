@@ -147,7 +147,7 @@ public class GenerateIndicationFromMACDV1 {
 				bseCode = stock.split("!")[0];
 				nseCode = stock.split("!")[2];
 				System.out.println("For Stock -> " + nseCode + " Stock count -> " + stockcounter++);
-				if(StockUtils.getFinancialIndication(bseCode)) {	
+				if(StockUtils.getFinancialIndication(nseCode)) {	
 					//objSMAIndicatorDetails = new SMAIndicatorDetails();
 					//objSMAIndicatorDetails.stockCode = nseCode;
 					//System.out.println("Under finacial check");

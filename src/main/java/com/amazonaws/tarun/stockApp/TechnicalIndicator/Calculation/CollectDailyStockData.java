@@ -49,17 +49,26 @@ public class CollectDailyStockData extends SetupBase {
 		System.out.println("End at -> " + dte.toString());
 	}
 	
+	public void startCollectingDailyData(Date targetDate) {
+		collectData(targetDate);
+	}
+	
 	public void startCollectingDailyData() {
+		collectData(date);
+	}
+	
+	private void collectData(Date targetDate) {
+
 		BufferedReader br = null;
 		String[] stockData = null;
 		File inputFileForDeletion = null;	
 		try{
-			if(!StockUtils.marketOpenOnGivenDate(date))
+			if(!StockUtils.marketOpenOnGivenDate(targetDate))
 				return;
 			logger.debug("startCollectingDailyData Started");
 			setupSelenium(URL, downloadFilepath);
 			logger.debug("Selenium Setup Completed");
-			getDailyDataFile();
+			getDailyDataFile(targetDate);
 			stopSelenium();
 			File inputFolder = new File(downloadFilepath);			
 			File[] inputFileList = inputFolder.listFiles();
@@ -125,10 +134,10 @@ public class CollectDailyStockData extends SetupBase {
 				System.out.println("Error in closing connection in startCollectingDailyData "+ex);
 				logger.error("Error in closing connection in startCollectingDailyData  -> ", ex);
 			}
-		}
+		}	
 	}
 	
-	private void getDailyDataFile () {		
+	private void getDailyDataFile (Date targetDate) {		
 		logger.debug("getDailyDataFile Started");
 		WebElement ele = null;
 		ele = driver.findElement(By.id("h_filetype"));
@@ -138,7 +147,7 @@ public class CollectDailyStockData extends SetupBase {
 		
 		ele = driver.findElement(By.id("date"));
 		ele.clear();
-		ele.sendKeys(dateFormat.format(date));
+		ele.sendKeys(dateFormat.format(targetDate));
 		ele = driver.findElement(By.xpath("//*[@id='wrapper_btm']/div[1]/div[4]/div/div[1]/div/div[3]"));
 		ele.click();
 		try {

@@ -112,6 +112,7 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 							 collectAndStoreFinancialDataForStockMC(nseCode);
 							 newErrorStockList.add(nseCode);
 							 errorProcessed=true;
+							 DeleteErroredStockList(nseCode);
 						 } catch (Exception ex) {							 
 							 HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), "nseCode -->" + ex.toString());
 							 System.out.println("Error in collecting financial data for stock -> "+nseCode+" end the error is = "+ex);
@@ -129,7 +130,7 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 				storeProcessedStockList(newProcessedStockList);
 				storeErroredStockList(newErrorStockList);
 			} else if (allStocksFinished && errorProcessed) {
-				DeleteErroredStockList(newErrorStockList);
+				
 			}
 			HandleErrorDetails.sendErrorsInMail("Financialdata collection Indication");
 		}
@@ -823,7 +824,7 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 		}
 	}
 	
-	private void DeleteErroredStockList(ArrayList<String> stockList) {
+	private void DeleteErroredStockList(String stockCode) {
 
 		Connection connection = null;
 		ResultSet resultSet = null;
@@ -833,12 +834,11 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 			//stockList = new ArrayList<String>();
 			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
-			for (String stockCode : stockList) {
-				statement.executeUpdate("DELETE from ERRORSTOCKS where STOCKCODE='" + stockCode + "';");
-			}
+			statement.executeUpdate("DELETE from ERRORSTOCKS where STOCKCODE='" + stockCode + "';");
+			
 		} catch (Exception ex) {
 			HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-			System.out.println("Error in storing error stocks");
+			System.out.println("DeleteErroredStockList Error in deleting error stocks");
 		} finally {
 			try {
 				if(resultSet != null) {
@@ -847,8 +847,8 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 				}
 			} catch (Exception ex) {
 				HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("storeErroredStockList Error in closing resultset "+ex);
-				logger.error("Error in closing resultset storeErroredStockList  -> ", ex);
+				System.out.println("DeleteErroredStockList Error in closing resultset "+ex);
+				logger.error("Error in closing resultset DeleteErroredStockList  -> ", ex);
 			}
 			try {
 				if(statement != null) {
@@ -857,7 +857,7 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 				}
 			} catch (Exception ex) {
 				HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("storeErroredStockList Error in closing statement "+ex);
+				System.out.println("DeleteErroredStockList Error in closing statement "+ex);
 				logger.error("Error in closing statement storeErroredStockList  -> ", ex);
 			}
 			try {
@@ -867,8 +867,8 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 				} 
 			} catch (Exception ex) {
 				HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("storeErroredStockList Error in closing connection "+ex);
-				logger.error("Error in closing connection storeErroredStockList  -> ", ex);
+				System.out.println("DeleteErroredStockList Error in closing connection "+ex);
+				logger.error("Error in closing connection DeleteErroredStockList  -> ", ex);
 			}
 		}
 	}

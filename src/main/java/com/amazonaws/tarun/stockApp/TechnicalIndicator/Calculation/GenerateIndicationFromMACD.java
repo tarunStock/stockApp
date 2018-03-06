@@ -447,7 +447,7 @@ public class GenerateIndicationFromMACD {
 			statement = connection.createStatement();
 			if(targetDate!=null) {
 				tmpSQL = "SELECT MACDSignal, MACD, tradeddate FROM Daily_MACD where stockname='" + stockCode + "' " 
-						  + " and tradeddate >='" + dateFormat.format(new Date(targetDate.getTime() - daysToCheck*24*60*60*1000)) + "' order by tradeddate desc limit " + (daysToCheck) + ";";
+						  + " and tradeddate >='" + dateFormat.format(new Date(targetDate.getTime() - daysToCheck*24*60*60*1000)) + "' and tradeddate <='" + dateFormat.format(new Date(targetDate.getTime())) + "' order by tradeddate desc limit " + (daysToCheck) + ";";
 			} else {
 				tmpSQL = "SELECT MACDSignal, MACD, tradeddate FROM Daily_MACD where stockname='" + stockCode + "' order by tradeddate desc limit " + (daysToCheck) + ";";
 				  //+ " order by tradeddate limit " + (daysToCheck+18) + ";";

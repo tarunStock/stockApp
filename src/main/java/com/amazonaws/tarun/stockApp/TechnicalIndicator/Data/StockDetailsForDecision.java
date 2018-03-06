@@ -19,7 +19,8 @@ public class StockDetailsForDecision {
 	public long ThreeDayPreviousVolume;	
 	public String MACDStatus;
 	public String SMAComparison;
-	public String SMAToPriceComparison;
+	public String SMAToPriceComparison;	
 	public String TypeofSuggestedStock;
-	
+	public double supportLevel;
+	public double resistanceLevel;
 }

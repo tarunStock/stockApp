@@ -157,10 +157,18 @@ public class GenerateIndicationfromMovingAverage {
 			stockPriceValues = GetStockPrices(stockCode, calculationDate);
 
 			//checking Higher SMA is in increasing trend in last 30 days
-			if(higherSMAPeriodValues.size() > 0) {
+			/*if(higherSMAPeriodValues.size() > 0) {
 				float recentHigherSMAValue = higherSMAPeriodValues.get(0);
 				float lastHigherSMAValue = higherSMAPeriodValues.get(higherSMAPeriodValues.size()-1);
 				if(recentHigherSMAValue < lastHigherSMAValue)
+					return;
+			}*/
+			
+			//checking Middle SMA is in increasing trend in last 30 days
+			if(middleSMAPeriodValues.size() > 0) {
+				float recentMiddleSMAPeridValues = middleSMAPeriodValues.get(0);
+				float lastMiddleSMAPeriodValue = higherSMAPeriodValues.get(middleSMAPeriodValues.size()-1);
+				if(recentMiddleSMAPeridValues < lastMiddleSMAPeriodValue)
 					return;
 			}
 			

@@ -67,7 +67,7 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 		Connection connection = null;
 		ResultSet resultSet = null;
 		Statement statement = null;
-		String indication;
+		String tmpSQL;
 		float netSales, netProfit, netCashFlow;
 		ArrayList<Float> netSalesList = new ArrayList<Float>();
 		ArrayList<Float> netProfitList = new ArrayList<Float>();
@@ -77,8 +77,8 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();;
 			
-
-			resultSet = statement.executeQuery("SELECT netSales, netProfit, netCash FROM STOCKANNUALFINANCIALDATA where STOCKCODE='" + nseCode + "' order by resultYear;");
+			tmpSQL = "SELECT netSales, netProfit, netCashFlow FROM STOCKANNUALFINANCIALDATA where STOCKCODE='" + nseCode + "' order by resultYear desc;";
+			resultSet = statement.executeQuery(tmpSQL);
 			
 			// DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 			while (resultSet.next()) {
@@ -159,11 +159,12 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 
-			resultSet = statement.executeQuery("SELECT NSECODE, stockname, NSECODE FROM STOCKDETAILS;");
+			resultSet = statement.executeQuery("SELECT NSECODE, stockname, NSECODE, ISINCODE FROM STOCKDETAILS;");
 			while (resultSet.next()) {
 				stockBSECode = resultSet.getString(1);
 				stockBSECode = stockBSECode + "!" + resultSet.getString(2);
 				stockBSECode = stockBSECode + "!" + resultSet.getString(3);
+				stockBSECode = stockBSECode + "!" + resultSet.getString(4);
 				stockList.add(stockBSECode);
 				// System.out.println("StockNme - " + stockNSECode);
 			}

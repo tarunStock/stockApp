@@ -32,7 +32,9 @@ public class SalesforceIntegration {
 	private static final String CLIENTID = "3MVG9d8..z.hDcPImYkL6mLod9wozPALfaFg8NUMnNXv_JPddncDl3h_78jZR1s6ZfXCDIDLpVowi.3JA3meQ";
 	private static final String CLIENTSECRET = "8506532603328186976";
 	private static final String USERID = "tarunstockcomm@gmail.com";
-	private static final String PASSWORD = "Nov@2017nCkwjqG1silvXylq5DHcnonWI";
+	//private static final String PASSWORD = "Nov@2017nCkwjqG1silvXylq5DHcnonWI";
+	private static final String PASSWORD = "Jan@2018hjpt3nZkkcLQUa9Ntrc6Rt17z";
+	//private static final String PASSWORD = "Jan@2018";
 	private static final String ACCESSTOKEN = "access_token";
 	private static final String INSTANCEURL = "instance_url";
 
@@ -56,11 +58,15 @@ public class SalesforceIntegration {
 		httpPost = new HttpPost(LOGINURL);
 		httpPost.setHeader("Content-Type","application/x-www-form-urlencoded");
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair("client_id", "3MVG9d8..z.hDcPImYkL6mLod9wozPALfaFg8NUMnNXv_JPddncDl3h_78jZR1s6ZfXCDIDLpVowi.3JA3meQ"));
-        params.add(new BasicNameValuePair("client_secret", "8506532603328186976"));
+        params.add(new BasicNameValuePair("client_id", CLIENTID));
+        //params.add(new BasicNameValuePair("client_id", "3MVG9d8..z.hDcPImYkL6mLod9wozPALfaFg8NUMnNXv_JPddncDl3h_78jZR1s6ZfXCDIDLpVowi.3JA3meQ"));
+        params.add(new BasicNameValuePair("client_secret", CLIENTSECRET));
+        //params.add(new BasicNameValuePair("client_secret", "8506532603328186976"));
         params.add(new BasicNameValuePair("grant_type", "password"));
-        params.add(new BasicNameValuePair("username", "tarunstockcomm@gmail.com"));
-        params.add(new BasicNameValuePair("password", "Nov@2017nCkwjqG1silvXylq5DHcnonWI"));
+        params.add(new BasicNameValuePair("username", USERID));
+        //params.add(new BasicNameValuePair("username", "tarunstockcomm@gmail.com"));
+        params.add(new BasicNameValuePair("password", PASSWORD));
+        //params.add(new BasicNameValuePair("password", "Jan@2018hjpt3nZkkcLQUa9Ntrc6Rt17z"));
         
 		HttpResponse httpResponse = null;
 
@@ -99,6 +105,7 @@ public class SalesforceIntegration {
 
 		oAuthHeader = new BasicHeader("Authorization", "OAuth " + accessToken);
 		System.out.println("Auth header -> "+oAuthHeader);
+		System.out.println("Auth header -> "+instanceUrl);
 	}
 
 	public static JSONObject getJsonObject( StockDetailsForDecision objStockDetailsForDecision) {
@@ -130,6 +137,8 @@ public class SalesforceIntegration {
 			stockDetails.put("TwoDayPreviousPrice", tempVar);
 			stockDetails.put("TwoDayPreviousVolume", objStockDetailsForDecision.TwoDayPreviousVolume);
 			stockDetails.put("TypeofSuggestedStock", objStockDetailsForDecision.TypeofSuggestedStock);
+			stockDetails.put("SupportLevel", objStockDetailsForDecision.supportLevel);
+			stockDetails.put("ResistanceLevel", objStockDetailsForDecision.resistanceLevel);
 		} catch (JSONException jsonException) {
 			System.out.println("Issue creating JSON or processing results");
 			jsonException.printStackTrace();
@@ -142,42 +151,16 @@ public class SalesforceIntegration {
 		System.out.println("****************Suggested Stock Creation**************");
 		double tempVar;
 		String finalURI = instanceUrl + "/services/apexrest/SuggestedStock/v1/";
+		System.out.println("******************* Final URL ->"+finalURI);
+		System.out.println("OAuth -> "+oAuthHeader);
 		DecimalFormat df = new DecimalFormat("#.00");
 		//System.out.println(df.format(f));
 		try {
 			JSONArray jArray = new JSONArray();
 			JSONObject newSuggestedStock;
 			for(int counter = 0; counter < (objStockDetailsForDecisionList.size()>20?20:objStockDetailsForDecisionList.size()); counter++) {
-				/*newSuggestedStock = new JSONObject();
-				newSuggestedStock.put("BBTrend", objStockDetailsForDecisionList.get(counter).BBTrend);
-				tempVar = Math.round(objStockDetailsForDecisionList.get(counter).ChandelierExit * 100.0) / 100.0;
-						
-				newSuggestedStock.put("ChandelierExit", tempVar);
-				tempVar = Math.round(objStockDetailsForDecisionList.get(counter).CurrentPrice * 100.0) / 100.0;
-				newSuggestedStock.put("CurrentPrice", tempVar);
-				newSuggestedStock.put("CurrentVolume", objStockDetailsForDecisionList.get(counter).CurrentVolume);			
-				newSuggestedStock.put("MACDStatus", objStockDetailsForDecisionList.get(counter).MACDStatus);
-				tempVar = Math.round(objStockDetailsForDecisionList.get(counter).OneDayPreviousPrice * 100.0) / 100.0;
-				newSuggestedStock.put("OneDayPreviousPrice", tempVar);
-				newSuggestedStock.put("OneDayPreviousVolume", objStockDetailsForDecisionList.get(counter).OneDayPreviousVolume);
-				tempVar = Math.round(objStockDetailsForDecisionList.get(counter).RSIValue * 100.0) / 100.0;
-				newSuggestedStock.put("RSIValue", tempVar);
-				newSuggestedStock.put("SMAComparison", objStockDetailsForDecisionList.get(counter).SMAComparison);
-				newSuggestedStock.put("SMAToPriceComparison", objStockDetailsForDecisionList.get(counter).SMAToPriceComparison);
-				newSuggestedStock.put("StockCode", objStockDetailsForDecisionList.get(counter).stockCode);
-				newSuggestedStock.put("SuggestedDate", objStockDetailsForDecisionList.get(counter).suggestedDate);
-				tempVar = Math.round(objStockDetailsForDecisionList.get(counter).ThreeDayPreviousPrice * 100.0) / 100.0;
-				newSuggestedStock.put("ThreeDayPreviousPrice", tempVar);
-				newSuggestedStock.put("ThreeDayPreviousVolume", objStockDetailsForDecisionList.get(counter).ThreeDayPreviousVolume);
-				tempVar = Math.round(objStockDetailsForDecisionList.get(counter).TwoDayPreviousPrice * 100.0) / 100.0;
-				newSuggestedStock.put("TwoDayPreviousPrice", tempVar);
-				newSuggestedStock.put("TwoDayPreviousVolume", objStockDetailsForDecisionList.get(counter).TwoDayPreviousVolume);
-				newSuggestedStock.put("TypeofSuggestedStock", objStockDetailsForDecisionList.get(counter).TypeofSuggestedStock);*/		
-				
 				jArray.put(getJsonObject(objStockDetailsForDecisionList.get(counter)));
 			}
-			
-			
 			JSONObject mainObj = new JSONObject();
 			mainObj.put("StockDetails", jArray);
 			System.out.println("JSON for Suggested stock record to be inserted:\n" + mainObj.toString(1));

@@ -27,8 +27,8 @@ public class GenerateCombinedIndicationV1 {
 		Date dte = new Date();
 		System.out.println("Start at -> " + dte.toString());
 		GenerateCombinedIndicationV1 obj = new GenerateCombinedIndicationV1();
-		//obj.generateCombinedIndicationForStocks(new Date("25-Jan-2018"));
-		obj.generateCombinedIndicationForStocks(null);
+		obj.generateCombinedIndicationForStocks(new Date("01-Mar-2018"));
+		//obj.generateCombinedIndicationForStocks(null);
 	}
 
 	public void generateCombinedIndicationForStocks(Date calculationDate) {
@@ -103,7 +103,7 @@ public class GenerateCombinedIndicationV1 {
 	
 	private StockDetailsForDecision getAlldetails (SMAIndicatorDetails objSMAIndicatorDetails, Date calculationDate) {
 		StockDetailsForDecision objFinalSelectedStock = null;
-		CalculateOnBalanceVolume objCalculateOnBalanceVolume;
+		//CalculateOnBalanceVolume objCalculateOnBalanceVolume;
 		CalculateBollingerBands objCalculateBollingerBands;
 		CalculateRSIIndicator objCalculateRSIIndicator;
 		CalculateStochasticOscillator objCalculateStochasticOscillator;
@@ -115,6 +115,9 @@ public class GenerateCombinedIndicationV1 {
 		//float chandelierExitShort;
 		GenerateIndicationFromMACD objGenerateIndicationFromMACD = new GenerateIndicationFromMACD();
 		objCalculateStochasticOscillator = new CalculateStochasticOscillator();
+		if(!StockUtils.getFinancialIndication(objSMAIndicatorDetails.stockCode)) {
+			return null;
+		}
 		if(!objCalculateStochasticOscillator.getStochasticIndicator(objSMAIndicatorDetails.stockCode, calculationDate)) {
 			return null;
 		}
@@ -163,6 +166,12 @@ public class GenerateCombinedIndicationV1 {
 		//objFinalSelectedStock.chandelierExitShort = chandelierExitShort;
 		objFinalSelectedStock = StockUtils.getPriceAndVolumeDetails(objFinalSelectedStock,calculationDate);
 		objFinalSelectedStock.TypeofSuggestedStock = "All";
+		CalculateFibonacciRetracements obj = new CalculateFibonacciRetracements();
+		ArrayList<Double> supportAndResistanceValues = obj.FibonacciRetracements(objSMAIndicatorDetails.stockCode, calculationDate);
+		if(supportAndResistanceValues!=null) {
+			objFinalSelectedStock.supportLevel = supportAndResistanceValues.get(0);
+			objFinalSelectedStock.resistanceLevel = supportAndResistanceValues.get(1);
+		}
 		return objFinalSelectedStock;
 	}
 	

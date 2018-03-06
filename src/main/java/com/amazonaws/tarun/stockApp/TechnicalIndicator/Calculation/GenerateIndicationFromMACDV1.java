@@ -36,8 +36,8 @@ public class GenerateIndicationFromMACDV1 {
 		GenerateIndicationFromMACDV1 obj = new GenerateIndicationFromMACDV1();
 		//obj.isSignalCrossedInMACD("20MICRONS", null);
 		//To get indication from MACD
-		obj.CalculateIndicationfromMACD(null);
-		//obj.CalculateIndicationfromMACD(new Date("25-Jan-2018"));		
+		//obj.CalculateIndicationfromMACD(null);
+		obj.CalculateIndicationfromMACD(new Date("01-Mar-2018"));		
 		//To calculate MACD values and store
 		//obj.calculateSignalAndMACDBulkForAllStocks(new Date("25-Jan-2018"));
 	}
@@ -232,7 +232,7 @@ public class GenerateIndicationFromMACDV1 {
 			statement = connection.createStatement();
 			if(targetDate!=null) {
 				tmpSQL = "SELECT MACDSignal, MACD, tradeddate FROM Daily_MACD where stockname='" + stockCode + "' " 
-						  + " and tradeddate >='" + dateFormat.format(new Date(targetDate.getTime() - daysToCheck*24*60*60*1000)) + "' order by tradeddate desc limit " + (daysToCheck) + ";";
+						  + " and tradeddate >='" + dateFormat.format(new Date(targetDate.getTime() - daysToCheck*24*60*60*1000)) + "' and tradeddate <='" + dateFormat.format(new Date(targetDate.getTime())) + "' order by tradeddate desc limit " + (daysToCheck) + ";";
 			} else {
 				tmpSQL = "SELECT MACDSignal, MACD, tradeddate FROM Daily_MACD where stockname='" + stockCode + "' order by tradeddate desc limit " + (daysToCheck) + ";";
 				  //+ " order by tradeddate limit " + (daysToCheck+18) + ";";
@@ -316,6 +316,9 @@ public class GenerateIndicationFromMACDV1 {
 		boolean MACDCross;
 		//float chandelierExitShort;
 		System.out.println("Get All Details");
+		if(!StockUtils.getFinancialIndication(objSMAIndicatorDetails.stockCode)) {
+			return null;
+		}
 		GenerateIndicationFromMACD objGenerateIndicationFromMACD = new GenerateIndicationFromMACD();
 		objCalculateStochasticOscillator = new CalculateStochasticOscillator();
 		if(!objCalculateStochasticOscillator.getStochasticIndicator(objSMAIndicatorDetails.stockCode, calculationDate)) {
@@ -365,6 +368,12 @@ public class GenerateIndicationFromMACDV1 {
 		objFinalSelectedStock.MACDStatus = "Crossed";
 		objFinalSelectedStock = StockUtils.getPriceAndVolumeDetails(objFinalSelectedStock,calculationDate);
 		objFinalSelectedStock.TypeofSuggestedStock = "MACD Crossed";
+		CalculateFibonacciRetracements obj = new CalculateFibonacciRetracements();
+		ArrayList<Double> supportAndResistanceValues = obj.FibonacciRetracements(objSMAIndicatorDetails.stockCode, calculationDate);
+		if(supportAndResistanceValues!=null) {
+			objFinalSelectedStock.supportLevel = supportAndResistanceValues.get(0);
+			objFinalSelectedStock.resistanceLevel = supportAndResistanceValues.get(1);
+		}
 		return objFinalSelectedStock;
 	}
 	

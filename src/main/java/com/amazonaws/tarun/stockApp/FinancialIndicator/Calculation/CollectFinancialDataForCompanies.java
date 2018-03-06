@@ -57,7 +57,7 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 		ArrayList<String> newProcessedStockList = new ArrayList<String>();
 		ArrayList<String> newErrorStockList = new ArrayList<String>();
 		String stockName;
-		String bseCode;
+		String bseCode, isinCode;
 		String nseCode = null;
 		boolean allStocksFinished = true, errorProcessed=false;
 		// calculateRSIForStock("DAAWAT", new Date("13-Oct-2017"));
@@ -84,11 +84,12 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 				 stockName = stockCode.split("!")[1]; 
 				 bseCode = stockCode.split("!")[0]; 
 				 nseCode = stockCode.split("!")[2];
+				 isinCode = stockCode.split("!")[3];
 				 if((processedStockList==null || !processedStockList.contains(nseCode)) && (errorStockList==null || !errorStockList.contains(nseCode))) {
 					 //System.out.println("Collecting Annual Financial data for stock - >"+nseCode);
 					 allStocksFinished = false;
 					 try {
-						 collectAndStoreFinancialDataForStockMC(nseCode);
+						 collectAndStoreFinancialDataForStockMC(nseCode + "!" + isinCode);
 						 newProcessedStockList.add(nseCode);
 					 } catch (Exception ex) {
 						 newErrorStockList.add(nseCode);
@@ -106,13 +107,17 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 					stockName = stockCode.split("!")[1]; 
 					 bseCode = stockCode.split("!")[0]; 
 					 nseCode = stockCode.split("!")[2];
+					 isinCode = stockCode.split("!")[3];
 					 if(errorStockList!=null && errorStockList.contains(nseCode)) {
 						 //System.out.println("Collecting Annual Financial data for stock - >"+nseCode);
 						 try {
-							 collectAndStoreFinancialDataForStockMC(nseCode);
+							 collectAndStoreFinancialDataForStockMC(nseCode + "!" + isinCode);
 							 newErrorStockList.add(nseCode);
 							 errorProcessed=true;
 							 DeleteErroredStockList(nseCode);
+							 newProcessedStockList =  new ArrayList<String>();
+							 newProcessedStockList.addAll(newProcessedStockList);
+							 storeProcessedStockList(newProcessedStockList);
 						 } catch (Exception ex) {							 
 							 HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), "nseCode -->" + ex.toString());
 							 System.out.println("Error in collecting financial data for stock -> "+nseCode+" end the error is = "+ex);
@@ -138,7 +143,9 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 		stopSelenium();
 	}
 
-	private void collectAndStoreFinancialDataForStockMC(String stockCode) {
+	private void collectAndStoreFinancialDataForStockMC(String nseCode) {
+		String stockCode = nseCode.split("!")[0];
+		String isinCode = nseCode.split("!")[1];
 		logger.debug("collectAndStoreAnnualFinancialDataForStock Started");
 		CompanyFinancialData objCompanyFinancialData;
 		WebElement ele = null;
@@ -160,8 +167,29 @@ public class CollectFinancialDataForCompanies extends SetupBase {
 			System.out.println("Error in waiting for drop down suggestion");
 		}
 		try {
-			ele = driver.findElement(By.xpath("//*[@id='mc_mainWrapper']/div[3]/div[2]/div/table/tbody/tr[1]/td[1]/p/a"));
-			ele.click();
+			for(int rowCounter=1;;rowCounter++) {
+				ele = driver.findElement(By.xpath("//*[@id='mc_mainWrapper']/div[3]/div[2]/div/table/tbody/tr[" + rowCounter + "]/td[2]/p/span[2]/strong"));
+				if("ISIN".contains(ele.getText())) {
+					ele = driver.findElement(By.xpath("//*[@id='mc_mainWrapper']/div[3]/div[2]/div/table/tbody/tr[" + rowCounter + "]/td[2]/p/span[2]"));
+					if(isinCode.contains(ele.getText())) {
+						ele = driver.findElement(By.xpath("//*[@id='mc_mainWrapper']/div[3]/div[2]/div/table/tbody/tr[" + rowCounter + "]/td[1]/p/a"));
+						ele.click();
+						break;
+					}
+				} else {
+					ele = driver.findElement(By.xpath("//*[@id='mc_mainWrapper']/div[3]/div[2]/div/table/tbody/tr[" + rowCounter + "]/td[2]/p/span[3]/strong"));
+					if("ISIN".contains(ele.getText())) {
+						ele = driver.findElement(By.xpath("//*[@id='mc_mainWrapper']/div[3]/div[2]/div/table/tbody/tr[" + rowCounter + "]/td[2]/p/span[3]"));
+						if(isinCode.contains(ele.getText())) {
+							ele = driver.findElement(By.xpath("//*[@id='mc_mainWrapper']/div[3]/div[2]/div/table/tbody/tr[" + rowCounter + "]/td[1]/p/a"));
+							ele.click();
+							break;
+						}
+					}
+				}
+			}
+			
+			
 			Thread.sleep(7000);
 		} catch (Exception ex) {
 			System.out.println("Comapny details directly opened or Error in clicking company name in the search list");

@@ -1,10 +1,10 @@
 package com.amazonaws.tarun.stockApp.externalOperations;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.json.JSONObject;

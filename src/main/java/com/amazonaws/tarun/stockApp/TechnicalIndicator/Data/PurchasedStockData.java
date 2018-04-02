@@ -1,6 +1,6 @@
 package com.amazonaws.tarun.stockApp.TechnicalIndicator.Data;
 
-import java.sql.Date;
+import java.util.Date;
 
 public class PurchasedStockData {
 	public String stockCode;

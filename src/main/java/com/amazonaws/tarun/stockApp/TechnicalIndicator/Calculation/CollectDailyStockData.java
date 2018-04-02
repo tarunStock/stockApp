@@ -36,8 +36,8 @@ public class CollectDailyStockData extends SetupBase {
 	static Logger logger = Logger.getLogger(CollectDailyStockData.class);
 	public String downloadFilepath = "c:\\StockApp\\download";
 	
-	//Date date = new Date(System.currentTimeMillis()-2*24*60*60*1000L);
-	Date date = new Date(); //Date(System.currentTimeMillis()-24*60*60*1000);
+	Date date = new Date(System.currentTimeMillis()-1*24*60*60*1000L);
+	//Date date = new Date(); //Date(System.currentTimeMillis()-24*60*60*1000);
 			
 	public static void main(String[] args) {
 		Date dte = new Date();
@@ -141,8 +141,12 @@ public class CollectDailyStockData extends SetupBase {
 		logger.debug("getDailyDataFile Started");
 		WebElement ele = null;
 		ele = driver.findElement(By.id("h_filetype"));
-		Select select= new Select(ele);		
-		select.selectByVisibleText("Bhavcopy");
+		Select select= new Select(ele);
+		
+		String text = driver.findElement(By.xpath("//option[contains(text(), 'Bhavcopy')]")).getText();
+		
+		//select.selectByVisibleText("Bhavcopy");
+		select.selectByVisibleText(text);
 		DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy"); 
 		
 		ele = driver.findElement(By.id("date"));

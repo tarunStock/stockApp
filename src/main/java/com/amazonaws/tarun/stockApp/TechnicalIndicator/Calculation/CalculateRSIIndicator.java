@@ -28,7 +28,7 @@ public class CalculateRSIIndicator {
 		System.out.println("Start at -> " + dte.toString());
 		CalculateRSIIndicator obj = new CalculateRSIIndicator();
 		//obj.CalculateRSIForAllStocks(null);
-		obj.CalculateRSIForAllStocks(new Date("25-Jan-2018"));
+		obj.CalculateRSIForAllStocks(new Date("26-Mar-2018"));
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());
 		logger.debug("CalculateRSIIndicator End");
@@ -42,7 +42,7 @@ public class CalculateRSIIndicator {
 		String stockName;
 		String bseCode;
 		String nseCode;
-		//calculateRSIForStock("DAAWAT", new Date("13-Oct-2017"));
+		//calculateRSIForStock("RAMGOPOLY", new Date("15-Mar-2018"));
 		for (String stockCode : stockList) {
 			
 			stockName = stockCode.split("!")[1];
@@ -126,14 +126,14 @@ public class CalculateRSIIndicator {
 		RSIData stockDetails = null;
 		float priceDifference, avgGain = 0, avgLoss = 0, stockRS = 0, stockRSI = 0;
 		stockDetails = getStockDetailsFromDBForDaily(stockCode, targetDate);
-
-		try {
-			if (connection != null) {
-				connection.close();
-				connection = null;
-			}
-			connection = StockUtils.connectToDB();
-			if(stockDetails!=null) {
+		if(stockDetails!=null) {
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				}
+				connection = StockUtils.connectToDB();
+				
 				priceDifference = stockDetails.closePrice.get(0) - stockDetails.closePrice.get(1); 
 				if(priceDifference >= 0) {
 					avgGain = ((stockDetails.previousDayAvgGain * (RSI_PERIOD-1)) + priceDifference) / RSI_PERIOD;
@@ -142,31 +142,32 @@ public class CalculateRSIIndicator {
 					avgLoss = ((stockDetails.previousDayAvgLoss * (RSI_PERIOD-1)) + (priceDifference * -1)) / RSI_PERIOD;
 					avgGain = (stockDetails.previousDayAvgGain * (RSI_PERIOD-1)) / RSI_PERIOD;
 				}
-			}
-			
-			stockRS = avgGain / avgLoss;
-			if( avgLoss == 0 ) {
-				stockRSI = 100;
-			} else {
-				stockRSI = 100 - (100/(1+stockRS));
-			}
-			//Call method to store RS and RSI with period in DB
-			System.out.println("Inserting RSI value in DB");
-			storeRSIinDB(stockCode, stockDetails.tradeddate.get(0), stockRS, stockRSI, RSI_PERIOD, avgGain, avgLoss);
-		} catch (Exception ex) {
-			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-			System.out.println("calculateRSIForStock Error in DB action"+ex);
-			logger.error("Error in calculateRSIForStock  -> ", ex);
-		} finally {
-			try {
-				if (connection != null) {
-					connection.close();
-					connection = null;
-				} 
+				
+				
+				stockRS = avgGain / avgLoss;
+				if( avgLoss == 0 ) {
+					stockRSI = 100;
+				} else {
+					stockRSI = 100 - (100/(1+stockRS));
+				}
+				//Call method to store RS and RSI with period in DB
+				System.out.println("Inserting RSI value in DB");
+				storeRSIinDB(stockCode, stockDetails.tradeddate.get(0), stockRS, stockRSI, RSI_PERIOD, avgGain, avgLoss);
 			} catch (Exception ex) {
 				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("calculateRSIForStock Error in DB action"+ex);
 				logger.error("Error in calculateRSIForStock  -> ", ex);
+			} finally {
+				try {
+					if (connection != null) {
+						connection.close();
+						connection = null;
+					} 
+				} catch (Exception ex) {
+					HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+					System.out.println("calculateRSIForStock Error in DB action"+ex);
+					logger.error("Error in calculateRSIForStock  -> ", ex);
+				}
 			}
 		}
 	}
@@ -244,6 +245,7 @@ public class CalculateRSIIndicator {
 		RSIData rsiDataObj = null;
 		String tmpSQL;
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		DateFormat dateFormat1 = new SimpleDateFormat("dd-MMM-yyyy");
 		
 		try {
 			if (connection != null) {
@@ -264,8 +266,17 @@ public class CalculateRSIIndicator {
 							+ stockCode + "' order by tradeddate desc limit 2;";
 			}
 			resultSet = statement.executeQuery(tmpSQL);
+			boolean readFlag = false;
 			while (resultSet.next()) {
 				tradedDate = resultSet.getString(1);
+				Date DBDate = dateFormat.parse(tradedDate);
+				Date todayDate = new Date();
+				if(!readFlag && SMDate!=null && SMDate.compareTo(DBDate)!=0) {					
+					throw new Exception("Stock data not collected for stock =" + stockCode +" for given date ="+SMDate);
+				} else if (!readFlag &&  SMDate == null && todayDate.compareTo(DBDate)!=0) {
+					throw new Exception("Stock data not collected for stock =" + stockCode +" for current date ="+todayDate);
+				}
+				readFlag = true;
 				closePrice = Float.parseFloat(resultSet.getString(2));
 				rsiDataObj.closePrice.add(closePrice);
 				rsiDataObj.tradeddate.add(tradedDate);

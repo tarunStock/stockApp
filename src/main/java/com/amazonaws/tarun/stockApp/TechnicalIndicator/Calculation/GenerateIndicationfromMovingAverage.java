@@ -139,7 +139,7 @@ public class GenerateIndicationfromMovingAverage {
 		System.out.println("End");
 	}
 
-	public void CalculateIndicationfromSMA(String stockCode, Date calculationDate) {
+	public SMAIndicatorDetails CalculateIndicationfromSMA(String stockCode, Date calculationDate) {
 		objSMAIndicatorDetails = new SMAIndicatorDetails();
 		objSMAIndicatorDetails.stockCode = nseCode;
 		ArrayList<Integer> prefPeriod = null;
@@ -149,11 +149,11 @@ public class GenerateIndicationfromMovingAverage {
 		ArrayList<Float> stockPriceValues = null;
 
 		
-		prefPeriod = GetPreferredSMA(stockCode);
+		prefPeriod = StockUtils.GetPreferredSMA(stockCode);
 		if (prefPeriod != null && prefPeriod.size() > 0) {
-			lowerSMAPeriodValues = GetSMAData(stockCode, prefPeriod.get(0), calculationDate);
-			middleSMAPeriodValues = GetSMAData(stockCode, prefPeriod.get(1), calculationDate);
-			higherSMAPeriodValues = GetSMAData(stockCode, prefPeriod.get(2), calculationDate);
+			lowerSMAPeriodValues = StockUtils.GetSMAData(stockCode, prefPeriod.get(0), calculationDate);
+			middleSMAPeriodValues = StockUtils.GetSMAData(stockCode, prefPeriod.get(1), calculationDate);
+			higherSMAPeriodValues = StockUtils.GetSMAData(stockCode, prefPeriod.get(2), calculationDate);
 			stockPriceValues = GetStockPrices(stockCode, calculationDate);
 
 			//checking Higher SMA is in increasing trend in last 30 days
@@ -169,151 +169,24 @@ public class GenerateIndicationfromMovingAverage {
 				float recentMiddleSMAPeridValues = middleSMAPeriodValues.get(0);
 				float lastMiddleSMAPeriodValue = higherSMAPeriodValues.get(middleSMAPeriodValues.size()-1);
 				if(recentMiddleSMAPeridValues < lastMiddleSMAPeriodValue)
-					return;
+					return null;
 			}
 			
 			if (middleSMAPeriodValues.size() > 0 && stockPriceValues.size() > 0) {
 				calculateIndicationFromMiddleSMAAndPriceV1(middleSMAPeriodValues, stockPriceValues);
 			}
 			if (lowerSMAPeriodValues.size() > 0 && higherSMAPeriodValues.size() > 0) {
-				calculateIndicationFromLowerSMAAndHigherSMAV1(lowerSMAPeriodValues, higherSMAPeriodValues, stockPriceValues);
+				//changing to comapare 9 and 20 SMA values rather than 9 and 50
+				//calculateIndicationFromLowerSMAAndHigherSMAV1(lowerSMAPeriodValues, higherSMAPeriodValues, stockPriceValues);
+				calculateIndicationFromLowerSMAAndHigherSMAV1(lowerSMAPeriodValues, middleSMAPeriodValues, stockPriceValues);
 			}
 		}
+		return objSMAIndicatorDetails;
 	}
 
-	private ArrayList<Integer> GetPreferredSMA(String stockCode) {
-		ArrayList<Integer> prefPeriod = null;
-		ResultSet resultSet = null;
-		Statement statement = null;
-		String[] prefPeriodsInDB;
+	
 
-		try {
-			prefPeriod = new ArrayList<Integer>();
-			if (connection != null) {
-				connection.close();
-				connection = null;
-			}
-			connection = StockUtils.connectToDB();
-			statement = connection.createStatement();
-			resultSet = statement.executeQuery("SELECT PREFDAILYSMAPERIODS FROM STOCKWISEPERIODS where stockname = '" + stockCode + "';");
-			while (resultSet.next()) {
-				prefPeriodsInDB = resultSet.getString(1).split(",");
-				for (int counter = 0; counter < prefPeriodsInDB.length; counter++) {
-					prefPeriod.add(new Integer(prefPeriodsInDB[counter]));
-				}
-				// System.out.println("StockNme - " + stockNSECode);
-			}
-			resultSet.close();
-			connection.close();
-			connection = null;
-		} catch (Exception ex) {
-			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-			System.out.println("Error in getting preferred period from DB" + ex);
-			return null;
-		} finally {
-			try {
-				if(resultSet != null) {
-					resultSet.close();
-					resultSet = null;
-				}
-			} catch (Exception ex) {
-				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("GetPreferredSMA Error in closing resultset "+ex);
-				logger.error("Error in closing resultset GetPreferredSMA  -> ", ex);
-			}
-			try {
-				if(statement != null) {
-					statement.close();
-					statement = null;
-				}
-			} catch (Exception ex) {
-				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("GetPreferredSMA Error in closing statement "+ex);
-				logger.error("Error in closing statement GetPreferredSMA  -> ", ex);
-			}
-			try {
-				if (connection != null) {
-					connection.close();
-					connection = null;
-				} 
-			} catch (Exception ex) {
-				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("GetPreferredSMA Error in closing connection "+ex);
-				logger.error("Error in closing connection GetPreferredSMA  -> ", ex);
-			}
-		}
-		return prefPeriod;
-	}
-
-	private ArrayList<Float> GetSMAData(String stockCode, Integer period, Date targetDate) {
-		ArrayList<Float> SMAData = null;
-		ResultSet resultSet = null;
-		Statement statement = null;
-		String SMAvalue, tmpSQL;
-		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		
-		try {
-			SMAData = new ArrayList<Float>();
-			if (connection != null) {
-				connection.close();
-				connection = null;
-			}
-			connection = StockUtils.connectToDB();
-			statement = connection.createStatement();
-			if(targetDate!=null) {
-				tmpSQL = "SELECT SMA FROM DAILYSNEMOVINGAVERAGES where stockname='" + stockCode + "' and period = " + period.intValue() 
-						  + " and tradeddate <='" + dateFormat.format(targetDate) + "' order by tradeddate desc limit 30;";
-			} else {
-				tmpSQL = "SELECT SMA FROM DAILYSNEMOVINGAVERAGES where stockname='" + stockCode + "' and period = " + period.intValue() 
-				  + " order by tradeddate desc limit 30;";
-			}
-			resultSet = statement.executeQuery(tmpSQL);
-			while (resultSet.next()) {
-				SMAvalue = resultSet.getString(1);
-				SMAData.add(Float.parseFloat(SMAvalue));
-				// System.out.println("StockNme - " + stockNSECode);
-			}
-			resultSet.close();
-			connection.close();
-			connection = null;
-		} catch (Exception ex) {
-			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-			System.out.println("Error in getting SMA values for period = " + period + " error = " + ex);
-			return null;
-		} finally {
-			try {
-				if(resultSet != null) {
-					resultSet.close();
-					resultSet = null;
-				}
-			} catch (Exception ex) {
-				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("GetSMAData Error in closing resultset "+ex);
-				logger.error("Error in closing resultset GetSMAData  -> ", ex);
-			}
-			try {
-				if(statement != null) {
-					statement.close();
-					statement = null;
-				}
-			} catch (Exception ex) {
-				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("GetSMAData Error in closing statement "+ex);
-				logger.error("Error in closing statement GetSMAData  -> ", ex);
-			}
-			try {
-				if (connection != null) {
-					connection.close();
-					connection = null;
-				} 
-			} catch (Exception ex) {
-				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("GetSMAData Error in closing connection "+ex);
-				logger.error("Error in closing connection GetSMAData  -> ", ex);
-			}
-		}
-		return SMAData;
-	}
+	
 
 	private ArrayList<Float> GetStockPrices(String stockCode, Date calculationDate) {
 		ArrayList<Float> priceData = null;

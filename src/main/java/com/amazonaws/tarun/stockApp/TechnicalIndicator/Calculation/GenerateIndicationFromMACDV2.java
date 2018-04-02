@@ -22,7 +22,7 @@ import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
 import com.amazonaws.tarun.stockApp.Utils.SalesforceIntegration;
 import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 
-public class GenerateIndicationFromMACDV1 {
+public class GenerateIndicationFromMACDV2 {
 	Connection connection = null;
 	static Logger logger = Logger.getLogger(GenerateIndicationFromMACD.class);
 	ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList;
@@ -33,11 +33,11 @@ public class GenerateIndicationFromMACDV1 {
 	public static void main(String[] args) {
 		Date dte = new Date();
 		System.out.println("Start at -> " + dte.toString());
-		GenerateIndicationFromMACDV1 obj = new GenerateIndicationFromMACDV1();
+		GenerateIndicationFromMACDV2 obj = new GenerateIndicationFromMACDV2();
 		//obj.isSignalCrossedInMACD("20MICRONS", null);
 		//To get indication from MACD
 		obj.CalculateIndicationfromMACD(null);
-		//obj.CalculateIndicationfromMACD(new Date("26-Mar-2018"));		
+		//obj.CalculateIndicationfromMACD(new Date("19-Mar-2018"));		
 		//To calculate MACD values and store
 		//obj.calculateSignalAndMACDBulkForAllStocks(new Date("25-Jan-2018"));
 	}
@@ -127,9 +127,12 @@ public class GenerateIndicationFromMACDV1 {
 		try {
 			stocklist = StockUtils.getStockListFromDB();
 			GenerateIndicationfromMovingAverage obj = new GenerateIndicationfromMovingAverage();
-			obj.CalculateIndicationfromSMA(calculationDate);
-			SMAIndicatorDetailsList = obj.getIndicationStocks();
-			SMAIndicatorDetailsBelowHundredList = obj.getBelowHunderdIndicationStocks();
+			
+			
+			//Moving this after MACD
+			//obj.CalculateIndicationfromSMA(calculationDate);
+			//SMAIndicatorDetailsList = obj.getIndicationStocks();
+			//SMAIndicatorDetailsBelowHundredList = obj.getBelowHunderdIndicationStocks();
 			/*if (connection != null) {
 				connection.close();
 				connection = null;
@@ -141,7 +144,7 @@ public class GenerateIndicationFromMACDV1 {
 			int stockcounter = 1;
 			int stockwithMACDCrossed = 1;
 			int stockwithMACDCrossedAndGood = 1;
-			stocklistSMA = getStockList(SMAIndicatorDetailsList);
+			//stocklistSMA = getStockList(SMAIndicatorDetailsList);
 			for (String stock : stocklist) {
 				//stockName = stock.split("!")[1];
 				bseCode = stock.split("!")[0];
@@ -156,9 +159,10 @@ public class GenerateIndicationFromMACDV1 {
 						System.out.println("*****************************Stock Added for indication -> " + nseCode);
 						stockwithMACDCrossed++;
 						//SMAIndicatorDetailsList.add(objSMAIndicatorDetails);
-						if(stocklistSMA.contains(nseCode)) {
-							
-							objFinalSelectedStock = getAlldetails(SMAIndicatorDetailsList.get(stocklistSMA.indexOf(nseCode)), calculationDate);
+						//if(stocklistSMA.contains(nseCode)) {
+						objSMAIndicatorDetails = obj.CalculateIndicationfromSMA(nseCode,calculationDate);
+						if(objSMAIndicatorDetails!=null) {
+						objFinalSelectedStock = getAlldetails(objSMAIndicatorDetails, calculationDate);
 							if(objFinalSelectedStock!=null) {
 								objFinalSelectedStockList.add(objFinalSelectedStock);
 								stockwithMACDCrossedAndGood++;
@@ -167,7 +171,8 @@ public class GenerateIndicationFromMACDV1 {
 									SMAIndicatorDetailsBelowHundredList.add(objSMAIndicatorDetails);
 								}
 	*/						}
-						}
+						//}
+					}
 					}
 					
 				}
@@ -450,4 +455,6 @@ public class GenerateIndicationFromMACDV1 {
 		return stocklistSMA;
 		
 	}
+	
+	
 }

@@ -301,4 +301,133 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 		}
 	}
 
+	public static ArrayList<Integer> GetPreferredSMA(String stockCode) {
+		Connection connection = null;
+		ArrayList<Integer> prefPeriod = null;
+		ResultSet resultSet = null;
+		Statement statement = null;
+		String[] prefPeriodsInDB;
+
+		try {
+			prefPeriod = new ArrayList<Integer>();
+			connection = StockUtils.connectToDB();
+			statement = connection.createStatement();
+			resultSet = statement.executeQuery("SELECT PREFDAILYSMAPERIODS FROM STOCKWISEPERIODS where stockname = '" + stockCode + "';");
+			while (resultSet.next()) {
+				prefPeriodsInDB = resultSet.getString(1).split(",");
+				for (int counter = 0; counter < prefPeriodsInDB.length; counter++) {
+					prefPeriod.add(new Integer(prefPeriodsInDB[counter]));
+				}
+				// System.out.println("StockNme - " + stockNSECode);
+			}
+			resultSet.close();
+			connection.close();
+			connection = null;
+		} catch (Exception ex) {
+			HandleErrorDetails.addError(StockUtils.class.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+			System.out.println("Error in getting preferred period from DB" + ex);
+			return null;
+		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("GetPreferredSMA Error in closing resultset "+ex);
+				logger.error("Error in closing resultset GetPreferredSMA  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("GetPreferredSMA Error in closing statement "+ex);
+				logger.error("Error in closing statement GetPreferredSMA  -> ", ex);
+			}
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("GetPreferredSMA Error in closing connection "+ex);
+				logger.error("Error in closing connection GetPreferredSMA  -> ", ex);
+			}
+		}
+		return prefPeriod;
+	}
+	
+	public static ArrayList<Float> GetSMAData(String stockCode, Integer period, Date targetDate) {
+		Connection connection = null;
+		ArrayList<Float> SMAData = null;
+		ResultSet resultSet = null;
+		Statement statement = null;
+		String SMAvalue, tmpSQL;
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		
+		try {
+			SMAData = new ArrayList<Float>();
+			connection = StockUtils.connectToDB();
+			statement = connection.createStatement();
+			if(targetDate!=null) {
+				tmpSQL = "SELECT SMA FROM DAILYSNEMOVINGAVERAGES where stockname='" + stockCode + "' and period = " + period.intValue() 
+						  + " and tradeddate <='" + dateFormat.format(targetDate) + "' order by tradeddate desc limit 30;";
+			} else {
+				tmpSQL = "SELECT SMA FROM DAILYSNEMOVINGAVERAGES where stockname='" + stockCode + "' and period = " + period.intValue() 
+				  + " order by tradeddate desc limit 30;";
+			}
+			resultSet = statement.executeQuery(tmpSQL);
+			while (resultSet.next()) {
+				SMAvalue = resultSet.getString(1);
+				SMAData.add(Float.parseFloat(SMAvalue));
+				// System.out.println("StockNme - " + stockNSECode);
+			}
+			resultSet.close();
+			connection.close();
+			connection = null;
+		} catch (Exception ex) {
+			HandleErrorDetails.addError(StockUtils.class.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+			System.out.println("Error in getting SMA values for period = " + period + " error = " + ex);
+			return null;
+		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("GetSMAData Error in closing resultset "+ex);
+				logger.error("Error in closing resultset GetSMAData  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("GetSMAData Error in closing statement "+ex);
+				logger.error("Error in closing statement GetSMAData  -> ", ex);
+			}
+			try {
+				if (connection != null) {
+					connection.close();
+					connection = null;
+				} 
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("GetSMAData Error in closing connection "+ex);
+				logger.error("Error in closing connection GetSMAData  -> ", ex);
+			}
+		}
+		return SMAData;
+	}
+	
+	
 }

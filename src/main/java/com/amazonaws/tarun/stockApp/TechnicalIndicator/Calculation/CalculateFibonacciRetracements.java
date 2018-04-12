@@ -19,12 +19,12 @@ public class CalculateFibonacciRetracements {
 	
 	public static void main(String[] args) {
 		
-		StockUtils.getFinancialIndication("MMFL");
+		StockUtils.getFinancialIndication(null, "MMFL");
 		Date dte = new Date();
 		logger.debug("CalculateFibonacciRetracements Started");
 		System.out.println("Start at -> " + dte.toString());
 		CalculateFibonacciRetracements obj = new CalculateFibonacciRetracements();
-		ArrayList<Double> supportAndResistanceValues = obj.FibonacciRetracements("CGCL", new Date("8-Jan-2018"));
+		ArrayList<Double> supportAndResistanceValues = obj.FibonacciRetracements(null, "CGCL", new Date("8-Jan-2018"));
 		
 		System.out.println("Support Level -> " + supportAndResistanceValues.get(0));
 		System.out.println("Resistance Level -> " + supportAndResistanceValues.get(1));
@@ -34,7 +34,7 @@ public class CalculateFibonacciRetracements {
 		logger.debug("CalculateFibonacciRetracements End");
 	}
 	
-	public ArrayList<Double> FibonacciRetracements(String stockCode, Date targetDate) {
+	public ArrayList<Double> FibonacciRetracements(Connection connection, String stockCode, Date targetDate) {
 		ArrayList<Double> supportAndResistanceValues = null;
 		//FirstFibonacciRetracementLevel = 23.6%, secondFibonacciRetracementLevel = 38.2%, ThirdFibonacciRetracementLevel = 50%
 		//FourthFibonacciRetracementLevel = 61.8%, FifthFibonacciRetracementLevel = 78.6%
@@ -43,7 +43,7 @@ public class CalculateFibonacciRetracements {
 		float currentPrice;
 		
 		supportAndResistanceValues = new ArrayList<Double>();
-		ArrayList<Float> priceList = getMaxAndMinStockPricesFromDB(stockCode, targetDate);
+		ArrayList<Float> priceList = getMaxAndMinStockPricesFromDB(connection, stockCode, targetDate);
 		priceDifference = priceList.get(1) - priceList.get(0); 
 		startingFibonacciRetracementLevel = priceList.get(0);
 		FirstFibonacciRetracementLevel = priceList.get(0) + (priceDifference*23.6/100);
@@ -83,9 +83,8 @@ public class CalculateFibonacciRetracements {
 		return supportAndResistanceValues;
 	}
 	
-	private ArrayList<Float> getMaxAndMinStockPricesFromDB(String stockCode, Date targetDate) {
+	private ArrayList<Float> getMaxAndMinStockPricesFromDB(Connection connection, String stockCode, Date targetDate) {
 		ArrayList<Float> priceList = null;
-		Connection connection = null;
 		ResultSet resultSet = null;
 		Statement statement = null;
 		String tmpSQL;
@@ -96,7 +95,9 @@ public class CalculateFibonacciRetracements {
 		
 		try {			
 			priceList = new ArrayList<Float>();		
-			connection = StockUtils.connectToDB();
+			if(connection == null) {
+				connection = StockUtils.connectToDB();
+			}
 			statement = connection.createStatement();
 			if(targetDate!=null) {
 				tmpSQL = "SELECT closeprice, openprice FROM DAILYSTOCKDATA where stockname='" + stockCode + "'"
@@ -155,16 +156,6 @@ public class CalculateFibonacciRetracements {
 				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getMaxAndMinStockPricesFromDB Error in closing statement "+ex);
 				logger.error("Error in closing statement getMaxAndMinStockPricesFromDB  -> ", ex);
-			}
-			try {
-				if (connection != null) {
-					connection.close();
-					connection = null;
-				} 
-			} catch (Exception ex) {
-				HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("getStockListFromDB Error in closing connection "+ex);
-				logger.error("Error in closing connection getStockListFromDB  -> ", ex);
 			}
 		}
 	}

@@ -44,7 +44,7 @@ public class CalculateOnBalanceVolume {
 			stockName = stockCode.split("!")[1];
 			bseCode = stockCode.split("!")[0];
 			nseCode = stockCode.split("!")[2];
-			if(StockUtils.getFinancialIndication(nseCode)) {
+			if(StockUtils.getFinancialIndication(null, nseCode)) {
 				tmpOnBalanceVolumeIndicator = calculateOnBalanceVolumeDaily(nseCode, calculationDate);
 				if (tmpOnBalanceVolumeIndicator!=null) {
 					onBalanceSelectedStockList.add(tmpOnBalanceVolumeIndicator);

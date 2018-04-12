@@ -373,6 +373,7 @@ public class CalculateRSIIndicator {
 	}
 	
 	public float getRSIValue(String stockCode, LocalDate objDate) {
+		Connection connection = null;
 		Statement statement = null;
 		ResultSet resultSet = null;
 		//DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
@@ -380,10 +381,6 @@ public class CalculateRSIIndicator {
 		float stockRSI = 0;
 		
 		try {
-			if (connection != null) {
-				connection.close();
-				connection = null;
-			}
 			connection = StockUtils.connectToDB();
 			if(objDate!=null) {
 				tmpSQL = "SELECT STOCKRSI FROM DAILY_RELATIVE_STRENGTH_INDEX where stockname='"	+ stockCode + "' and tradeddate='" + objDate.toString() +"' and period =" + RSI_PERIOD + ";";

@@ -1,7 +1,6 @@
 package com.amazonaws.tarun.stockApp.Utils;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.StockDataForNewApproach;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.StockDetailsForDecision;
 
 public class SalesforceIntegration {
@@ -193,6 +193,51 @@ public class SalesforceIntegration {
 		}
 	}
 
+	public void createSuggestedStocks1(List<StockDataForNewApproach> objStockDetailsForDecisionList) {
+		System.out.println("****************Suggested Stock Creation**************");
+		double tempVar;
+		String finalURI = instanceUrl + "/services/apexrest/SuggestedStock/v1/";
+		System.out.println("******************* Final URL ->"+finalURI);
+		System.out.println("OAuth -> "+oAuthHeader);
+		DecimalFormat df = new DecimalFormat("#.00");
+		//System.out.println(df.format(f));
+		try {
+			JSONArray jArray = new JSONArray();
+			JSONObject newSuggestedStock;
+			for(int counter = 0; counter < (objStockDetailsForDecisionList.size()>20?20:objStockDetailsForDecisionList.size()); counter++) {
+				jArray.put(getJsonObject(objStockDetailsForDecisionList.get(counter)));
+			}
+			JSONObject mainObj = new JSONObject();
+			mainObj.put("StockDetails", jArray);
+			System.out.println("JSON for Suggested stock record to be inserted:\n" + mainObj.toString(1));
+
+			HttpClient httpClient = HttpClientBuilder.create().build();
+
+			HttpPost httpPost = new HttpPost(finalURI);
+			httpPost.addHeader(oAuthHeader);
+			httpPost.addHeader(printHeader);
+			StringEntity entityBody = new StringEntity(mainObj.toString(1));
+			entityBody.setContentType("application/json");
+			httpPost.setEntity(entityBody);
+
+			HttpResponse httpResponse = httpClient.execute(httpPost);
+
+			int statusCode = httpResponse.getStatusLine().getStatusCode();
+			if (statusCode == 200) {
+				String responseString = EntityUtils.toString(httpResponse.getEntity());
+				
+			} else {
+				System.out.println("Insertion unsuccessful. Status code returned is " + statusCode);
+			}
+		} catch (JSONException jsonException) {
+			System.out.println("Issue creating JSON or processing results");
+			jsonException.printStackTrace();
+		} catch (IOException ioException) {
+			ioException.printStackTrace();
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+	}
 	
 	
 }

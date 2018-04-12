@@ -468,7 +468,7 @@ public class CalculateBollingerBands {
 		}
 	}
 	
-	public String getBBIndicationForStockV1(String stockCode, Date targetDate) {
+	public String getBBIndicationForStockV1(Connection connection, String stockCode, Date targetDate) {
 		ResultSet resultSet = null;
 		Statement statement = null;
 		//ArrayList<Float> dailyBandwidth = new ArrayList<Float>();
@@ -486,11 +486,9 @@ public class CalculateBollingerBands {
 		}
 		
 		try {
-			if (connection != null) {
-				connection.close();
-				connection = null;
+			if(connection == null) {
+				connection = StockUtils.connectToDB();
 			}
-			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();	
 			//get max value of bandwidth
 			/*if( targetDate != null) {
@@ -515,7 +513,8 @@ public class CalculateBollingerBands {
 			
 			resultSet = statement.executeQuery(tmpSQL);
 			while (resultSet.next()) {
-				minBandwidth = Float.parseFloat(resultSet.getString(1));
+				if(resultSet.getString(1)!=null)
+					minBandwidth = Float.parseFloat(resultSet.getString(1));
 			}
 			resultSet.close();
 			resultSet = null;
@@ -567,16 +566,6 @@ public class CalculateBollingerBands {
 				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getBBIndicationForStock Error in closing statement "+ex);
 				logger.error("Error in closing statement getBBIndicationForStock  -> ", ex);
-			}
-			try {
-				if (connection != null) {
-					connection.close();
-					connection = null;
-				} 
-			} catch (Exception ex) {
-				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("getBBIndicationForStock Error in closing connection "+ex);
-				logger.error("Error in closing connection getBBIndicationForStock  -> ", ex);
 			}
 		}
 	}

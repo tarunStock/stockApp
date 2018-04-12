@@ -203,12 +203,12 @@ public class CalculateAverageTrueRange {
 			}
 			connection = StockUtils.connectToDB();
 			//Get stock details from dailystockdata table'
-			stockDetails = getStockDetailsFromDBDaily(stockCode, targetDate);
+			stockDetails = getStockDetailsFromDBDaily(connection, stockCode, targetDate);
 			//Get previous day ATR
 			if(targetDate != null) {
-				previousDayATR = getATR (stockCode, DateUtils.addDays(targetDate,-1));
+				previousDayATR = getATR (connection, stockCode, DateUtils.addDays(targetDate,-1));
 			} else {
-				previousDayATR = getATR (stockCode, DateUtils.addDays(new Date(),-1));
+				previousDayATR = getATR (connection, stockCode, DateUtils.addDays(new Date(),-1));
 			}			
 			currentHighLowDifference = stockDetails.highPrice.get(0) - stockDetails.lowPrice.get(0);
 			currentHighAndPreviousCloseDifference = Math.abs(stockDetails.highPrice.get(0) - stockDetails.closePrice.get(1));
@@ -238,7 +238,7 @@ public class CalculateAverageTrueRange {
 		}
 	}
 	
-	private StochasticOscillatorData getStockDetailsFromDBDaily(String stockCode, Date calculationDate) {
+	private StochasticOscillatorData getStockDetailsFromDBDaily(Connection connection, String stockCode, Date calculationDate) {
 		ResultSet resultSet = null;
 		Statement statement = null;
 		String tradedDate;
@@ -303,7 +303,7 @@ public class CalculateAverageTrueRange {
 		}
 	}
 	
-	private float getATR(String stockCode, Date targetDate) {
+	private float getATR(Connection connection, String stockCode, Date targetDate) {
 		ResultSet resultSet = null;
 		Statement statement = null;
 		//Date tradedDate = DateUtils.addDays(targetDate, -1);//new DateTime(targetDate).minusDays(1).toDate();
@@ -377,19 +377,16 @@ public class CalculateAverageTrueRange {
 		}
 	}
 	
-	public float getChandelierExitLong(String stockCode, Date targetDate) {
-		
+	public float getChandelierExitLong(Connection connection, String stockCode, Date targetDate) {
 		StochasticOscillatorData stockDetails = null;
 		float dayATR = 0;;
 		float chandelierExitLong = 0, highestHigh = 0;
 		try {
-			if (connection != null) {
-				connection.close();
-				connection = null;
+			if(connection == null ) {
+				connection = StockUtils.connectToDB();
 			}
-			connection = StockUtils.connectToDB();
 			//Get stock details from dailystockdata table'
-			stockDetails = getStockDetailsFromDBDaily(stockCode, targetDate);
+			stockDetails = getStockDetailsFromDBDaily(connection, stockCode, targetDate);
 			Comparator<Float> comparatorForLow = Collections.reverseOrder();
 			Collections.sort(stockDetails.highPrice, comparatorForLow);
 			
@@ -397,54 +394,40 @@ public class CalculateAverageTrueRange {
 			
 			//Get previous day ATR
 			if(targetDate != null) {
-				dayATR = getATR (stockCode, targetDate);
+				dayATR = getATR (connection, stockCode, targetDate);
 			} else {
-				dayATR = getATR (stockCode, new Date());
-			}			
+				dayATR = getATR (connection, stockCode, new Date());
+			}
 			chandelierExitLong = highestHigh - (dayATR * CHANDLIER_MULTIPLIER);
 			
-			System.out.println("chandelierExitLong-> "+ chandelierExitLong );					
+			//System.out.println("chandelierExitLong-> "+ chandelierExitLong );					
 			return chandelierExitLong;
 		} catch (Exception ex) {
 			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("getChandelierExitLong Error in DB action "+ex);
 			logger.error("Error in getChandelierExitLong  -> ", ex);
 			return 0;
-		} finally {
-			try {
-				if (connection != null) {
-					connection.close();
-					connection = null;
-				} 
-			} catch (Exception ex) {
-				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("getChandelierExitLong Error in DB action ");
-				logger.error("Error in getChandelierExitLong  -> ", ex);
-			}
-		}
+		} 
 	}
 	
 	public float getChandelierExitShort(String stockCode, Date targetDate) {
+		Connection connection = null;
 		StochasticOscillatorData stockDetails = null;
 		float dayATR = 0;;
 		float chandelierExitShort = 0, lowestLow = 0;
 		try {
-			if (connection != null) {
-				connection.close();
-				connection = null;
-			}
 			connection = StockUtils.connectToDB();
 			//Get stock details from dailystockdata table'
-			stockDetails = getStockDetailsFromDBDaily(stockCode, targetDate);
+			stockDetails = getStockDetailsFromDBDaily(connection, stockCode, targetDate);
 			Collections.sort(stockDetails.lowPrice);
 			
 			lowestLow = stockDetails.lowPrice.get(0);
 			
 			//Get previous day ATR
 			if(targetDate != null) {
-				dayATR = getATR (stockCode, targetDate);
+				dayATR = getATR (connection, stockCode, targetDate);
 			} else {
-				dayATR = getATR (stockCode, new Date());
+				dayATR = getATR (connection, stockCode, new Date());
 			}			
 			chandelierExitShort = lowestLow + (dayATR * CHANDLIER_MULTIPLIER);
 			

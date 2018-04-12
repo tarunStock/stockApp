@@ -1,5 +1,6 @@
 package com.amazonaws.tarun.stockApp.TechnicalIndicator.Calculation;
 
+import java.sql.Connection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -16,11 +17,15 @@ public class StockDetails {
 	
 	public static void main(String[] args) {
 		StockDetails objStockDetails = new StockDetails();
-		StockDetailsForDecision objStockDetailsForDecision = objStockDetails.getStockDetails("UPL",  new Date(Date.parse("30-Jan-2018")));
+		Connection connection = null;
+		if(connection == null) {
+			connection = StockUtils.connectToDB();
+		}
+		StockDetailsForDecision objStockDetailsForDecision = objStockDetails.getStockDetails(connection, "UPL",  new Date(Date.parse("30-Jan-2018")));
 		System.out.println("DOne");
 	}
 	
-	public StockDetailsForDecision getStockDetails(String stockCode, Date calculationDate) {
+	public StockDetailsForDecision getStockDetails(Connection connection, String stockCode, Date calculationDate) {
 		StockDetailsForDecision objStockDetailsForDecision = new StockDetailsForDecision(); 
 		CalculateBollingerBands objCalculateBollingerBands;
 		CalculateRSIIndicator objCalculateRSIIndicator;
@@ -28,7 +33,7 @@ public class StockDetails {
 			GenerateIndicationfromMovingAverage obj = new GenerateIndicationfromMovingAverage();
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			objStockDetailsForDecision.stockCode = stockCode;
-			obj.CalculateIndicationfromSMA(stockCode, calculationDate);			
+			obj.CalculateIndicationfromSMA(connection, stockCode, calculationDate);			
 			if(obj.objSMAIndicatorDetails.SMNSMcrossover)
 				objStockDetailsForDecision.SMAComparison = "Crossed";
 			else
@@ -40,17 +45,17 @@ public class StockDetails {
 				objStockDetailsForDecision.SMAToPriceComparison = "NotCrossed";
 			
 			GenerateIndicationFromMACDV1 objGenerateIndicationFromMACDV1 = new GenerateIndicationFromMACDV1();
-			if(objGenerateIndicationFromMACDV1.isSignalCrossedInMACD(stockCode, calculationDate))
+			if(objGenerateIndicationFromMACDV1.isSignalCrossedInMACD(connection, stockCode, calculationDate))
 				objStockDetailsForDecision.MACDStatus = "Crossed";
 			else
 				objStockDetailsForDecision.MACDStatus = "NotCrossed";
 			objStockDetailsForDecision = StockUtils.getPriceAndVolumeDetails(objStockDetailsForDecision,calculationDate);
 			
 			objCalculateBollingerBands = new CalculateBollingerBands();
-			objStockDetailsForDecision.BBTrend = objCalculateBollingerBands.getBBIndicationForStockV1(stockCode, calculationDate);
+			objStockDetailsForDecision.BBTrend = objCalculateBollingerBands.getBBIndicationForStockV1(connection, stockCode, calculationDate);
 			
 			CalculateAverageTrueRange objCalculateAverageTrueRange = new CalculateAverageTrueRange();
-			objStockDetailsForDecision.ChandelierExit = objCalculateAverageTrueRange.getChandelierExitLong(stockCode, calculationDate);
+			objStockDetailsForDecision.ChandelierExit = objCalculateAverageTrueRange.getChandelierExitLong(connection, stockCode, calculationDate);
 			
 			objCalculateRSIIndicator = new CalculateRSIIndicator();
 			if(calculationDate!=null) { 

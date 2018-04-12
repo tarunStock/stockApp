@@ -1,4 +1,5 @@
 package com.amazonaws.tarun.stockApp.TechnicalIndicator.Calculation;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -34,12 +35,16 @@ public class GenerateCombinedIndicationV1 {
 	public void generateCombinedIndicationForStocks(Date calculationDate) {
 		logger.debug("generateCombinedIndicationForStocks Started");
 		int selectedCounter=0;
+		Connection connection = null;
 		ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList;
 		ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsBelowHundredList;
 		if( !StockUtils.marketOpenOnGivenDate(calculationDate)) {
 			System.out.println("Returned due to weekend");
 			return;
-		}			
+		}
+		if(connection == null) {
+			connection = StockUtils.connectToDB();
+		}		
 		ArrayList<StockDetailsForDecision> objFinalSelectedStockList = new ArrayList<StockDetailsForDecision>();
 		ArrayList<StockDetailsForDecision> objFinalSelectedBelowHundredStockList = new ArrayList<StockDetailsForDecision>();
 		ArrayList<StockDetailsForDecision> objFinalSelectedStockListWithLowRSI = new ArrayList<StockDetailsForDecision>();
@@ -48,13 +53,13 @@ public class GenerateCombinedIndicationV1 {
 		StockDetailsForDecision objFinalSelectedBelowHunderdStock;
 		System.out.println("********* - Get seleted stocks based on SMA");
 		GenerateIndicationfromMovingAverage obj = new GenerateIndicationfromMovingAverage();
-		obj.CalculateIndicationfromSMA(calculationDate);
+		obj.CalculateIndicationfromSMA(connection, calculationDate);
 		SMAIndicatorDetailsList = obj.getIndicationStocks();
 		SMAIndicatorDetailsBelowHundredList = obj.getBelowHunderdIndicationStocks();
 		System.out.println("********* - process seleted stocks to send mail");
 		for(int counter = 0; counter<SMAIndicatorDetailsList.size(); counter++){			
 			//add selected stock				
-			objFinalSelectedStock = getAlldetails(SMAIndicatorDetailsList.get(counter), calculationDate);
+			objFinalSelectedStock = getAlldetails(connection, SMAIndicatorDetailsList.get(counter), calculationDate);
 			if(objFinalSelectedStock!=null) {
 				objFinalSelectedStockList.add(objFinalSelectedStock);
 				selectedCounter = selectedCounter +1;
@@ -83,7 +88,7 @@ public class GenerateCombinedIndicationV1 {
 					break;
 				}
 			} else {
-				objFinalSelectedBelowHunderdStock = getAlldetails(SMAIndicatorDetailsBelowHundredList.get(counter), calculationDate);				
+				objFinalSelectedBelowHunderdStock = getAlldetails(connection, SMAIndicatorDetailsBelowHundredList.get(counter), calculationDate);				
 				if(objFinalSelectedBelowHunderdStock!=null) {
 					objFinalSelectedBelowHunderdStock.TypeofSuggestedStock = "Below 100";
 					objFinalSelectedBelowHundredStockList.add(objFinalSelectedBelowHunderdStock);
@@ -101,7 +106,7 @@ public class GenerateCombinedIndicationV1 {
 	
 	
 	
-	private StockDetailsForDecision getAlldetails (SMAIndicatorDetails objSMAIndicatorDetails, Date calculationDate) {
+	private StockDetailsForDecision getAlldetails (Connection connection, SMAIndicatorDetails objSMAIndicatorDetails, Date calculationDate) {
 		StockDetailsForDecision objFinalSelectedStock = null;
 		//CalculateOnBalanceVolume objCalculateOnBalanceVolume;
 		CalculateBollingerBands objCalculateBollingerBands;
@@ -118,10 +123,10 @@ public class GenerateCombinedIndicationV1 {
 		if(!StockUtils.getFinancialIndication(objSMAIndicatorDetails.stockCode)) {
 			return null;
 		}
-		if(!objCalculateStochasticOscillator.getStochasticIndicator(objSMAIndicatorDetails.stockCode, calculationDate)) {
+		if(!objCalculateStochasticOscillator.getStochasticIndicator(connection, objSMAIndicatorDetails.stockCode, calculationDate)) {
 			return null;
 		}
-		if(!objGenerateIndicationFromMACD.isMACDIncreasing(objSMAIndicatorDetails.stockCode, calculationDate)) {
+		if(!objGenerateIndicationFromMACD.isMACDIncreasing(connection, objSMAIndicatorDetails.stockCode, calculationDate)) {
 			return null;
 		}
 		objFinalSelectedStock = new StockDetailsForDecision();
@@ -130,17 +135,17 @@ public class GenerateCombinedIndicationV1 {
 		//objOnBalanceVolumeIndicator = objCalculateOnBalanceVolume.calculateOnBalanceVolumeDaily(objSMAIndicatorDetails.stockCode, calculationDate);
 		
 		objCalculateBollingerBands = new CalculateBollingerBands();
-		bbIndicator = objCalculateBollingerBands.getBBIndicationForStockV1(objSMAIndicatorDetails.stockCode, calculationDate);
+		bbIndicator = objCalculateBollingerBands.getBBIndicationForStockV1(connection, objSMAIndicatorDetails.stockCode, calculationDate);
 		
 		CalculateAverageTrueRange objCalculateAverageTrueRange = new CalculateAverageTrueRange();
-		chandelierExitLong = objCalculateAverageTrueRange.getChandelierExitLong(objSMAIndicatorDetails.stockCode, calculationDate);
+		chandelierExitLong = objCalculateAverageTrueRange.getChandelierExitLong(connection, objSMAIndicatorDetails.stockCode, calculationDate);
 		//chandelierExitShort =  objCalculateAverageTrueRange.getChandelierExitShort(objSMAIndicatorDetails.stockCode, calculationDate);
 		
 		objCalculateRSIIndicator = new CalculateRSIIndicator();
 		rsiIndication= objCalculateRSIIndicator.getRSIValue(objSMAIndicatorDetails.stockCode, objSMAIndicatorDetails.signalDate);
 		
 		
-		MACDCross = objGenerateIndicationFromMACD.isSignalCrossedInMACD(objSMAIndicatorDetails.stockCode, calculationDate);
+		MACDCross = objGenerateIndicationFromMACD.isSignalCrossedInMACD(connection, objSMAIndicatorDetails.stockCode, calculationDate);
 		
 		objFinalSelectedStock.stockCode = objSMAIndicatorDetails.stockCode;
 		objFinalSelectedStock.CurrentPrice = objSMAIndicatorDetails.stockPrice;
@@ -167,7 +172,7 @@ public class GenerateCombinedIndicationV1 {
 		objFinalSelectedStock = StockUtils.getPriceAndVolumeDetails(objFinalSelectedStock,calculationDate);
 		objFinalSelectedStock.TypeofSuggestedStock = "All";
 		CalculateFibonacciRetracements obj = new CalculateFibonacciRetracements();
-		ArrayList<Double> supportAndResistanceValues = obj.FibonacciRetracements(objSMAIndicatorDetails.stockCode, calculationDate);
+		ArrayList<Double> supportAndResistanceValues = obj.FibonacciRetracements(connection, objSMAIndicatorDetails.stockCode, calculationDate);
 		if(supportAndResistanceValues!=null) {
 			objFinalSelectedStock.supportLevel = supportAndResistanceValues.get(0);
 			objFinalSelectedStock.resistanceLevel = supportAndResistanceValues.get(1);

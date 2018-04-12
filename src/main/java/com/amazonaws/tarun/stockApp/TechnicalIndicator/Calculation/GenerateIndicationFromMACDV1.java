@@ -27,7 +27,7 @@ public class GenerateIndicationFromMACDV1 {
 	static Logger logger = Logger.getLogger(GenerateIndicationFromMACD.class);
 	ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList;
 	ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsBelowHundredList;
-	public static int daysToCheck = 5;
+	public static int daysToCheck = 8;
 	public static String YAHOO_URL = "https://in.finance.yahoo.com/chart/";
 	
 	public static void main(String[] args) {
@@ -36,8 +36,8 @@ public class GenerateIndicationFromMACDV1 {
 		GenerateIndicationFromMACDV1 obj = new GenerateIndicationFromMACDV1();
 		//obj.isSignalCrossedInMACD("20MICRONS", null);
 		//To get indication from MACD
-		obj.CalculateIndicationfromMACD(null);
-		//obj.CalculateIndicationfromMACD(new Date("26-Mar-2018"));		
+		//obj.CalculateIndicationfromMACD(null);
+		obj.CalculateIndicationfromMACD(new Date("02-Apr-2018"));		
 		//To calculate MACD values and store
 		//obj.calculateSignalAndMACDBulkForAllStocks(new Date("25-Jan-2018"));
 	}
@@ -115,6 +115,7 @@ public class GenerateIndicationFromMACDV1 {
 	
 	public void CalculateIndicationfromMACD(Date calculationDate) {
 		logger.debug("CalculateIndicationfromMACD start");
+		Connection connection = null;
 		ArrayList<String> stocklist = null;
 		String nseCode, bseCode;
 		ArrayList<String> stocklistSMA = null;
@@ -125,9 +126,10 @@ public class GenerateIndicationFromMACDV1 {
 			return;
 		//UpdateIndicatedStocks tmpUpdateIndicatedStocks = new UpdateIndicatedStocks();
 		try {
-			stocklist = StockUtils.getStockListFromDB();
+			connection = StockUtils.connectToDB();
+			stocklist = StockUtils.getStockListFromDB(connection);
 			GenerateIndicationfromMovingAverage obj = new GenerateIndicationfromMovingAverage();
-			obj.CalculateIndicationfromSMA(calculationDate);
+			obj.CalculateIndicationfromSMA(connection, calculationDate);
 			SMAIndicatorDetailsList = obj.getIndicationStocks();
 			SMAIndicatorDetailsBelowHundredList = obj.getBelowHunderdIndicationStocks();
 			/*if (connection != null) {
@@ -148,17 +150,17 @@ public class GenerateIndicationFromMACDV1 {
 				nseCode = stock.split("!")[2];
 				System.out.println("For Stock -> " + nseCode + " Stock count -> " + stockcounter++);
 				
-				if(StockUtils.getFinancialIndication(nseCode)) {	
+				if(StockUtils.getFinancialIndication(connection, nseCode)) {	
 					//objSMAIndicatorDetails = new SMAIndicatorDetails();
 					//objSMAIndicatorDetails.stockCode = nseCode;
 					//System.out.println("Under finacial check");
-					if(isSignalCrossedInMACD(nseCode, calculationDate)) {
+					if(isSignalCrossedInMACD(connection, nseCode, calculationDate)) {
 						System.out.println("*****************************Stock Added for indication -> " + nseCode);
 						stockwithMACDCrossed++;
 						//SMAIndicatorDetailsList.add(objSMAIndicatorDetails);
 						if(stocklistSMA.contains(nseCode)) {
 							
-							objFinalSelectedStock = getAlldetails(SMAIndicatorDetailsList.get(stocklistSMA.indexOf(nseCode)), calculationDate);
+							objFinalSelectedStock = getAlldetails(connection, SMAIndicatorDetailsList.get(stocklistSMA.indexOf(nseCode)), calculationDate);
 							if(objFinalSelectedStock!=null) {
 								objFinalSelectedStockList.add(objFinalSelectedStock);
 								stockwithMACDCrossedAndGood++;
@@ -194,13 +196,10 @@ public class GenerateIndicationFromMACDV1 {
 		logger.debug("CalculateIndicationfromMACD end");
 	}
 	
-	public boolean isSignalCrossedInMACD(String stockCode, Date calculationDate) {
+	public boolean isSignalCrossedInMACD(Connection connection, String stockCode, Date calculationDate) {
 		MACDData objMACDData = null;
-		System.out.println("CHecking cross");
-		if(stockCode.equalsIgnoreCase("AGARIND")) {
-			System.out.println("test");;
-		}
-		objMACDData = getMACDData(stockCode, calculationDate);
+		
+		objMACDData = getMACDData(connection, stockCode, calculationDate);
 		//System.out.println("CHecking cross2"+objMACDData);
 		if(!(objMACDData!=null && objMACDData.MACDValues!=null && objMACDData.MACDValues.size()>2))
 			return false;
@@ -215,9 +214,11 @@ public class GenerateIndicationFromMACDV1 {
 		return false;
 	}
 		
-	private MACDData getMACDData(String stockCode, Date targetDate) {
+	private MACDData getMACDData(Connection connection, String stockCode, Date targetDate) {
 		MACDData objMACDData = null;
 		ResultSet resultSet = null;
+		Date startDate, endDate;
+		int holidayDays;
 		Statement statement = null;
 		String SMAvalue, tmpSQL, tradeddate;
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -225,15 +226,18 @@ public class GenerateIndicationFromMACDV1 {
 		objMACDData.MACDValues = new ArrayList<Float>();
 		objMACDData.signalValues = new ArrayList<Float>();
 		try {
-			if (connection != null) {
-				connection.close();
-				connection = null;
+			if(connection == null) {
+				connection = StockUtils.connectToDB();
 			}
-			connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
 			if(targetDate!=null) {
+				startDate = new Date(targetDate.getTime() - daysToCheck*24*60*60*1000);
+				endDate = new Date(targetDate.getTime());
+				holidayDays = StockUtils.TotalHolidaysBetweenDates(startDate, endDate);
+				startDate = new Date(startDate.getTime() - holidayDays*24*60*60*1000);
+				
 				tmpSQL = "SELECT MACDSignal, MACD, tradeddate FROM Daily_MACD where stockname='" + stockCode + "' " 
-						  + " and tradeddate >='" + dateFormat.format(new Date(targetDate.getTime() - daysToCheck*24*60*60*1000)) + "' and tradeddate <='" + dateFormat.format(new Date(targetDate.getTime())) + "' order by tradeddate desc limit " + (daysToCheck) + ";";
+						  + " and tradeddate >='" + dateFormat.format(startDate) + "' and tradeddate <='" + dateFormat.format(endDate) + "' order by tradeddate desc limit " + (daysToCheck) + ";";
 			} else {
 				tmpSQL = "SELECT MACDSignal, MACD, tradeddate FROM Daily_MACD where stockname='" + stockCode + "' order by tradeddate desc limit " + (daysToCheck) + ";";
 				  //+ " order by tradeddate limit " + (daysToCheck+18) + ";";
@@ -275,23 +279,13 @@ public class GenerateIndicationFromMACDV1 {
 				System.out.println("getMACDData Error in closing statement "+ex);
 				logger.error("Error in closing statement getMACDData  -> ", ex);
 			}
-			try {
-				if (connection != null) {
-					connection.close();
-					connection = null;
-				} 
-			} catch (Exception ex) {
-				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("getMACDData Error in closing connection "+ex);
-				logger.error("Error in closing connection getMACDData  -> ", ex);
-			}
 		}
 	}
 	
-	public boolean isMACDIncreasing(String stockCode, Date calculationDate) {
+	public boolean isMACDIncreasing(Connection connection, String stockCode, Date calculationDate) {
 		MACDData objMACDData = null;
 		
-		objMACDData = getMACDData(stockCode, calculationDate);
+		objMACDData = getMACDData(connection, stockCode, calculationDate);
 		if(!(objMACDData != null && objMACDData.MACDValues !=null && objMACDData.MACDValues.size()>3)) {
 			return false;
 		}
@@ -303,7 +297,7 @@ public class GenerateIndicationFromMACDV1 {
 		return true;
 	}
 
-	private StockDetailsForDecision getAlldetails (SMAIndicatorDetails objSMAIndicatorDetails, Date calculationDate) {
+	private StockDetailsForDecision getAlldetails (Connection connection, SMAIndicatorDetails objSMAIndicatorDetails, Date calculationDate) {
 		StockDetailsForDecision objFinalSelectedStock = null;
 		CalculateOnBalanceVolume objCalculateOnBalanceVolume;
 		OnBalanceVolumeIndicator objOnBalanceVolumeIndicator;
@@ -317,15 +311,15 @@ public class GenerateIndicationFromMACDV1 {
 		boolean MACDCross;
 		//float chandelierExitShort;
 		System.out.println("Get All Details");
-		if(!StockUtils.getFinancialIndication(objSMAIndicatorDetails.stockCode)) {
+		if(!StockUtils.getFinancialIndication(connection, objSMAIndicatorDetails.stockCode)) {
 			return null;
 		}
 		GenerateIndicationFromMACD objGenerateIndicationFromMACD = new GenerateIndicationFromMACD();
 		objCalculateStochasticOscillator = new CalculateStochasticOscillator();
-		if(!objCalculateStochasticOscillator.getStochasticIndicator(objSMAIndicatorDetails.stockCode, calculationDate)) {
+		if(!objCalculateStochasticOscillator.getStochasticIndicator(connection, objSMAIndicatorDetails.stockCode, calculationDate)) {
 			return null;
 		}
-		if(!objGenerateIndicationFromMACD.isMACDIncreasing(objSMAIndicatorDetails.stockCode, calculationDate)) {
+		if(!objGenerateIndicationFromMACD.isMACDIncreasing(connection, objSMAIndicatorDetails.stockCode, calculationDate)) {
 			return null;
 		}
 		objFinalSelectedStock = new StockDetailsForDecision();
@@ -335,10 +329,10 @@ public class GenerateIndicationFromMACDV1 {
 //		objOnBalanceVolumeIndicator = objCalculateOnBalanceVolume.calculateOnBalanceVolumeDaily(objSMAIndicatorDetails.stockCode, calculationDate);
 		
 		objCalculateBollingerBands = new CalculateBollingerBands();
-		bbIndicator = objCalculateBollingerBands.getBBIndicationForStockV1(objSMAIndicatorDetails.stockCode, calculationDate);
+		bbIndicator = objCalculateBollingerBands.getBBIndicationForStockV1(connection, objSMAIndicatorDetails.stockCode, calculationDate);
 		
 		CalculateAverageTrueRange objCalculateAverageTrueRange = new CalculateAverageTrueRange();
-		chandelierExitLong = objCalculateAverageTrueRange.getChandelierExitLong(objSMAIndicatorDetails.stockCode, calculationDate);
+		chandelierExitLong = objCalculateAverageTrueRange.getChandelierExitLong(connection, objSMAIndicatorDetails.stockCode, calculationDate);
 		
 		objCalculateRSIIndicator = new CalculateRSIIndicator();
 		if(calculationDate!=null) { 
@@ -370,7 +364,7 @@ public class GenerateIndicationFromMACDV1 {
 		objFinalSelectedStock = StockUtils.getPriceAndVolumeDetails(objFinalSelectedStock,calculationDate);
 		objFinalSelectedStock.TypeofSuggestedStock = "MACD Crossed";
 		CalculateFibonacciRetracements obj = new CalculateFibonacciRetracements();
-		ArrayList<Double> supportAndResistanceValues = obj.FibonacciRetracements(objSMAIndicatorDetails.stockCode, calculationDate);
+		ArrayList<Double> supportAndResistanceValues = obj.FibonacciRetracements(connection, objSMAIndicatorDetails.stockCode, calculationDate);
 		if(supportAndResistanceValues!=null) {
 			objFinalSelectedStock.supportLevel = supportAndResistanceValues.get(0);
 			objFinalSelectedStock.resistanceLevel = supportAndResistanceValues.get(1);

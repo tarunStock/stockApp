@@ -63,6 +63,81 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 		return connection;
 	}
 	
+	public static boolean getFinancialIndication(Connection connection, String nseCode) {
+		ResultSet resultSet = null;
+		Statement statement = null;
+		String tmpSQL;
+		float netSales, netProfit, netCashFlow;
+		ArrayList<Float> netSalesList = new ArrayList<Float>();
+		ArrayList<Float> netProfitList = new ArrayList<Float>();
+		ArrayList<Float> netCashFlowList = new ArrayList<Float>();
+		try {
+			//priceData = new ArrayList<Float>();
+			if(connection == null) {
+				connection = StockUtils.connectToDB();
+			}
+			statement = connection.createStatement();;
+			
+			tmpSQL = "SELECT netSales, netProfit, netCashFlow FROM STOCKANNUALFINANCIALDATA where STOCKCODE='" + nseCode + "' order by resultYear desc;";
+			resultSet = statement.executeQuery(tmpSQL);
+			
+			// DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+			while (resultSet.next()) {
+				netSales = Float.parseFloat(resultSet.getString(1));
+				netProfit = Float.parseFloat(resultSet.getString(2));
+				netCashFlow = Float.parseFloat(resultSet.getString(3));
+				netSalesList.add(netSales);
+				netProfitList.add(netProfit);
+				netCashFlowList.add(netCashFlow);
+			}
+			
+			if(netSalesList.size()>0) {
+				if(netSalesList.size()>2) {
+					if(netSalesList.get(2)>=netSalesList.get(1) && netProfitList.get(2) >= netProfitList.get(1)) {
+						return true;
+					} else {
+						return false;
+					}
+				} else if(netSalesList.size()>1) {
+					if(netSalesList.get(1)>=netSalesList.get(0) && netProfitList.get(1) >= netProfitList.get(0)) {
+						return true;
+					} else {
+						return false;
+					}
+				}
+			} else {
+				return true;
+			}
+		} catch (Exception ex) {
+			HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+			System.out.println("getFinancialIndication Error in getting indication = " + ex);
+			return true;
+		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("getFinancialIndication Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getFinancialIndication  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("getFinancialIndication Error in closing statement "+ex);
+				logger.error("Error in closing statement getFinancialIndication  -> ", ex);
+			}
+		}
+		//Returning true in case of no data to avoid loosing good stock
+		return true;
+	}
+	
 	public static boolean getFinancialIndication(String nseCode) {
 		Connection connection = null;
 		ResultSet resultSet = null;
@@ -74,7 +149,9 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 		ArrayList<Float> netCashFlowList = new ArrayList<Float>();
 		try {
 			//priceData = new ArrayList<Float>();
-			connection = StockUtils.connectToDB();
+			if(connection == null) {
+				connection = StockUtils.connectToDB();
+			}
 			statement = connection.createStatement();;
 			
 			tmpSQL = "SELECT netSales, netProfit, netCashFlow FROM STOCKANNUALFINANCIALDATA where STOCKCODE='" + nseCode + "' order by resultYear desc;";
@@ -138,9 +215,9 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 					connection = null;
 				} 
 			} catch (Exception ex) {
-				HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("getFinancialIndication Error in closing connection "+ex);
-				logger.error("Error in closing connection getFinancialIndication  -> ", ex);
+				HandleErrorDetails.addError(StockUtils.class.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("getRSIValue Error in closing connection "+ex);
+				logger.error("Error in closing connection getRSIValue  -> ", ex);
 			}
 		}
 		//Returning true in case of no data to avoid loosing good stock
@@ -203,6 +280,55 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 				HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStockListFromDB Error in closing connection "+ex);
 				logger.error("Error in closing connection getStockListFromDB  -> ", ex);
+			}
+		}
+	}
+	
+	public static ArrayList<String> getStockListFromDB(Connection connection) {
+		ResultSet resultSet = null;
+		Statement statement = null;
+		ArrayList<String> stockList = null;
+		String stockBSECode;
+		
+		try {
+			stockList = new ArrayList<String>();
+			//connection = StockUtils.connectToDB();
+			statement = connection.createStatement();
+
+			resultSet = statement.executeQuery("SELECT NSECODE, stockname, NSECODE, ISINCODE FROM STOCKDETAILS;");
+			while (resultSet.next()) {
+				stockBSECode = resultSet.getString(1);
+				stockBSECode = stockBSECode + "!" + resultSet.getString(2);
+				stockBSECode = stockBSECode + "!" + resultSet.getString(3);
+				stockBSECode = stockBSECode + "!" + resultSet.getString(4);
+				stockList.add(stockBSECode);
+				// System.out.println("StockNme - " + stockNSECode);
+			}
+			return stockList;
+		} catch (Exception ex) {
+			HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+			System.out.println("Error in DB action");
+			return null;
+		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("getStockListFromDB Error in closing resultset "+ex);
+				logger.error("Error in closing resultset getStockListFromDB  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(StockUtils.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("getStockListFromDB Error in closing statement "+ex);
+				logger.error("Error in closing statement getStockListFromDB  -> ", ex);
 			}
 		}
 	}
@@ -301,8 +427,7 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 		}
 	}
 
-	public static ArrayList<Integer> GetPreferredSMA(String stockCode) {
-		Connection connection = null;
+	public static ArrayList<Integer> GetPreferredSMA(Connection connection, String stockCode) {
 		ArrayList<Integer> prefPeriod = null;
 		ResultSet resultSet = null;
 		Statement statement = null;
@@ -310,7 +435,9 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 
 		try {
 			prefPeriod = new ArrayList<Integer>();
-			connection = StockUtils.connectToDB();
+			if(connection == null) {
+				connection = StockUtils.connectToDB();
+			}
 			statement = connection.createStatement();
 			resultSet = statement.executeQuery("SELECT PREFDAILYSMAPERIODS FROM STOCKWISEPERIODS where stockname = '" + stockCode + "';");
 			while (resultSet.next()) {
@@ -321,8 +448,6 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 				// System.out.println("StockNme - " + stockNSECode);
 			}
 			resultSet.close();
-			connection.close();
-			connection = null;
 		} catch (Exception ex) {
 			HandleErrorDetails.addError(StockUtils.class.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("Error in getting preferred period from DB" + ex);
@@ -348,38 +473,34 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 				System.out.println("GetPreferredSMA Error in closing statement "+ex);
 				logger.error("Error in closing statement GetPreferredSMA  -> ", ex);
 			}
-			try {
-				if (connection != null) {
-					connection.close();
-					connection = null;
-				} 
-			} catch (Exception ex) {
-				HandleErrorDetails.addError(StockUtils.class.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("GetPreferredSMA Error in closing connection "+ex);
-				logger.error("Error in closing connection GetPreferredSMA  -> ", ex);
-			}
 		}
 		return prefPeriod;
 	}
 	
-	public static ArrayList<Float> GetSMAData(String stockCode, Integer period, Date targetDate) {
-		Connection connection = null;
+	public static ArrayList<Float> GetSMAData(Connection connection, String stockCode, Integer period, Date targetDate) {
 		ArrayList<Float> SMAData = null;
 		ResultSet resultSet = null;
 		Statement statement = null;
 		String SMAvalue, tmpSQL;
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		
+		int limitquery=0;
 		try {
 			SMAData = new ArrayList<Float>();
-			connection = StockUtils.connectToDB();
+			if(period>10) {
+				limitquery = period -10; 
+			} else {
+				limitquery = period;
+			}
+			if(connection == null) {
+				connection = StockUtils.connectToDB();
+			}
 			statement = connection.createStatement();
 			if(targetDate!=null) {
 				tmpSQL = "SELECT SMA FROM DAILYSNEMOVINGAVERAGES where stockname='" + stockCode + "' and period = " + period.intValue() 
-						  + " and tradeddate <='" + dateFormat.format(targetDate) + "' order by tradeddate desc limit 30;";
+						  + " and tradeddate <='" + dateFormat.format(targetDate) + "' order by tradeddate desc limit " + limitquery + ";";
 			} else {
 				tmpSQL = "SELECT SMA FROM DAILYSNEMOVINGAVERAGES where stockname='" + stockCode + "' and period = " + period.intValue() 
-				  + " order by tradeddate desc limit 30;";
+				  + " order by tradeddate desc limit " + limitquery + ";";
 			}
 			resultSet = statement.executeQuery(tmpSQL);
 			while (resultSet.next()) {
@@ -388,8 +509,6 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 				// System.out.println("StockNme - " + stockNSECode);
 			}
 			resultSet.close();
-			connection.close();
-			connection = null;
 		} catch (Exception ex) {
 			HandleErrorDetails.addError(StockUtils.class.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("Error in getting SMA values for period = " + period + " error = " + ex);
@@ -415,18 +534,18 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 				System.out.println("GetSMAData Error in closing statement "+ex);
 				logger.error("Error in closing statement GetSMAData  -> ", ex);
 			}
-			try {
-				if (connection != null) {
-					connection.close();
-					connection = null;
-				} 
-			} catch (Exception ex) {
-				HandleErrorDetails.addError(StockUtils.class.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("GetSMAData Error in closing connection "+ex);
-				logger.error("Error in closing connection GetSMAData  -> ", ex);
-			}
 		}
 		return SMAData;
+	}
+	
+	public static int TotalHolidaysBetweenDates(Date startDate, Date endDate) {
+		int totalHolidays = 0;
+		for(int counter = 0; counter< holidayList.size(); counter++) {
+			if((startDate.before(holidayList.get(counter)) || startDate.equals(holidayList.get(counter)))  && (endDate.after(holidayList.get(counter)) || endDate.equals(holidayList.get(counter)))) {
+				totalHolidays++;
+			}
+		}
+		return totalHolidays;
 	}
 	
 	

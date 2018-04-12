@@ -13,9 +13,15 @@ public class SMAIndicatorDetails {// implements Comparable<SMAIndicatorDetails> 
 	public LocalDate signalDate;
 	public boolean PNSMAcrossover = false;
 	public boolean SMNSMcrossover = false;
+	
+	public boolean lowerToMiddleSMcrossover = false;
+	public boolean lowerToHigherSMcrossover = false;
+	
 	public boolean PNSMcontinuousGrowth = false;
 	public boolean SMNSMcontinuousGrowth = false;
 	public boolean IsSMGrowing = false;
+	public boolean IsMiddleSMGrowing = false;
+	public boolean IsSmallerSMGrowing = false;
 	
 	@Override
 	public int hashCode() {

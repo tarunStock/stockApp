@@ -320,7 +320,7 @@ public class CalculateStochasticOscillator {
 		}
 	}
 	
-	public boolean getStochasticIndicator (String stockCode, Date targetDate) {
+	public boolean getStochasticIndicator (Connection connection, String stockCode, Date targetDate) {
 		ResultSet resultSet = null;
 		Statement statement = null;
 		
@@ -329,11 +329,9 @@ public class CalculateStochasticOscillator {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		
 		try {
-			if (connection != null) {
-				connection.close();
-				connection = null;
+			if(connection == null) {
+				connection = StockUtils.connectToDB();
 			}
-			connection = StockUtils.connectToDB();						
 			statement = connection.createStatement();
 			if(targetDate!=null) {
 				tmpSQL = "SELECT dsp.closeprice, osc.STOCHASTIC_OSCILLATOR FROM DAILY_STOCHASTIC_OSCILLATOR as osc, DAILYSTOCKDATA as dsp where osc.stockname='"
@@ -382,16 +380,6 @@ public class CalculateStochasticOscillator {
 				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("getStochasticIndicator Error in closing statement "+ex);
 				logger.error("Error in closing statement getStochasticIndicator  -> ", ex);
-			}
-			try {
-				if (connection != null) {
-					connection.close();
-					connection = null;
-				} 
-			} catch (Exception ex) {
-				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("getStochasticIndicator Error in closing connection "+ex);
-				logger.error("Error in closing connection getStochasticIndicator  -> ", ex);
 			}
 		}
 	}

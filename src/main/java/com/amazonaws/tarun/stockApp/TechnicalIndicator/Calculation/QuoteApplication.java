@@ -67,7 +67,7 @@ public class QuoteApplication {
 				obj.calculateBollingerBands(null);
 				HandleErrorDetails.sendErrorsInMail("Calculate Bollinger Bands");
 				logger.debug("calculateBB End");
-			} else if (args[0].equalsIgnoreCase("combined")) {
+			} /*else if (args[0].equalsIgnoreCase("combined")) {
 				logger.debug("Combined Indication Started");
 				GenerateCombinedIndication obj = new GenerateCombinedIndication();
 				obj.generateCombinedIndicationForStocks(null);
@@ -79,7 +79,7 @@ public class QuoteApplication {
 				obj.generateCombinedIndicationForStocks(null);
 				HandleErrorDetails.sendErrorsInMail("Generate Combined Indication");
 				logger.debug("Combined Indication End");
-			} else if (args[0].equalsIgnoreCase("calculateRSI")) {
+			}*/ else if (args[0].equalsIgnoreCase("calculateRSI")) {
 				logger.debug("CalculateRSIIndicator Started");
 				CalculateRSIIndicator obj = new CalculateRSIIndicator();
 				obj.CalculateRSIForAllStocks(null);
@@ -103,18 +103,24 @@ public class QuoteApplication {
 				obj.calculateSignalAndMACDBulkForAllStocks(null);
 				HandleErrorDetails.sendErrorsInMail("Calculate MACD");
 				logger.debug("CalculateMACD End");
-			} else if (args[0].equalsIgnoreCase("combinedFromMACD")) {
+			} /*else if (args[0].equalsIgnoreCase("combinedFromMACD")) {
 				logger.debug("MACD Indication Started");
 				GenerateIndicationFromMACDV1 obj = new GenerateIndicationFromMACDV1();
 				obj.CalculateIndicationfromMACD(null);
 				HandleErrorDetails.sendErrorsInMail("Generate MACD Indication");
 				logger.debug("MACD Indication End");
-			} else if (args[0].equalsIgnoreCase("combinedFromMACDForPortal")) {
-				logger.debug("MACD Indication Started");
-				GenerateIndicationFromMACDV1 obj = new GenerateIndicationFromMACDV1();
-				obj.CalculateIndicationfromMACD(null);
-				HandleErrorDetails.sendErrorsInMail("Generate MACD Indication");
+			} */else if (args[0].equalsIgnoreCase("combinedFromMACDForPortal")) {
+				logger.debug("New Logic Indication Started");
+				IdentifyStocks obj = new IdentifyStocks();
+				obj.CalculateIndication(null);
+				HandleErrorDetails.sendErrorsInMail("New Logic Indication");
 				logger.debug("MACD Indication End");
+			} else if (args[0].equalsIgnoreCase("calculateAccumulationDistribution")) {
+				logger.debug("calculateAccumulationDistribution Started");
+				AccumulationDistribution obj = new AccumulationDistribution();
+				obj.calculateAccumulationDistributionForAllStocks(null);
+				HandleErrorDetails.sendErrorsInMail("calculate Accumulation Distribution");
+				logger.debug("calculateAccumulationDistribution End");
 			} else if (args[0].equalsIgnoreCase("financialData")) {
 				logger.debug("Financialdata collection Started");
 				CollectFinancialDataForCompanies obj = new CollectFinancialDataForCompanies();

@@ -334,14 +334,18 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 	}
 	
 	public static boolean marketOpenOnGivenDate(Date targetDate) {
+		System.out.println("Market Open or not?");
 		if(targetDate == null) {
 			targetDate = new Date();
 		}
 		if(targetDate.getDay() == 0 || targetDate.getDay() == 6) {
+			System.out.println("Market Closed");
 			return false;
 		} else if(holidayList.contains(targetDate)) {
+			System.out.println("Market Closed");
 			return false;
 		} else {
+			System.out.println("Market Open");
 			return true;
 		}	
 	}

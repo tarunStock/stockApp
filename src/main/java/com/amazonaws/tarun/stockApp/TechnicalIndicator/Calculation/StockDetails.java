@@ -29,7 +29,11 @@ public class StockDetails {
 		StockDetailsForDecision objStockDetailsForDecision = new StockDetailsForDecision(); 
 		CalculateBollingerBands objCalculateBollingerBands;
 		CalculateRSIIndicator objCalculateRSIIndicator;
+		
 		try {
+			if(connection == null) {
+				connection = StockUtils.connectToDB();
+			}
 			GenerateIndicationfromMovingAverage obj = new GenerateIndicationfromMovingAverage();
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			objStockDetailsForDecision.stockCode = stockCode;

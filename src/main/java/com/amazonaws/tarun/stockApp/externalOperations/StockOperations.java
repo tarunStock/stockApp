@@ -81,7 +81,7 @@ public class StockOperations {
 	public JSONObject getStockDetails(String stockCode, Date targetDate) {
 		StockDetails objStockDetails = new StockDetails();
 		StockDetailsForDecision objStockDetailsForDecision;
-		objStockDetailsForDecision = objStockDetails.getStockDetails(stockCode, targetDate);
+		objStockDetailsForDecision = objStockDetails.getStockDetails(null, stockCode, targetDate);
 		JSONObject stockDetails = SalesforceIntegration.getJsonObject(objStockDetailsForDecision);
 		return stockDetails;
 		

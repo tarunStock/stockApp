@@ -18,7 +18,6 @@ import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
 import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 
 public class AccumulationDistribution {
-	Connection connection = null;
 	static Logger logger = Logger.getLogger(AccumulationDistribution.class);
 	
 	public static void main(String[] args) {
@@ -37,9 +36,13 @@ public class AccumulationDistribution {
 	
 	public void calculateAccumulationDistributionForAllStocks(Date calculationDate) {
 		ArrayList<String> stockList = null;
+		Connection connection = null;
 		if( !StockUtils.marketOpenOnGivenDate(calculationDate))
 			return;
-		stockList = StockUtils.getStockListFromDB();
+		
+		connection = StockUtils.connectToDB();
+		
+		stockList = StockUtils.getStockListFromDB(connection);
 		String stockName;
 		String bseCode;
 		String nseCode;
@@ -55,7 +58,7 @@ public class AccumulationDistribution {
 			System.out.println("Calculating Accumulation Distribution for stock - >"+nseCode);
 			//calculate RSI on bulk
 			//calculateAccumulationDistributionForStockInBulk(nseCode);
-			calculateAccumulationDistributionForStockDaily(nseCode);
+			calculateAccumulationDistributionForStockDaily(connection, nseCode);
 //			//calculate average on daily basis
 			
 			//calculateAverageTrueRangeForStockDaily(nseCode, new Date("19-Oct-2017"));
@@ -63,19 +66,17 @@ public class AccumulationDistribution {
 		}
 	}
 	
-	private void calculateAccumulationDistributionForStockInBulk(String stockCode) {
+	private void calculateAccumulationDistributionForStockInBulk(Connection connection, String stockCode) {
 		AccumulatioDistributionData stockDetails = null;
 		float MFmultipplier, MFValue, currentCloseLowDifference = 0, currentHighCloseDifference = 0, currentHighAndLowDifference = 0, previoudDayAccumulatioDistribution = 0, accumulatioDistribution = 0;
 		//Get stock details from dailystockdata table
-		stockDetails = getStockDetailsFromDBForBulk(stockCode);
+		stockDetails = getStockDetailsFromDBForBulk(connection, stockCode);
 		ArrayList<Float> highestHighArr, lowestLowArr;
 		Comparator<Float> comparatorForLow = Collections.reverseOrder();
 		try {
-			if (connection != null) {
-				connection.close();
-				connection = null;
-			} 
-			connection = StockUtils.connectToDB();
+			if(connection == null) {
+				connection = StockUtils.connectToDB();
+			}
 			for (int counter = 0; counter < stockDetails.tradeddate.size(); counter++) {
 				currentCloseLowDifference = stockDetails.closePrice.get(counter) - stockDetails.lowPrice.get(counter);
 				currentHighCloseDifference = stockDetails.highPrice.get(counter) - stockDetails.closePrice.get(counter);
@@ -88,7 +89,7 @@ public class AccumulationDistribution {
 				MFValue = MFmultipplier * stockDetails.volume.get(counter);
 				accumulatioDistribution = MFValue + previoudDayAccumulatioDistribution;
 				previoudDayAccumulatioDistribution = accumulatioDistribution;
-				storeAccumuationDistributioninDB(stockCode, stockDetails.tradeddate.get(counter), accumulatioDistribution);
+				storeAccumuationDistributioninDB(connection, stockCode, stockDetails.tradeddate.get(counter), accumulatioDistribution);
 			}
 		} catch (Exception ex) {
 			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
@@ -108,7 +109,7 @@ public class AccumulationDistribution {
 		}
 	}
 	
-	private AccumulatioDistributionData getStockDetailsFromDBForBulk(String stockCode) {
+	private AccumulatioDistributionData getStockDetailsFromDBForBulk(Connection connection, String stockCode) {
 		ResultSet resultSet = null;
 		Statement statement = null;
 		String tradedDate, sql;
@@ -116,11 +117,6 @@ public class AccumulationDistribution {
 		Long volume;
 		AccumulatioDistributionData soDataObj = null;
 		try {
-			if (connection != null) {
-				connection.close();
-				connection = null;
-			}
-			connection = StockUtils.connectToDB();
 			soDataObj = new AccumulatioDistributionData();
 			soDataObj.closePrice = new ArrayList<Float>();
 			soDataObj.tradeddate = new ArrayList<String>();
@@ -171,32 +167,20 @@ public class AccumulationDistribution {
 				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
 				logger.error("Error in closing statement getStockDetailsFromDBForBulk  -> ", ex);
 			}
-			try {
-				if (connection != null) {
-					connection.close();
-					connection = null;
-				} 
-			} catch (Exception ex) {
-				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("getStockDetailsFromDBForBulk Error in closing connection "+ex);
-				logger.error("Error in closing connection getStockDetailsFromDBForBulk  -> ", ex);
-			}
 		}
 	}
 	
-	private void calculateAccumulationDistributionForStockDaily(String stockCode) {
+	private void calculateAccumulationDistributionForStockDaily(Connection connection, String stockCode) {
 		AccumulatioDistributionData stockDetails = null;
 		float MFmultipplier, MFValue, currentCloseLowDifference = 0, currentHighCloseDifference = 0, currentHighAndLowDifference = 0, previoudDayAccumulatioDistribution = 0, accumulatioDistribution = 0;
 		//Get stock details from dailystockdata table
-		stockDetails = getStockDetailsFromDBDaily(stockCode);
+		stockDetails = getStockDetailsFromDBDaily(connection,stockCode);
 		ArrayList<Float> highestHighArr, lowestLowArr;
 		Comparator<Float> comparatorForLow = Collections.reverseOrder();
 		try {
-			if (connection != null) {
-				connection.close();
-				connection = null;
-			} 
-			connection = StockUtils.connectToDB();
+			if(connection == null) {
+				connection = StockUtils.connectToDB();
+			}
 			previoudDayAccumulatioDistribution = stockDetails.lastEnteredaccumulatioDistribution;
 			for (int counter = 0; counter < stockDetails.tradeddate.size(); counter++) {
 				currentCloseLowDifference = stockDetails.closePrice.get(counter) - stockDetails.lowPrice.get(counter);
@@ -210,27 +194,16 @@ public class AccumulationDistribution {
 				MFValue = MFmultipplier * stockDetails.volume.get(counter);
 				accumulatioDistribution = MFValue + previoudDayAccumulatioDistribution;
 				previoudDayAccumulatioDistribution = accumulatioDistribution;
-				storeAccumuationDistributioninDB(stockCode, stockDetails.tradeddate.get(counter), accumulatioDistribution);
+				storeAccumuationDistributioninDB(connection,stockCode, stockDetails.tradeddate.get(counter), accumulatioDistribution);
 			}
 		} catch (Exception ex) {
 			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("calculateAverageTrueRangeForStockInBulk Error in DB action "+ex);
 			logger.error("Error in calculateAverageTrueRangeForStockInBulk  -> ", ex);
-		} finally {
-			try {
-				if (connection != null) {
-					connection.close();
-					connection = null;
-				} 
-			} catch (Exception ex) {
-				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("calculateAverageTrueRangeForStockInBulk Error in DB action ");
-				logger.error("Error in calculateAverageTrueRangeForStockInBulk  -> ", ex);
-			}
-		}
+		} 
 	}
 	
-	private AccumulatioDistributionData getStockDetailsFromDBDaily(String stockCode) {
+	private AccumulatioDistributionData getStockDetailsFromDBDaily(Connection connection, String stockCode) {
 		ResultSet resultSet = null;
 		Statement statement = null;
 		String tradedDate, sql;
@@ -239,11 +212,6 @@ public class AccumulationDistribution {
 		AccumulatioDistributionData soDataObj = null;
 		String LastEnteredDate = null;
 		try {
-			if (connection != null) {
-				connection.close();
-				connection = null;
-			}
-			connection = StockUtils.connectToDB();
 			soDataObj = new AccumulatioDistributionData();
 			//Get last entered date from Accul=mulationDistribution Table
 			sql = "SELECT tradeddate, ACCUMULATIONDISTRIBUTION FROM DAILY_ACCUMULATION_DISTRIBUTION where stockname='" + stockCode + "' order by tradeddate desc;";
@@ -306,21 +274,11 @@ public class AccumulationDistribution {
 				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
 				logger.error("Error in closing statement getStockDetailsFromDBForBulk  -> ", ex);
 			}
-			try {
-				if (connection != null) {
-					connection.close();
-					connection = null;
-				} 
-			} catch (Exception ex) {
-				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("getStockDetailsFromDBForBulk Error in closing connection "+ex);
-				logger.error("Error in closing connection getStockDetailsFromDBForBulk  -> ", ex);
-			}
 		}
 	}
 	
 	
-	private void storeAccumuationDistributioninDB(String stockName, String tradedDate, float accumuationDistribution) {
+	private void storeAccumuationDistributioninDB(Connection connection, String stockName, String tradedDate, float accumuationDistribution) {
 		Statement statement = null;
 		String tmpsql;
 		try {

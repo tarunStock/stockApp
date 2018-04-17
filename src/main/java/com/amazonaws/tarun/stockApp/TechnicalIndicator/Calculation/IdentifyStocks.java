@@ -25,7 +25,7 @@ public class IdentifyStocks {
 		IdentifyStocks obj = new IdentifyStocks();
 		
 		//To get indication from MACD
-		obj.CalculateIndication(new Date("11-Apr-2018"));
+		obj.CalculateIndication(new Date("16-Apr-2018"));
 		//obj.CalculateIndicationfromMACD(new Date("26-Mar-2018"));		
 		//To calculate MACD values and store
 		//obj.calculateSignalAndMACDBulkForAllStocks(new Date("25-Jan-2018"));
@@ -163,7 +163,7 @@ public class IdentifyStocks {
 			objSalesforceIntegration.connectToSalesforc();
 			objSalesforceIntegration.createSuggestedStocks1(objFinalSelectedStockList);
 			objSalesforceIntegration.createSuggestedStocks1(objBelowHundredFinalSelectedStockList);
-			objSalesforceIntegration.createSuggestedStocks1(objFinalSelectedBearishStockList);
+			//objSalesforceIntegration.createSuggestedStocks1(objFinalSelectedBearishStockList);
 			System.out.println("Total Selected stocks -> "+totalSelectedStocks);
 			System.out.println("Total Selected stocks below hundred -> "+totalBelowHundredSelectedStocks);
 			System.out.println("MACD Crossed stocks count " + macdcrossedStocks);

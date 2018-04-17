@@ -18,6 +18,8 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 	static Logger logger = Logger.getLogger(StockUtils.class);	
 	static ArrayList<Date> holidayList;
 	static {
+		
+		
 		BufferedReader br = null;
 		try {
 			br = new BufferedReader(new FileReader("C:\\StockApp\\Holidays.txt"));

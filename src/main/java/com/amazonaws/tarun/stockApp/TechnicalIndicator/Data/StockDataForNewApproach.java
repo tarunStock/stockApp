@@ -20,4 +20,8 @@ public class StockDataForNewApproach extends StockDetailsForDecision implements 
 	public Object clone()throws CloneNotSupportedException{  
 		return super.clone();  
 		}  
+	
+	public String getString() {
+		return stockCode + "," +  SMAComparison + "," + SMAToPriceComparison + "," + MACDStatus + "," + MACDIncreasing + "," + smallerSMAIncreasing + "," + middleSMAIncreasing + "," + accumulationDistributionIncreasing + System.lineSeparator();
+	}
 }

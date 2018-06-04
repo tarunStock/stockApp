@@ -26,7 +26,7 @@ public class CalculateBollingerBands {
 		System.out.println("Start at -> " + dte.toString());
 		CalculateBollingerBands obj = new CalculateBollingerBands();
 		//obj.calculateBollingerBands(null);		
-		obj.calculateBollingerBands(new Date("26-Mar-2018"));
+		obj.calculateBollingerBands(new Date("01-Jun-2018"));
 		HandleErrorDetails.sendErrorsInMail("Calculate Bollinger Band");
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());

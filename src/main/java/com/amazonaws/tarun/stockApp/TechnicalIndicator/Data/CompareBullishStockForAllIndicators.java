@@ -11,19 +11,27 @@ public class CompareBullishStockForAllIndicators  implements Comparator<StockDat
 			return -1;
 		} else if (!obj1.MACDStatus.equalsIgnoreCase("crossed") && obj2.MACDStatus.equalsIgnoreCase("crossed")) {
 			return 1;
-		} else if(obj1.lowerToMiddleSMcrossover && !obj2.lowerToMiddleSMcrossover) {
+		} else if(obj1.SMAComparison.equalsIgnoreCase("crossed") && !obj2.SMAComparison.equalsIgnoreCase("crossed")) {
+			return -1;
+		} else if(!obj1.SMAComparison.equalsIgnoreCase("crossed") && obj2.SMAComparison.equalsIgnoreCase("crossed")) {
+			return 1;
+		}/*else if(obj1.lowerToMiddleSMcrossover && !obj2.lowerToMiddleSMcrossover) {
 			return -1;
 		} else if(!obj1.lowerToMiddleSMcrossover && obj2.lowerToMiddleSMcrossover) {
 			return 1;
-		} else if(obj1.lowerToHigherSMcrossover && !obj2.lowerToHigherSMcrossover) {
+		}*/ /*else if(obj1.lowerToHigherSMcrossover && !obj2.lowerToHigherSMcrossover) {
 			return -1;
 		} else if(!obj1.lowerToHigherSMcrossover && obj2.lowerToHigherSMcrossover) {
 			return 1;
-		} else if(obj1.priceToMiddleSMcrossover && !obj2.priceToMiddleSMcrossover) {
+		}*/ else if(obj1.SMAToPriceComparison.equalsIgnoreCase("crossed") && !obj2.SMAToPriceComparison.equalsIgnoreCase("crossed")) {
+			return -1;
+		} else if(!obj1.SMAToPriceComparison.equalsIgnoreCase("crossed") && obj2.SMAToPriceComparison.equalsIgnoreCase("crossed")) {
+			return 1;
+		} /*else if(obj1.priceToMiddleSMcrossover && !obj2.priceToMiddleSMcrossover) {
 			return -1;
 		} else if(!obj1.priceToMiddleSMcrossover && obj2.priceToMiddleSMcrossover) {
 			return 1;
-		} else if(obj1.middleSMAIncreasing && !obj2.middleSMAIncreasing) {
+		} */else if(obj1.middleSMAIncreasing && !obj2.middleSMAIncreasing) {
 			return -1;
 		} else if(!obj1.middleSMAIncreasing && obj2.middleSMAIncreasing) {
 			return 1;

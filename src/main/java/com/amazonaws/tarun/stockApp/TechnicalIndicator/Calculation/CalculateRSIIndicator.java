@@ -28,7 +28,7 @@ public class CalculateRSIIndicator {
 		System.out.println("Start at -> " + dte.toString());
 		CalculateRSIIndicator obj = new CalculateRSIIndicator();
 		//obj.CalculateRSIForAllStocks(null);
-		obj.CalculateRSIForAllStocks(new Date("26-Mar-2018"));
+		obj.CalculateRSIForAllStocks(new Date("01-Jun-2018"));
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());
 		logger.debug("CalculateRSIIndicator End");

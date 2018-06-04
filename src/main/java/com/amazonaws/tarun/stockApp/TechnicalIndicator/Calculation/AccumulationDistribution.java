@@ -26,7 +26,7 @@ public class AccumulationDistribution {
 		System.out.println("Start at -> " + dte.toString());
 		AccumulationDistribution obj = new AccumulationDistribution();
 		//obj.calculateAccumulationDistributionForAllStocks(null);
-		obj.calculateAccumulationDistributionForAllStocks(new Date("11-Apr-2018"));
+		obj.calculateAccumulationDistributionForAllStocks(new Date("01-Jun-2018"));
 		//obj.getChandelierExitLong("20MICRONS", new Date("16-Oct-2017"));
 		HandleErrorDetails.sendErrorsInMail("AccumulationDistribution");
 		dte = new Date();

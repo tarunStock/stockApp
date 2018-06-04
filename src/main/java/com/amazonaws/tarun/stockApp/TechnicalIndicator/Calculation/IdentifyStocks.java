@@ -1,5 +1,10 @@
 package com.amazonaws.tarun.stockApp.TechnicalIndicator.Calculation;
 
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,7 +30,8 @@ public class IdentifyStocks {
 		IdentifyStocks obj = new IdentifyStocks();
 		
 		//To get indication from MACD
-		obj.CalculateIndication(new Date("16-Apr-2018"));
+		//obj.CalculateIndication(null);
+		obj.CalculateIndication(new Date("01-Jun-2018"));
 		//obj.CalculateIndicationfromMACD(new Date("26-Mar-2018"));		
 		//To calculate MACD values and store
 		//obj.calculateSignalAndMACDBulkForAllStocks(new Date("25-Jan-2018"));
@@ -67,14 +73,14 @@ public class IdentifyStocks {
 //				if(!StockUtils.getFinancialIndication(stock)) {
 //					continue;
 //				}
-				//stock="FSL";
+				//stock="FEDERALBNK";
 				System.out.println("Analyzing Stock -> "+stock);
 				objFinalSelectedStock = new StockDataForNewApproach();
 				objFinalSelectedStock.stockCode = stock;
 				
 				//Simple Moving Average data creation 
 				objSMAIndicatorDetails = objSMA.CalculateIndicationfromSMA(connection, stock, calculationDate);				
-				if(objSMAIndicatorDetails.signalSMAToSMA!=null && objSMAIndicatorDetails.signalSMAToSMA.equalsIgnoreCase("buy")) {
+				if(objSMAIndicatorDetails.SMNSMcrossover) {
 					objFinalSelectedStock.SMAComparison = "Crossed";
 				} else {
 					objFinalSelectedStock.SMAComparison = "NotCrossed";
@@ -133,8 +139,11 @@ public class IdentifyStocks {
 					HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 					System.out.println("Error in waiting for drop down suggestion");
 				}*/
-				if(objFinalSelectedStock.MACDIncreasing && objFinalSelectedStock.accumulationDistributionIncreasing &&
-						objFinalSelectedStock.middleSMAIncreasing && objFinalSelectedStock.smallerSMAIncreasing && objFinalSelectedStock.stochasticInLine) {
+				/*if(objFinalSelectedStock.MACDIncreasing && objFinalSelectedStock.accumulationDistributionIncreasing &&
+						objFinalSelectedStock.middleSMAIncreasing && objFinalSelectedStock.smallerSMAIncreasing && objFinalSelectedStock.stochasticInLine) {*/
+					if( objFinalSelectedStock.MACDIncreasing && objFinalSelectedStock.accumulationDistributionIncreasing &&
+							 objFinalSelectedStock.stochasticInLine) {
+					
 					objFinalSelectedStock = (StockDataForNewApproach) StockUtils.getPriceAndVolumeDetails(objFinalSelectedStock,calculationDate);
 					objFinalSelectedStock.TypeofSuggestedStock = "All";
 					System.out.println("***** Adding Stock -> "+stock);
@@ -154,8 +163,9 @@ public class IdentifyStocks {
 				}
 			}
 			
-			
+			//writeToFile(objFinalSelectedStockList);
 			Collections.sort(objFinalSelectedStockList, new CompareBullishStockForAllIndicators());
+			//StockUtils.dumpToFile(objFinalSelectedStockList);
 			Collections.sort(objBelowHundredFinalSelectedStockList, new CompareBullishStockForAllIndicators());
 			Collections.sort(objFinalSelectedBearishStockList, new CompareBearishStockForAllIndicators());
 			SalesforceIntegration objSalesforceIntegration = new SalesforceIntegration();
@@ -163,6 +173,8 @@ public class IdentifyStocks {
 			objSalesforceIntegration.connectToSalesforc();
 			objSalesforceIntegration.createSuggestedStocks1(objFinalSelectedStockList);
 			objSalesforceIntegration.createSuggestedStocks1(objBelowHundredFinalSelectedStockList);
+			//Send top stock in mail
+			StockUtils.sendTopStockInMail(objFinalSelectedStockList, false, "Stock Suggestions from Tarun ");
 			//objSalesforceIntegration.createSuggestedStocks1(objFinalSelectedBearishStockList);
 			System.out.println("Total Selected stocks -> "+totalSelectedStocks);
 			System.out.println("Total Selected stocks below hundred -> "+totalBelowHundredSelectedStocks);
@@ -188,5 +200,22 @@ public class IdentifyStocks {
 		
 		//tmpUpdateIndicatedStocks.updateSMAIndication(SMAIndicatorDetailsList);
 		logger.debug("CalculateIndicationfromMACD end");
+	}
+
+	private void writeToFile(ArrayList<StockDataForNewApproach> objStockDataForNewApproachList) {
+		Writer writer = null;
+
+		try {
+		    writer = new BufferedWriter(new OutputStreamWriter(
+		          new FileOutputStream("C:\\StockApp\\SelectedStocks.txt"), "utf-8"));
+		    for (int counter = 0; counter < objStockDataForNewApproachList.size(); counter++ ) {
+		    	writer.write((counter+1) + "," + objStockDataForNewApproachList.get(counter).getString());
+		    }	    
+		    
+		} catch (IOException ex) {
+		    System.out.println("Error");
+		} finally {
+		   try {writer.close();} catch (Exception ex) {System.out.println("Error in closing");}
+		}
 	}
 }

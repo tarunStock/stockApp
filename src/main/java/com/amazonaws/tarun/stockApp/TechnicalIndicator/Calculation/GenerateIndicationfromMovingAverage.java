@@ -18,7 +18,7 @@ import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 
 public class GenerateIndicationfromMovingAverage {
 	Connection connection = null;
-	public static int daysToCheck = 5;
+	public static int daysToCheck = 3;
 	ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList;
 	ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsBelowHundredList;
 	public SMAIndicatorDetails objSMAIndicatorDetails;
@@ -290,7 +290,7 @@ public class GenerateIndicationfromMovingAverage {
 			return;
 		}
 		objSMAIndicatorDetails.stockPrice = stockPriceValues.get(0);
-		if (stockPriceValues.size() > daysToCheck && middleSMAPeriodValues.size() > daysToCheck) {
+		if (stockPriceValues.size() >= daysToCheck && middleSMAPeriodValues.size() >= daysToCheck) {
 			//last day price is less than price daytocheck before
 			if (stockPriceValues.get(0) < stockPriceValues.get(daysToCheck-1)) { 
 				return;
@@ -338,7 +338,7 @@ public class GenerateIndicationfromMovingAverage {
 		boolean continuousGrowth = true;
 		
 		// Logic to get buy condition
-		if (lowerSMAPeriodValues.size() > daysToCheck && higherSMAPeriodValues.size() > daysToCheck && stockPriceValues.size() > daysToCheck) {
+		if (lowerSMAPeriodValues.size() >= daysToCheck && higherSMAPeriodValues.size() >= daysToCheck && stockPriceValues.size() >= daysToCheck) {
 			//price trending below middle SMA then stock is not good to buy
 			if (lowerSMAPeriodValues.get(0) - higherSMAPeriodValues.get(0) < 0) { 
 				return;
@@ -407,7 +407,7 @@ public class GenerateIndicationfromMovingAverage {
 		boolean continuousGrowth = true;
 		
 		// Logic to get buy condition
-		if (lowerSMAPeriodValues.size() > daysToCheck && middleSMAPeriodValues.size() > daysToCheck && stockPriceValues.size() > daysToCheck) {
+		if (lowerSMAPeriodValues.size() >= daysToCheck && middleSMAPeriodValues.size() >= daysToCheck && stockPriceValues.size() >= daysToCheck) {
 			//price trending below middle SMA then stock is not good to buy
 			if (lowerSMAPeriodValues.get(0) - middleSMAPeriodValues.get(0) < 0) { 
 				return;

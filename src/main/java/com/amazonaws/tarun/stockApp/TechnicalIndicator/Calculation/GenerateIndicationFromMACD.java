@@ -38,7 +38,7 @@ public class GenerateIndicationFromMACD {
 		/*for(int i = 257; i>=0; i--) {
 			Date date = new Date(System.currentTimeMillis()-i*24*60*60*1000L);
 			if(StockUtils.marketOpenOnGivenDate(date))*/
-				obj.calculateSignalAndMACDBulkForAllStocks(new Date("23-Mar-2018"));
+				obj.calculateSignalAndMACDBulkForAllStocks(new Date("31-May-2018"));
 			
 		//}
 	}

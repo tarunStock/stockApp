@@ -1,6 +1,7 @@
 package com.amazonaws.tarun.stockApp.Utils;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -12,6 +13,9 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
+import com.amazonaws.tarun.stockApp.TechnicalIndicator.Calculation.SendSuggestedStockInMail;
+import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.FinalSelectedStock;
+import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.StockDataForNewApproach;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.StockDetailsForDecision;
 
 public class StockUtils implements AmazonRDSDBConnectionInterface{
@@ -495,7 +499,8 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 			if(period>10) {
 				limitquery = period -10; 
 			} else {
-				limitquery = period;
+				//limitquery = period;
+				limitquery = 3; //Changed to a lower duraton to decide based on recent trend change
 			}
 			if(connection == null) {
 				connection = StockUtils.connectToDB();
@@ -554,5 +559,40 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 		return totalHolidays;
 	}
 	
+	public static void dumpToFile(ArrayList<StockDataForNewApproach> objFinalSelectedStockList) {
+		try {
+			PrintWriter writer = new PrintWriter("C:\\StockApp\\Sorted.txt", "UTF-8");
+			for(StockDataForNewApproach objStockDataForNewApproach : objFinalSelectedStockList) {
+				writer.print(objStockDataForNewApproach.stockCode + " ---- ");
+				writer.print(objStockDataForNewApproach.SMAComparison + " ---- ");
+				writer.print(objStockDataForNewApproach.SMAToPriceComparison + " ---- ");
+				writer.print(objStockDataForNewApproach.MACDStatus + " ---- ");
+				writer.println();
+			}
+			writer.close();
+		} catch (Exception ex) {System.out.println("Error in writing file");}
+	}
+
+	public static void sendTopStockInMail(ArrayList<StockDataForNewApproach> objFinalSelectedStockList, Boolean belowHunderd, String subject) {
+		logger.debug("sendTopStockInMail Started");
+		StringBuilder mailBody = new StringBuilder();
+		//System.out.println("Stocks to send in mail -> " + (objFinalSelectedStockList.size()>20?20:objFinalSelectedStockList.size()));
+		mailBody.append("<html><body>Please evaluate below stocks before investing.</br></br><table border='1'><tr><th>Sr. No.</th><th>Date</th><th>Stock code</th></tr>");
+				
+		for (int counter = 0; counter <(objFinalSelectedStockList.size()>5?5:objFinalSelectedStockList.size()); counter++) {
+			mailBody.append("<tr><td>" + (counter+1) + "</td>");
+			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).suggestedDate + "</td>");
+			mailBody.append("<td>" + objFinalSelectedStockList.get(counter).stockCode + "</td>");
+			mailBody.append("</tr>");
+		}
+		mailBody.append("</table></body></html>");
+        if(objFinalSelectedStockList.size() > 0) {
+        	new SendSuggestedStockInMail("sharad.mehta@hitechroboticsystemz.com",subject+" "+objFinalSelectedStockList.get(0).suggestedDate.toString(),mailBody.toString());
+        	//System.out.println("Mail Sent");
+        } /*else if( objFinalSelectedStockList.size() > 0 ){
+        	new SendSuggestedStockInMail("tarunstockcomm@gmail.com",subject+" "+objFinalSelectedStockList.get(0).tradeddate.toString(),mailBody.toString());
+        }*/
+        logger.debug("sendTopStockInMail end");
+	}
 	
 }

@@ -22,7 +22,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 		logger.debug("CalculateSimpleAndExpoMovingAvg Started");
 		System.out.println("Start at -> " + dte.toString());
 		CalculateSimpleAndExpoMovingAvg obj = new CalculateSimpleAndExpoMovingAvg();
-		obj.MovingAverageCalculation(new Date("26-Mar-2018"));
+		obj.MovingAverageCalculation(new Date("01-Jun-2018"));
 		//obj.MovingAverageCalculation(null);
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());

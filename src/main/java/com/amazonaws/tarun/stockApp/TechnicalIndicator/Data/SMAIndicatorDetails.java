@@ -14,6 +14,13 @@ public class SMAIndicatorDetails {// implements Comparable<SMAIndicatorDetails> 
 	public boolean PNSMAcrossover = false;
 	public boolean SMNSMcrossover = false;
 	
+	//For Bullish and Bearish stock separation - Start
+	public String PNSMAcrossoverStr;
+	public String SMNSMcrossoverStr;
+	public String lowerToMiddleSMcrossoverStr;
+	public String lowerToHigherSMcrossoverStr;
+	//For Bullish and Bearish stock separation - End
+	
 	public boolean lowerToMiddleSMcrossover = false;
 	public boolean lowerToHigherSMcrossover = false;
 	

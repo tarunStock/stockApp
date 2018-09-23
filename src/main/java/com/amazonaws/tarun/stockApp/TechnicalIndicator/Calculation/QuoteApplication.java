@@ -111,7 +111,7 @@ public class QuoteApplication {
 				logger.debug("MACD Indication End");
 			} */else if (args[0].equalsIgnoreCase("combinedFromMACDForPortal")) {
 				logger.debug("New Logic Indication Started");
-				IdentifyStocks obj = new IdentifyStocks();
+				IdentifyBullishStocks obj = new IdentifyBullishStocks();
 				obj.CalculateIndication(null);
 				HandleErrorDetails.sendErrorsInMail("New Logic Indication");
 				logger.debug("MACD Indication End");
@@ -242,7 +242,7 @@ public class QuoteApplication {
 				logger.debug("MACD Indication End");
 			}*/ else if (args.equalsIgnoreCase("combinedFromMACDForPortal")) {
 				logger.debug("New Logic Indication Started");
-				IdentifyStocks obj = new IdentifyStocks();
+				IdentifyBullishStocks obj = new IdentifyBullishStocks();
 				obj.CalculateIndication(calculationDate);
 				HandleErrorDetails.sendErrorsInMail("New Logic Indication");
 				logger.debug("MACD Indication End");

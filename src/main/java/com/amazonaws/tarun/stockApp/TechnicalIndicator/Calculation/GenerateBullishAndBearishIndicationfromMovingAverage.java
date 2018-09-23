@@ -16,7 +16,7 @@ import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.SMAIndicatorDetailsC
 import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
 import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 
-public class GenerateIndicationfromMovingAverage {
+public class GenerateBullishAndBearishIndicationfromMovingAverage {
 	Connection connection = null;
 	public static int daysToCheck = 3;
 	ArrayList<SMAIndicatorDetails> SMAIndicatorDetailsList;
@@ -25,13 +25,13 @@ public class GenerateIndicationfromMovingAverage {
 	String stockName;
 	String bseCode;
 	String nseCode;
-	static Logger logger = Logger.getLogger(GenerateIndicationfromMovingAverage.class);
+	static Logger logger = Logger.getLogger(GenerateBullishAndBearishIndicationfromMovingAverage.class);
 	
 	public static void main(String[] args) {
 		Date dte = new Date();
 		Connection connection = null;
 		System.out.println("Start at -> " + dte.toString());
-		GenerateIndicationfromMovingAverage obj = new GenerateIndicationfromMovingAverage();
+		GenerateBullishAndBearishIndicationfromMovingAverage obj = new GenerateBullishAndBearishIndicationfromMovingAverage();
 		//obj.CalculateAndSendIndicationfromSMA(new Date("13-Oct-2017"));
 		obj.CalculateIndicationfromSMA(connection, null);
 	}
@@ -306,14 +306,19 @@ public class GenerateIndicationfromMovingAverage {
 				return;
 			}*/
 			
-			for (int counter = 1 ; counter < daysToCheck ; counter++ ) {
+			//for (int counter = 1 ; counter < daysToCheck ; counter++ ) {
+			int counter = 1 ;
 				if (stockPriceValues.get(counter-1) - middleSMAPeriodValues.get(counter-1) < stockPriceValues.get(counter) - middleSMAPeriodValues.get(counter)) {
 					continuousGrowth = false;
 				}
-				if (stockPriceValues.get(counter) - middleSMAPeriodValues.get(counter) < 0) { 
+				if ((stockPriceValues.get(counter-1) - middleSMAPeriodValues.get(counter-1) < 0) && (stockPriceValues.get(counter) - middleSMAPeriodValues.get(counter) > 0)) { 
 					objSMAIndicatorDetails.PNSMAcrossover = true;
+					objSMAIndicatorDetails.PNSMAcrossoverStr = "CrossedUp";
+				} else if ((stockPriceValues.get(counter-1) - middleSMAPeriodValues.get(counter-1) > 0) && (stockPriceValues.get(counter) - middleSMAPeriodValues.get(counter) < 0)) {
+					objSMAIndicatorDetails.PNSMAcrossover = true;
+					objSMAIndicatorDetails.PNSMAcrossoverStr = "CrossedDown";
 				}
-			}
+			//}
 			if(continuousGrowth) {
 				objSMAIndicatorDetails.PNSMcontinuousGrowth = true;
 			}

@@ -5,6 +5,7 @@ import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import org.apache.log4j.Logger;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.SMAData;
@@ -22,11 +23,37 @@ public class CalculateSimpleAndExpoMovingAvg {
 		logger.debug("CalculateSimpleAndExpoMovingAvg Started");
 		System.out.println("Start at -> " + dte.toString());
 		CalculateSimpleAndExpoMovingAvg obj = new CalculateSimpleAndExpoMovingAvg();
-		obj.MovingAverageCalculation(new Date("01-Jun-2018"));
+		obj.MovingAverageCalculationTemporaryRun(new Date("10-Aug-2018"));
 		//obj.MovingAverageCalculation(null);
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());
 		logger.debug("CalculateSimpleAndExpoMovingAvg End");
+	}
+	
+	public void MovingAverageCalculationTemporaryRun(Date calculationDate){
+		ArrayList<String> stockList = null;
+		if( !StockUtils.marketOpenOnGivenDate(calculationDate))
+			return;
+		stockList = StockUtils.getStockListFromDB();
+		String stockName;
+		String bseCode;
+		String nseCode;
+
+		//For Testing
+		//calculateSimpleMovingAverageDaily("MINDACORP", new Date("31-Oct-2017"));
+		
+		for (String stockCode : stockList) {
+			stockName = stockCode.split("!")[1];
+			bseCode = stockCode.split("!")[0];
+			nseCode = stockCode.split("!")[2];
+			//calculate average on bulk
+			//calculateSimpleMovingAverage(nseCode, calculationDate);
+			//calculateExpMovingAverageForMACD(nseCode, calculationDate);
+			//calculate average on daily basis
+			
+			calculateSimpleMovingAverageFromGivenDateTillYesterday(nseCode, new Date("9-May-2018"));
+			//calculateSimpleMovingAverageDaily(nseCode, calculationDate);
+		}
 	}
 	
 	public void MovingAverageCalculation(Date calculationDate){
@@ -50,11 +77,32 @@ public class CalculateSimpleAndExpoMovingAvg {
 			//calculateExpMovingAverageForMACD(nseCode, calculationDate);
 			//calculate average on daily basis
 			
-			//calculateSimpleMovingAverageDaily(nseCode, new Date("19-Oct-2017"));
+			//calculateSimpleMovingAverageFromGivenDateTillYesterday(nseCode, new Date("9-May-2018"));
 			calculateSimpleMovingAverageDaily(nseCode, calculationDate);
 		}
 	}
 
+	private void calculateSimpleMovingAverageFromGivenDateTillYesterday(String stockCode, Date startDate) {
+		
+		
+		Calendar calendar = Calendar.getInstance();
+	    calendar.set(Calendar.HOUR_OF_DAY, 0);
+	    calendar.set(Calendar.MINUTE, 0);
+	    calendar.set(Calendar.SECOND, 0);
+	    calendar.set(Calendar.MILLISECOND, 0);
+	 
+	    Date todayDate = calendar.getTime();
+		Date targetDate = (Date)startDate.clone();
+		while( targetDate.before(todayDate) ) {
+			if( StockUtils.marketOpenOnGivenDate(targetDate)) {
+				System.out.println("Calculating for Stock -> "+ stockCode + " date -> "+targetDate);
+				calculateSimpleMovingAverageDaily(stockCode, targetDate);
+			}
+			targetDate = new Date(targetDate.getTime()+24*60*60*1000);
+		}
+		
+	}
+	
 	private void calculateSimpleMovingAverage(String stockCode, Date targetDate) {
 		SMAData stockDetails = null;
 		float simpleMovingAverage = 0;
@@ -76,15 +124,15 @@ public class CalculateSimpleAndExpoMovingAvg {
 			for (int counter = 0; counter < stockDetails.tradeddate.size(); counter++) {
 				period = 1;
 				sumOfClosingPrices = 0;
-				System.out.println(" Stock -> " + stockCode + " Date -> " + stockDetails.tradeddate.get(counter));
+				//System.out.println(" Stock -> " + stockCode + " Date -> " + stockDetails.tradeddate.get(counter));
 				
 				for (int counter1 = 0; counter1 < smaPeriods.size(); counter1++) {
 					//sumOfClosingPrices = sumOfClosingPrices + stockDetails.closePrice.get(counter1);
 					//if(smaPeriods.contains(period)) {
 					/*if (period != 3 && period != 5 && period != 9 && period != 14 && period != 20 && period != 50
 							&& period != 200) {*/
-				//For testing	
-				System.out.print(" ** Period -> "+ smaPeriods.get(counter1));	
+					//For testing	
+					//System.out.print(" ** Period -> "+ smaPeriods.get(counter1));	
 					simpleMovingAverage = sumOfClosingPrices / period;
 					//For testing	
 					expMovingAvg = calculateExpMvingAvg(stockCode, stockDetails.closePrice.get(counter), smaPeriods.get(counter1), (Date)formatter.parse(stockDetails.tradeddate.get(counter)));
@@ -94,8 +142,8 @@ public class CalculateSimpleAndExpoMovingAvg {
 						if (expMovingAvg == -1) {
 							expMovingAvg = simpleMovingAverage;
 						}
-						updateOrInsertExpMovingAverageinDB(stockCode, stockDetails.tradeddate.get(counter), 
-								smaPeriods.get(counter1), stockDetails.closePrice.get(counter).floatValue(), expMovingAvg);
+						//updateOrInsertExpMovingAverageinDB(stockCode, stockDetails.tradeddate.get(counter), 
+						//		smaPeriods.get(counter1), stockDetails.closePrice.get(counter).floatValue(), expMovingAvg);
 						/*storeMovingAverageinDB(stockCode, stockDetails.tradeddate.get(counter1), simpleMovingAverage,
 								period, stockDetails.closePrice.get(counter1).floatValue(), expMovingAvg);*/
 					//}
@@ -168,7 +216,7 @@ public class CalculateSimpleAndExpoMovingAvg {
 						} else if (expMovingAvg == -1 && smaPeriods.get(counter1) == 26) {
 							expMovingAvg = simpleMovingAverageForTwentySix;
 						}
-						System.out.println(" Date -> " + stockDetails.tradeddate.get(counter) + " period = "+smaPeriods.get(counter1) + " EMA->" + expMovingAvg);
+						//System.out.println(" Date -> " + stockDetails.tradeddate.get(counter) + " period = "+smaPeriods.get(counter1) + " EMA->" + expMovingAvg);
 						/*updateOrInsertExpMovingAverageinDB(stockCode, stockDetails.tradeddate.get(counter), 
 								smaPeriods.get(counter1), stockDetails.closePrice.get(counter).floatValue(), expMovingAvg);*/
 						storeMovingAverageinDB(stockCode, stockDetails.tradeddate.get(counter), 0,
@@ -286,16 +334,19 @@ public class CalculateSimpleAndExpoMovingAvg {
 				//if (period == 3 || period == 5 || period == 9 || period == 14 || period == 20 || period == 50
 				//		|| period == 200) {
 					simpleMovingAverage = sumOfClosingPrices / period;
-					System.out.println(" Stock -> " + stockCode + " Period -> " + (counter+1));
+					//System.out.println(" Stock -> " + stockCode + " Period -> " + (counter+1));
 					expMovingAvg = calculateExpMvingAvg(stockCode, stockDetails.closePrice.get(0), period, tragetDate);
 					if (expMovingAvg == -1) {
 						expMovingAvg = simpleMovingAverage;
 					}
-					storeMovingAverageinDB(stockCode, stockDetails.tradeddate.get(0), simpleMovingAverage, period,
+					/*storeMovingAverageinDB(stockCode, stockDetails.tradeddate.get(0), simpleMovingAverage, period,
+							stockDetails.closePrice.get(0).floatValue(), expMovingAvg);*/
+					updateOrInsertSimpleAndExpMovingAverageinDB(stockCode, stockDetails.tradeddate.get(0), simpleMovingAverage, period,
 							stockDetails.closePrice.get(0).floatValue(), expMovingAvg);
 				}
 				period++;
 				if (period > 200) {
+				//if (period > 102) {
 					break;
 				}
 			} 
@@ -469,24 +520,34 @@ public class CalculateSimpleAndExpoMovingAvg {
 		}
 	}
 
-	private void updateOrInsertExpMovingAverageinDB(String stockName, String tradedDate, int period,
-			float closingPrice, float expMovingAverage) {
+	private void updateOrInsertSimpleAndExpMovingAverageinDB(String stockName, String tradedDate, float simpMovingAverage, int period,
+			float closingPrice, float expMovingAverage) {		
+		
 		Statement statement = null;
 		ResultSet resultSet = null;
 		String tmpSQL;
+		Date todaysDate = new Date();
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		String todayDate = df.format(todaysDate);
 		try {
 			
 			//connection = StockUtils.connectToDB();
 			statement = connection.createStatement();
-			tmpSQL = "SELECT EMA FROM DAILYSNEMOVINGAVERAGES where stockName ='"
-					+ stockName + "' and PERIOD = " + period + " and tradeddate='" + tradedDate + "' order by tradeddate desc;";
-			resultSet = statement.executeQuery(tmpSQL);
-			if (resultSet.next()) {
-				tmpSQL = "update DAILYSNEMOVINGAVERAGES set EMA=" + expMovingAverage + " where stockName ='"
-						+ stockName + "' and PERIOD = " + period + " and tradeddate='" + tradedDate + "'";
+			if(!todayDate.equals(tradedDate)) {
+				tmpSQL = "SELECT EMA FROM DAILYSNEMOVINGAVERAGES where stockName ='"
+						+ stockName + "' and PERIOD = " + period + " and tradeddate='" + tradedDate + "' order by tradeddate desc;";
+				resultSet = statement.executeQuery(tmpSQL);
+				if (resultSet.next()) {
+					tmpSQL = "update DAILYSNEMOVINGAVERAGES set EMA=" + expMovingAverage + " where stockName ='"
+							+ stockName + "' and PERIOD = " + period + " and tradeddate='" + tradedDate + "'";
+				} else {
+					tmpSQL = "INSERT INTO DAILYSNEMOVINGAVERAGES (STOCKNAME, TRADEDDATE, SMA, EMA, PERIOD, CLOSINGPRICE) VALUES('"
+							+ stockName + "','" + tradedDate + "'," + simpMovingAverage + "," + expMovingAverage + "," + period
+							+ "," + closingPrice + ");";
+				}
 			} else {
 				tmpSQL = "INSERT INTO DAILYSNEMOVINGAVERAGES (STOCKNAME, TRADEDDATE, SMA, EMA, PERIOD, CLOSINGPRICE) VALUES('"
-						+ stockName + "','" + tradedDate + "',0," + expMovingAverage + "," + period
+						+ stockName + "','" + tradedDate + "'," + simpMovingAverage + "," + expMovingAverage + "," + period
 						+ "," + closingPrice + ");";
 			}
 			

@@ -36,7 +36,7 @@ public class CollectDailyStockData extends SetupBase {
 	static Logger logger = Logger.getLogger(CollectDailyStockData.class);
 	public String downloadFilepath = "c:\\StockApp\\download";
 	
-	//Date date = new Date(System.currentTimeMillis()-2*24*60*60*1000L);
+	//Date date = new Date(System.currentTimeMillis()-1*24*60*60*1000L);
 	Date date = new Date(); //Date(System.currentTimeMillis()-24*60*60*1000);
 			
 	public static void main(String[] args) {
@@ -44,7 +44,8 @@ public class CollectDailyStockData extends SetupBase {
 		logger.debug("CollectDailyStockData Started");
 		CollectDailyStockData obj = new CollectDailyStockData();
 		
-		obj.startCollectingDailyData();
+		//obj.startCollectingDailyData();
+		obj.sendNotificationForDailyStockDataCollection();
 		dte = new Date();
 		System.out.println("End at -> " + dte.toString());
 	}
@@ -92,6 +93,10 @@ public class CollectDailyStockData extends SetupBase {
 						line = br.readLine();
 						while (line != null) {
 							stockData = line.split(",");
+							if(!(Parser.unescapeEntities(stockData[1].trim(), false).equals("EQ") || Parser.unescapeEntities(stockData[1].trim(), false).equals("BE"))) {
+								line = br.readLine();
+								continue;
+							}
 							quotesDataObj = new QuotesData();
 							//quotesDataObj.stockName = Parser.unescapeEntities(stockData[0].substring(1, stockData[0].length()-1).trim(), false);						
 							quotesDataObj.stockName = Parser.unescapeEntities(stockData[0].trim(), false);

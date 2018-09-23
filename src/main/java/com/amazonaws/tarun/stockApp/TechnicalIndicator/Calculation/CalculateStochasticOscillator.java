@@ -207,7 +207,7 @@ public class CalculateStochasticOscillator {
 			} catch (Exception ex) {
 				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 				System.out.println("calculateStochasticOscillatorForStockDaily Error in DB action ");
-				logger.error("Error in calculateStochasticOscillatorForStockDaily  -> ", ex);
+				logger.error("stock = " + stockCode + " Error in calculateStochasticOscillatorForStockDaily  -> ", ex);
 			}
 		}
 	}

@@ -9,12 +9,12 @@ import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
 
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Calculation.SendSuggestedStockInMail;
-import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.FinalSelectedStock;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.StockDataForNewApproach;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.StockDetailsForDecision;
 
@@ -340,9 +340,16 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 	}
 	
 	public static boolean marketOpenOnGivenDate(Date targetDate) {
-		System.out.println("Market Open or not?");
+		//System.out.println("Market Open or not?");
 		if(targetDate == null) {
-			targetDate = new Date();
+			Calendar calendar = Calendar.getInstance();
+		    calendar.set(Calendar.HOUR_OF_DAY, 0);
+		    calendar.set(Calendar.MINUTE, 0);
+		    calendar.set(Calendar.SECOND, 0);
+		    calendar.set(Calendar.MILLISECOND, 0);
+		 
+		    targetDate = calendar.getTime();
+			//targetDate = new Date(0);
 		}
 		if(targetDate.getDay() == 0 || targetDate.getDay() == 6) {
 			System.out.println("Market Closed");
@@ -351,7 +358,7 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 			System.out.println("Market Closed");
 			return false;
 		} else {
-			System.out.println("Market Open");
+			//System.out.println("Market Open");
 			return true;
 		}	
 	}
@@ -587,7 +594,7 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 		}
 		mailBody.append("</table></body></html>");
         if(objFinalSelectedStockList.size() > 0) {
-        	new SendSuggestedStockInMail("sharad.mehta@hitechroboticsystemz.com",subject+" "+objFinalSelectedStockList.get(0).suggestedDate.toString(),mailBody.toString());
+        	new SendSuggestedStockInMail("sharad.kumar.mehta@gmail.com",subject+" "+objFinalSelectedStockList.get(0).suggestedDate.toString(),mailBody.toString());
         	//System.out.println("Mail Sent");
         } /*else if( objFinalSelectedStockList.size() > 0 ){
         	new SendSuggestedStockInMail("tarunstockcomm@gmail.com",subject+" "+objFinalSelectedStockList.get(0).tradeddate.toString(),mailBody.toString());

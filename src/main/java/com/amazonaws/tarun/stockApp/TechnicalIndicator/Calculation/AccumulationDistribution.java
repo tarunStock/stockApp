@@ -198,8 +198,8 @@ public class AccumulationDistribution {
 			}
 		} catch (Exception ex) {
 			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-			System.out.println("calculateAverageTrueRangeForStockInBulk Error in DB action "+ex);
-			logger.error("Error in calculateAverageTrueRangeForStockInBulk  -> ", ex);
+			System.out.println("calculateAccumulationDistributionForStockDaily Error in DB action "+ex);
+			logger.error("stock = " + stockCode + " Error in calculateAccumulationDistributionForStockDaily  -> ", ex);
 		} 
 	}
 	
@@ -342,7 +342,7 @@ public class AccumulationDistribution {
 		} catch (Exception ex) {
 			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
 			System.out.println("isAccumulationDistributionIncreasing -> Error in DB action"+ex);
-			logger.error("Error in isAccumulationDistributionIncreasing  -> ", ex);
+			logger.error("Stock =" + stockName + " Error in isAccumulationDistributionIncreasing  -> ", ex);
 			return false;
 		} finally {
 			try {

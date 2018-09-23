@@ -36,8 +36,8 @@ public class GenerateIndicationFromMACDV1 {
 		GenerateIndicationFromMACDV1 obj = new GenerateIndicationFromMACDV1();
 		//obj.isSignalCrossedInMACD("20MICRONS", null);
 		//To get indication from MACD
-		obj.CalculateIndicationfromMACD(null);
-		//obj.CalculateIndicationfromMACD(new Date("02-Apr-2018"));		
+		//obj.CalculateIndicationfromMACD(null);
+		obj.CalculateIndicationfromMACD(new Date("21-Sep-2018"));		
 		//To calculate MACD values and store
 		//obj.calculateSignalAndMACDBulkForAllStocks(new Date("25-Jan-2018"));
 	}

@@ -20,18 +20,18 @@ import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
 import com.amazonaws.tarun.stockApp.Utils.SalesforceIntegration;
 import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 
-public class IdentifyStocks {
-	Connection connection = null;
-	static Logger logger = Logger.getLogger(IdentifyStocks.class);
+public class IdentifyBullishStocks {
+	
+	static Logger logger = Logger.getLogger(IdentifyBullishStocks.class);
 	
 	public static void main(String[] args) {
 		Date dte = new Date();
 		System.out.println("Start at -> " + dte.toString());
-		IdentifyStocks obj = new IdentifyStocks();
+		IdentifyBullishStocks obj = new IdentifyBullishStocks();
 		
 		//To get indication from MACD
 		//obj.CalculateIndication(null);
-		obj.CalculateIndication(new Date("01-Jun-2018"));
+		obj.CalculateIndication(new Date("19-Jun-2018"));
 		//obj.CalculateIndicationfromMACD(new Date("26-Mar-2018"));		
 		//To calculate MACD values and store
 		//obj.calculateSignalAndMACDBulkForAllStocks(new Date("25-Jan-2018"));
@@ -73,7 +73,7 @@ public class IdentifyStocks {
 //				if(!StockUtils.getFinancialIndication(stock)) {
 //					continue;
 //				}
-				//stock="FEDERALBNK";
+				//stock="PEL";
 				System.out.println("Analyzing Stock -> "+stock);
 				objFinalSelectedStock = new StockDataForNewApproach();
 				objFinalSelectedStock.stockCode = stock;
@@ -174,7 +174,7 @@ public class IdentifyStocks {
 			objSalesforceIntegration.createSuggestedStocks1(objFinalSelectedStockList);
 			objSalesforceIntegration.createSuggestedStocks1(objBelowHundredFinalSelectedStockList);
 			//Send top stock in mail
-			StockUtils.sendTopStockInMail(objFinalSelectedStockList, false, "Stock Suggestions from Tarun ");
+			//StockUtils.sendTopStockInMail(objFinalSelectedStockList, false, "Stock Suggestions from Tarun ");
 			//objSalesforceIntegration.createSuggestedStocks1(objFinalSelectedBearishStockList);
 			System.out.println("Total Selected stocks -> "+totalSelectedStocks);
 			System.out.println("Total Selected stocks below hundred -> "+totalBelowHundredSelectedStocks);

@@ -47,7 +47,7 @@ public class CollectDailyStockData extends SetupBase {
 		//obj.startCollectingDailyData();
 		obj.sendNotificationForDailyStockDataCollection();
 		dte = new Date();
-		System.out.println("End at -> " + dte.toString());
+		//System.out.println("End at -> " + dte.toString());
 	}
 	
 	public void startCollectingDailyData(Date targetDate) {
@@ -125,7 +125,7 @@ public class CollectDailyStockData extends SetupBase {
 			}			
 		} catch (Exception ex) {
 			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-			System.out.println("Error in reading zip fil "+ex);
+			//System.out.println("Error in reading zip fil "+ex);
 			logger.error("Error in startCollectingDailyData - > "+ex);
 			inputFileForDeletion.delete();	
 		} finally {
@@ -136,7 +136,7 @@ public class CollectDailyStockData extends SetupBase {
 				} 
 			} catch (Exception ex) {
 				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("Error in closing connection in startCollectingDailyData "+ex);
+				//System.out.println("Error in closing connection in startCollectingDailyData "+ex);
 				logger.error("Error in closing connection in startCollectingDailyData  -> ", ex);
 			}
 		}	
@@ -163,7 +163,7 @@ public class CollectDailyStockData extends SetupBase {
 			Thread.sleep(3000);
 		} catch(Exception ex) {
 			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-			System.out.println("Error in waiting for drop down suggestion");
+			//System.out.println("Error in waiting for drop down suggestion");
 		}
 		ele = driver.findElement(By.xpath("//*[@id='wrapper_btm']/div[1]/div[4]/div/div[1]/div/div[4]/input[3]"));
 		ele.click();
@@ -174,7 +174,7 @@ public class CollectDailyStockData extends SetupBase {
 			Thread.sleep(7000);
 		} catch(Exception ex) {
 			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-			System.out.println("Error in waiting for drop down suggestion");
+			//System.out.println("Error in waiting for drop down suggestion");
 		}
 		logger.debug("getDailyDataFile End");
 	}
@@ -192,7 +192,7 @@ public class CollectDailyStockData extends SetupBase {
         	statement.executeUpdate(tmpsql);
         } catch(Exception ex){
         	HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-        	System.out.println("storeQuotestoDB for quote -> " + quotesDataObj.stockName + " and Date - > " + quotesDataObj.quoteDate + " Error in DB action"+ex);
+        	//System.out.println("storeQuotestoDB for quote -> " + quotesDataObj.stockName + " and Date - > " + quotesDataObj.quoteDate + " Error in DB action"+ex);
         	logger.error("Error in storeQuotestoDB -> ", ex);
         } finally {
 			try {
@@ -202,7 +202,7 @@ public class CollectDailyStockData extends SetupBase {
 				}
 			} catch (Exception ex) {
 				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
+				//System.out.println("getStockDetailsFromDBForBulk Error in closing statement "+ex);
 				logger.error("Error in closing statement getStockDetailsFromDB  -> ", ex);
 			}
 		}
@@ -242,7 +242,7 @@ public class CollectDailyStockData extends SetupBase {
 			new SendSuggestedStockInMail("tarunstockcomm@gmail.com",msgSubject,mailBody);			
 		} catch (Exception ex) {
 			HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-			System.out.println("insertBBToDB Error in DB action ->"+ex);
+			//System.out.println("insertBBToDB Error in DB action ->"+ex);
 			logger.error("Error in insertBBToDB  -> ", ex);
 		} finally {			
 			try {
@@ -252,7 +252,7 @@ public class CollectDailyStockData extends SetupBase {
 				}
 			} catch (Exception ex) {
 				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
-				System.out.println("CalculateBollingerBands -> insertBBToDB Error in closing statement "+ex);
+				//System.out.println("CalculateBollingerBands -> insertBBToDB Error in closing statement "+ex);
 				logger.error("Error in closing statement insertBBToDB  -> ", ex);
 			}
 		}

@@ -37,7 +37,6 @@ public class CollectDailyStockData extends SetupBase {
 	public String downloadFilepath = "c:\\StockApp\\download";
 	
 	//Date date = new Date(System.currentTimeMillis()-1*24*60*60*1000L);
-	//test
 	Date date = new Date(); //Date(System.currentTimeMillis()-24*60*60*1000);
 			
 	public static void main(String[] args) {

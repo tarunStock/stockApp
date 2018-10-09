@@ -106,7 +106,7 @@ public class GenerateCombinedIndicationV1 {
 	
 	
 	
-	private StockDetailsForDecision getAlldetails (Connection connection, SMAIndicatorDetails objSMAIndicatorDetails, Date calculationDate) {
+	public StockDetailsForDecision getAlldetails (Connection connection, SMAIndicatorDetails objSMAIndicatorDetails, Date calculationDate) {
 		StockDetailsForDecision objFinalSelectedStock = null;
 		//CalculateOnBalanceVolume objCalculateOnBalanceVolume;
 		CalculateBollingerBands objCalculateBollingerBands;

@@ -13,4 +13,25 @@ public class DailyStockData {
 	public float yearlyHigh;
 	public float yearlyLow;
 	public float changeInPrice;
+	
+	 @Override
+	  public boolean equals(Object comparingObject) {
+	        boolean retVal = false;
+
+	        if (comparingObject instanceof DailyStockData){
+	        	DailyStockData ptr = (DailyStockData) comparingObject;
+	            retVal = (ptr.stockName.equalsIgnoreCase(this.stockName));
+	        } else if (comparingObject instanceof String) {
+	        	retVal = (this.stockName.equalsIgnoreCase((String)comparingObject));
+	        }
+
+	     return retVal;
+	  }
+
+	    /*@Override
+	    public int hashCode() {
+	        int hash = 7;
+	        hash = 17 * hash + (this.stockName != null ? this.stockName.hashCode() : 0);
+	        return hash;
+	    }*/
 }

@@ -23,4 +23,5 @@ public class StockDetailsForDecision {
 	public String TypeofSuggestedStock;
 	public double supportLevel;
 	public double resistanceLevel;
+	public float threeYearAveragePrice; 
 }

@@ -139,6 +139,7 @@ public class SalesforceIntegration {
 			stockDetails.put("TypeofSuggestedStock", objStockDetailsForDecision.TypeofSuggestedStock);
 			stockDetails.put("SupportLevel", objStockDetailsForDecision.supportLevel);
 			stockDetails.put("ResistanceLevel", objStockDetailsForDecision.resistanceLevel);
+			stockDetails.put("threeYearAveragePrice", objStockDetailsForDecision.threeYearAveragePrice);
 		} catch (JSONException jsonException) {
 			System.out.println("Issue creating JSON or processing results");
 			jsonException.printStackTrace();

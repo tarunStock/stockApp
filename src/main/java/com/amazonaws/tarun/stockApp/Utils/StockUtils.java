@@ -368,6 +368,8 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 		ResultSet resultSet = null;
 		Statement statement = null;
 		String tmpSQL;
+		float sumOfPrice = 0, averagePrice;
+		int counter = 0;
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		
 		try {
@@ -377,14 +379,20 @@ public class StockUtils implements AmazonRDSDBConnectionInterface{
 			statement = connection.createStatement();
 			if(targetDate!=null) {
 				tmpSQL = "SELECT closeprice, Volume  FROM DAILYSTOCKDATA where stockname='" + objFinalSelectedStock.stockCode + "' " 
-						  + " and tradeddate >'" + dateFormat.format(new Date(targetDate.getTime() - 9*24*60*60*1000)) + "' and tradeddate <='" + dateFormat.format(new Date(targetDate.getTime())) + "' order by tradeddate desc limit 4;";
+						  + " and tradeddate >'" + dateFormat.format(new Date(targetDate.getTime() - 600*24*60*60*1000)) + "' and tradeddate <='" + dateFormat.format(new Date(targetDate.getTime())) + "' order by tradeddate desc limit 4;";
+				//changed 9*24*60*60*1000 with 600*24*60*60*1000 to get last 3 years average price
 			} else {
-				tmpSQL = "SELECT closeprice, Volume  FROM DAILYSTOCKDATA where stockname='" + objFinalSelectedStock.stockCode + "' order by tradeddate desc limit 4;";
+				tmpSQL = "SELECT closeprice, Volume  FROM DAILYSTOCKDATA where stockname='" + objFinalSelectedStock.stockCode + "' order by tradeddate desc;"; //Removed limit to get last 3 years average price
 				  //+ " order by tradeddate limit " + (daysToCheck+18) + ";";
 			}
 			resultSet = statement.executeQuery(tmpSQL);
 			
-			//while (resultSet.next()) {
+			while (resultSet.next()) {
+				sumOfPrice = sumOfPrice + Float.parseFloat(resultSet.getString(1));
+				counter = counter + 1;
+			}
+			averagePrice = sumOfPrice/counter;
+			objFinalSelectedStock.threeYearAveragePrice = averagePrice;
 			if(!resultSet.next())
 				return objFinalSelectedStock;
 			objFinalSelectedStock.CurrentPrice = Float.parseFloat(resultSet.getString(1));

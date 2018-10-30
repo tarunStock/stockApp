@@ -28,10 +28,20 @@ public class DailyStockData {
 	     return retVal;
 	  }
 
+	@Override
+	public String toString() {
+		return "DailyStockData [stockName=" + stockName + ", tradedDate=" + tradedDate + ", openPrice=" + openPrice + ", closePrice=" + closePrice + ", highPrice=" + highPrice + ", lowPrice="
+				+ lowPrice + ", changePercentage=" + changePercentage + ", volume=" + volume + ", yearlyHigh=" + yearlyHigh + ", yearlyLow=" + yearlyLow + ", changeInPrice=" + changeInPrice + "]";
+	}
+
 	    /*@Override
 	    public int hashCode() {
 	        int hash = 7;
 	        hash = 17 * hash + (this.stockName != null ? this.stockName.hashCode() : 0);
 	        return hash;
 	    }*/
+
+	 
+
 }
+

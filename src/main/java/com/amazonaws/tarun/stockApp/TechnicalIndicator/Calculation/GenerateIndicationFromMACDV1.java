@@ -37,7 +37,7 @@ public class GenerateIndicationFromMACDV1 {
 		//obj.isSignalCrossedInMACD("20MICRONS", null);
 		//To get indication from MACD
 		//obj.CalculateIndicationfromMACD(null);
-		obj.CalculateIndicationfromMACD(new Date("21-Sep-2018"));		
+		obj.CalculateIndicationfromMACD(new Date("17-Oct-2018"));		
 		//To calculate MACD values and store
 		//obj.calculateSignalAndMACDBulkForAllStocks(new Date("25-Jan-2018"));
 	}
@@ -178,6 +178,7 @@ public class GenerateIndicationFromMACDV1 {
 				}*/
 			}
 			Collections.sort(objFinalSelectedStockList, new StockComparatorOnMACDPrimeV1());
+			storeSuggestionsInDB(connection, objFinalSelectedStockList);
 			SalesforceIntegration objSalesforceIntegration = new SalesforceIntegration();
 			
 			objSalesforceIntegration.connectToSalesforc();
@@ -442,6 +443,49 @@ public class GenerateIndicationFromMACDV1 {
 			}
 		}
 		return stocklistSMA;
+		
+	}
+	
+	public void storeSuggestionsInDB(Connection connection, ArrayList<StockDetailsForDecision> lstStockDetailsForDecision) {
+		String insertQuery;
+		Statement statement = null;
+
+		try {
+			if(connection == null) {
+				connection = StockUtils.connectToDB();
+			}
+			statement = connection.createStatement();
+			statement.executeUpdate("DELETE From SUGGESTED_STOCKS");
+		
+			for (StockDetailsForDecision objStockDetailsForDecision : lstStockDetailsForDecision) {	
+					insertQuery = "INSERT INTO SUGGESTED_STOCKS " + 
+							"(STOCKNAME, SUGGESTED_Date,ChandelierExit,CurrentPrice,CurrentVolume,OneDayPreviousPrice,OneDayPreviousVolume,RSIValue,BBTrend,ThreeDayPreviousPrice,TwoDayPreviousPrice," + 
+							"TwoDayPreviousVolume,ThreeDayPreviousVolume,MACDStatus,SMAComparison,TypeofSuggestedStock,supportLevel,resistanceLevel,threeYearAveragePrice) VALUES('"
+							+ objStockDetailsForDecision.stockCode + "','" + objStockDetailsForDecision.suggestedDate + "'," + objStockDetailsForDecision.ChandelierExit + "," + objStockDetailsForDecision.CurrentPrice + 
+							"," + objStockDetailsForDecision.CurrentVolume + "," + objStockDetailsForDecision.OneDayPreviousPrice + "," + objStockDetailsForDecision.OneDayPreviousVolume + 
+							"," + objStockDetailsForDecision.RSIValue + ",'" + objStockDetailsForDecision.BBTrend + "'," + objStockDetailsForDecision.ThreeDayPreviousPrice + "," + objStockDetailsForDecision.TwoDayPreviousPrice + 
+							"," + objStockDetailsForDecision.TwoDayPreviousVolume + "," + objStockDetailsForDecision.ThreeDayPreviousVolume + ",'" + objStockDetailsForDecision.MACDStatus + "','" + objStockDetailsForDecision.SMAComparison + 
+							"','" + objStockDetailsForDecision.TypeofSuggestedStock + "'," + objStockDetailsForDecision.supportLevel + "," + objStockDetailsForDecision.resistanceLevel + "," + objStockDetailsForDecision.threeYearAveragePrice + ");";
+					
+					statement.executeUpdate(insertQuery);
+			}	
+		} catch (Exception ex) {
+				HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("getMACDData - Error in getting MACD values  error = " + ex);
+				return ;
+			} finally {				
+				try {
+					if(statement != null) {
+						statement.close();
+						statement = null;
+					}
+				} catch (Exception ex) {
+					HandleErrorDetails.addError(this.getClass().getSimpleName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+					System.out.println("getMACDData Error in closing statement "+ex);
+					logger.error("Error in closing statement getMACDData  -> ", ex);
+				}
+			}
+			
 		
 	}
 }

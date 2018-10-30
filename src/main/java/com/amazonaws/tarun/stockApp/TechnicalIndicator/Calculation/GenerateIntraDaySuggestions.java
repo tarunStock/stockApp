@@ -7,6 +7,11 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -18,7 +23,9 @@ import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.DailyStockData;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.SMAIndicatorDetails;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.StockComparatorOnSMAPrimeV1;
 import com.amazonaws.tarun.stockApp.TechnicalIndicator.Data.StockDetailsForDecision;
+import com.amazonaws.tarun.stockApp.Utils.HandleErrorDetails;
 import com.amazonaws.tarun.stockApp.Utils.SalesforceIntegration;
+import com.amazonaws.tarun.stockApp.Utils.StockUtils;
 
 public class GenerateIntraDaySuggestions {
 
@@ -110,32 +117,43 @@ public class GenerateIntraDaySuggestions {
 
 	private static void getSuitableStocksNotification(ArrayList<DailyStockData> stockList) {
 		//ArrayList<DailyStockData> suitableBullishStockList = new ArrayList<DailyStockData>();
+		ArrayList<StockDetailsForDecision> objStockDetailsForDecisionLst = null;
+		ArrayList<StockDetailsForDecision> objStockDetailsForDecisionFinalLst = new ArrayList<StockDetailsForDecision>();
+		Connection connection = null;
+		Date calculationDate = new Date();
 		GenerateIndicationfromMovingAverage objGenerateIndicationfromMovingAverage = new GenerateIndicationfromMovingAverage();
 		SMAIndicatorDetails objSMAIndicatorDetails;
 		ArrayList<StockDetailsForDecision> objFinalSelectedStockList = new ArrayList<StockDetailsForDecision>();
 		StockDetailsForDecision objFinalSelectedStock = null;
 		GenerateCombinedIndicationV1 objGenerateCombinedIndicationV1 = new GenerateCombinedIndicationV1();
-		
-		for(DailyStockData stock : stockList) {
-			if(stock.closePrice >= stock.openPrice && stock.lowPrice >= stock.openPrice) {
-				//suitableBullishStockList.add(stock);
-				//objSMAIndicatorDetails = objGenerateIndicationfromMovingAverage.CalculateIndicationfromSMA(null, stock.stockName, new Date("25-Sep-2018"));
-				objSMAIndicatorDetails = objGenerateIndicationfromMovingAverage.CalculateIndicationfromSMA(null, stock.stockName, null);
-				if (objSMAIndicatorDetails.signalPriceToSMA != null || objSMAIndicatorDetails.signalSMAToSMA != null) {
-					objFinalSelectedStock = objGenerateCombinedIndicationV1.getAlldetails(null, objSMAIndicatorDetails, null);
-					if(objFinalSelectedStock!=null) {
-						objFinalSelectedStock.TypeofSuggestedStock = "Low RSI";
-						objFinalSelectedStockList.add(objFinalSelectedStock);
+		if(!StockUtils.marketOpenOnGivenDate(calculationDate))
+			return;
+		//UpdateIndicatedStocks tmpUpdateIndicatedStocks = new UpdateIndicatedStocks();
+		try {
+			connection = StockUtils.connectToDB();
+			objStockDetailsForDecisionLst = getIdentifiedStocksfromDB(connection);
+			for(DailyStockData stock : stockList) {
+				if(stock.closePrice >= stock.openPrice && stock.lowPrice >= stock.openPrice) {
+					//suitableBullishStockList.add(stock);
+					//objSMAIndicatorDetails = objGenerateIndicationfromMovingAverage.CalculateIndicationfromSMA(null, stock.stockName, new Date("25-Sep-2018"));
+					for(StockDetailsForDecision objStockDetailsForDecision : objStockDetailsForDecisionLst ) {
+						if(objStockDetailsForDecision.stockCode.equalsIgnoreCase(stock.stockName)) {
+							objStockDetailsForDecision.TypeofSuggestedStock="InTraDay";
+							objStockDetailsForDecisionFinalLst.add(objStockDetailsForDecision);
+							break;
+						}
 					}
 				}
 			}
+		} catch (Exception ex) {
+			System.out.println("Error  -> "+ex);
 		}
 		
-		Collections.sort(objFinalSelectedStockList, new StockComparatorOnSMAPrimeV1());
+		Collections.sort(objStockDetailsForDecisionFinalLst, new StockComparatorOnSMAPrimeV1());
 		SalesforceIntegration objSalesforceIntegration = new SalesforceIntegration();
 		
 		objSalesforceIntegration.connectToSalesforc();
-		objSalesforceIntegration.createSuggestedStocks(objFinalSelectedStockList);
+		objSalesforceIntegration.createSuggestedStocks(objStockDetailsForDecisionFinalLst);
 		//return suitableBullishStockList;
 	}
 	
@@ -207,6 +225,63 @@ public class GenerateIntraDaySuggestions {
 		}
 		System.out.println("Count = " + count);
 		return stockArray;
+	}
+	
+	private static ArrayList<StockDetailsForDecision> getIdentifiedStocksfromDB(Connection connection) {
+		ArrayList<StockDetailsForDecision> objFinalSelectedStockList = new ArrayList<StockDetailsForDecision>();
+		StockDetailsForDecision objStockDetailsForDecision = null;
+		ResultSet resultSet = null;
+		Statement statement = null;
+		String tmpSQL;
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");		
+		
+		try {
+			statement = connection.createStatement();			
+			tmpSQL = "SELECT * FROM SUGGESTED_STOCKS;";
+			
+			resultSet = statement.executeQuery(tmpSQL);
+			while (resultSet.next()) {
+				objStockDetailsForDecision = new StockDetailsForDecision();
+				objStockDetailsForDecision.stockCode = resultSet.getString("STOCKNAME");
+				//objStockDetailsForDecision.suggestedDate = resultSet.getDate("SUGGESTED_Date");
+				objStockDetailsForDecision.ChandelierExit = resultSet.getFloat("ChandelierExit");
+				objStockDetailsForDecision.RSIValue = resultSet.getFloat("RSIValue");
+				objStockDetailsForDecision.BBTrend = resultSet.getString("BBTrend");
+				objStockDetailsForDecision.MACDStatus = resultSet.getString("MACDStatus");
+				objStockDetailsForDecision.SMAComparison = resultSet.getString("SMAComparison");
+				objStockDetailsForDecision.supportLevel = resultSet.getFloat("supportLevel");
+				objStockDetailsForDecision.resistanceLevel = resultSet.getFloat("resistanceLevel");
+		/*		STOCKNAME, SUGGESTED_Date,ChandelierExit,CurrentPrice,CurrentVolume,OneDayPreviousPrice,OneDayPreviousVolume,RSIValue,BBTrend,ThreeDayPreviousPrice,TwoDayPreviousPrice," + 
+				"TwoDayPreviousVolume,ThreeDayPreviousVolume,MACDStatus,SMAComparison,TypeofSuggestedStock,supportLevel,resistanceLevel,threeYearAveragePrice
+*/			}
+		} catch (Exception ex) {
+			HandleErrorDetails.addError(GenerateIntraDaySuggestions.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+			System.out.println("getSignalFromDB Error in DB action"+ex);
+			//logger.error("Error in getSignalFromDB", ex);
+		} finally {
+			try {
+				if(resultSet != null) {
+					resultSet.close();
+					resultSet = null;
+				}
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(GenerateIntraDaySuggestions.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("getSignalFromDB Error in closing resultset "+ex);
+				//logger.error("Error in closing resultset getSignalFromDB  -> ", ex);
+			}
+			try {
+				if(statement != null) {
+					statement.close();
+					statement = null;
+				}
+			} catch (Exception ex) {
+				HandleErrorDetails.addError(GenerateIntraDaySuggestions.class.getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), ex.toString());
+				System.out.println("getSignalFromDB Error in closing statement "+ex);
+				//logger.error("Error in closing statement getSignalFromDB  -> ", ex);
+			}
+		}
+		
+		return objFinalSelectedStockList;
 	}
 
 }
